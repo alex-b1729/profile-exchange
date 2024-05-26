@@ -5,6 +5,7 @@ from .models import Profile, EmailAddress
 
 
 class LoginForm(forms.Form):
+    # todo: authentication using primary / verified email
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -43,6 +44,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserEditForm(forms.ModelForm):
+    # todo: update username on email change?
     class Meta:
         model = get_user_model()
         fields = ('first_name', 'last_name', 'email')

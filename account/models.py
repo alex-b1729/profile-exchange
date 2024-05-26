@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from phonenumber_field.modelfields import PhoneNumberField
 
 class Profile(models.Model):
     user = models.OneToOneField(
@@ -18,7 +19,6 @@ class Profile(models.Model):
 
     date_of_birth = models.DateField(blank=True, null=True)
 
-
     def __str__(self):
         return f'Profile of {self.user.first_name} {self.user.last_name}'
 
@@ -36,3 +36,37 @@ class EmailAddress(models.Model):
 
     def __str__(self):
         return self.email_address
+
+
+class Phone(models.Model):
+    # todo: handle extensions
+    MOBILE = 'mobile'
+    HOME = 'home'
+    WORK = 'work'
+    SCHOOL = 'school'
+    MAIN = 'main'
+    HOME_FAX = 'home_fax'
+    WORK_FAX = 'work_fax'
+    PAGER = 'pager'
+    OTHER = 'other'
+    TYPE_CHOICES = {
+        MOBILE: 'Mobile',
+        HOME: 'Home',
+        WORK: 'Work',
+        SCHOOL: 'School',
+        MAIN: 'Main',
+        HOME_FAX: 'Home Fax',
+        WORK_FAX: 'Work Fax',
+        PAGER: 'Pager',
+        OTHER: 'Other'
+}
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='email_addresses',
+        on_delete=models.CASCADE
+    )
+    phone_number = PhoneNumberField(blank=False)
+    phone_type = models.CharField(max_length=20,
+                                  choices=TYPE_CHOICES,
+                                  default=MOBILE)
+
