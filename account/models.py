@@ -10,6 +10,7 @@ class Profile(models.Model):
 
     company = models.CharField(max_length=250, blank=True)
     job_title = models.CharField(max_length=250, blank=True)
+    location = models.CharField(max_length=30, blank=True)
 
     photo = models.ImageField(
         upload_to='users/%Y/%m/%d/',
@@ -70,3 +71,23 @@ class Phone(models.Model):
                                   choices=TYPE_CHOICES,
                                   default=MOBILE)
 
+    def __str__(self):
+        return str(self.phone_number)
+
+
+class PostalAddress(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='postal_addresses',
+        on_delete=models.CASCADE
+    )
+    street1 = models.CharField()
+    street2 = models.CharField(blank=True)
+    city = models.CharField()
+    state = models.CharField()
+    zip = models.CharField(max_length=10)
+    country = models.CharField(blank=True)
+
+    class Meta:
+        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
