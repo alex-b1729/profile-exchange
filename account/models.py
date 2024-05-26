@@ -62,7 +62,7 @@ class Phone(models.Model):
 }
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name='email_addresses',
+        related_name='phone_numbers',
         on_delete=models.CASCADE
     )
     phone_number = PhoneNumberField(blank=False)
