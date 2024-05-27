@@ -10,7 +10,7 @@ class Profile(models.Model):
 
     company = models.CharField(max_length=250, blank=True)
     job_title = models.CharField(max_length=250, blank=True)
-    location = models.CharField(max_length=30, blank=True)
+    location = models.CharField(max_length=50, blank=True)
 
     photo = models.ImageField(
         upload_to='users/%Y/%m/%d/',
@@ -60,7 +60,7 @@ class Phone(models.Model):
         WORK_FAX: 'Work Fax',
         PAGER: 'Pager',
         OTHER: 'Other'
-}
+    }
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='phone_numbers',
