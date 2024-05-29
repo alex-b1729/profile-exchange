@@ -1,6 +1,18 @@
+import os.path
+import datetime as dt
+
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
+from django.utils.text import slugify
 from phonenumber_field.modelfields import PhoneNumberField
+
+
+def profile_photo_dir_path(instance, filename):
+    return (f'users/{instance.user.id}{dt.datetime.now().strftime("%S%f")}'
+            f'{os.path.splitext(filename)[-1]}')
+
+
 
 class Profile(models.Model):
     user = models.OneToOneField(
@@ -13,7 +25,7 @@ class Profile(models.Model):
     location = models.CharField(max_length=50, blank=True)
 
     photo = models.ImageField(
-        upload_to='users/%Y/%m/%d/',
+        upload_to=profile_photo_dir_path,
         blank=True
     )
     headline = models.CharField(max_length=50, blank=True)
