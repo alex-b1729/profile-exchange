@@ -11,7 +11,7 @@
     {% if request.user.is_authenticated %}
       <ul class="menu">
         <li {% if section == "dashboard" %}class="selected"{% endif %}>
-          <a href="{% url "dashboard" %}">My dashboard</a>
+          <a href="{% url "dashboard" %}">Dashboard</a>
         </li>
         <li {% if section == "connections" %}class="selected"{% endif %}>
           <a href="#">Connections</a>
@@ -48,4 +48,7 @@
     {% endblock %}
   </div>
 </body>
+<footer>
+  <p>Footer info will go here. All rights reserved etc...</p>
+</footer>
 </html>
