@@ -10,7 +10,13 @@
     <a href="{% url "password_change" %}">change your password</a>.
   </p>
   <div class="dashboard">
+    <img id="profilePhoto" src="{{ request.user.profile.photo.url }}" alt="{{ request.user.username }} profile photo">
     <p id="fullname">{{ request.user.first_name }} {{ request.user.last_name }}</p>
-    <p id="headline">{{ request.user.headline }}</p>
+    <p id="headline">{{ request.user.profile.headline }}</p>
+    <p id="company">{{ request.user.profile.company }}</p>
+    <p id="jobTitle">{{ request.user.profile.job_title }}</p>
+    <p id="location">{{ request.user.profile.location }}</p>
+    <p id="primaryEmail">{{ request.user.email }}</p>
+    <p id="dob">{{ request.user.profile.date_of_birth }}</p>
   </div>
 {% endblock %}
