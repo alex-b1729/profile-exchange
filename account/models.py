@@ -13,7 +13,6 @@ def profile_photo_dir_path(instance, filename):
             f'{os.path.splitext(filename)[-1]}')
 
 
-
 class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,

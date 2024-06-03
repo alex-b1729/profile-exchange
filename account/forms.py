@@ -5,7 +5,6 @@ from .models import Profile, EmailAddress
 
 
 class LoginForm(forms.Form):
-    # todo: authentication using primary / verified email
     email = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -22,7 +21,7 @@ class UserRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['email']
+        fields = ['username', 'email']
 
     def clean_password2(self):
         cd = self.cleaned_data
