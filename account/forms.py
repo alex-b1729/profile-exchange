@@ -27,7 +27,13 @@ class UserRegistrationForm(forms.ModelForm):
         cd = self.cleaned_data
         if cd['password'] != cd['password2']:
             raise forms.ValidationError("Passwords don't match.")
-        return cd['username', 'password2']
+        return cd['password2']
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if get_user_model().objects.filter(email=data).exists():
+            raise forms.ValidationError('Email is already registered.')
+        return data
 
     # def save(self, commit=True):
     #     user = super(UserRegistrationForm, self).save(commit=False)
