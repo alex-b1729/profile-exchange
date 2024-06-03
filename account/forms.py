@@ -1,7 +1,13 @@
 from django import forms
+from django.forms import modelformset_factory
 from django.contrib.auth import get_user_model
 
-from .models import Profile, EmailAddress
+from .models import (
+    Profile,
+    EmailAddress,
+    Phone,
+    PostalAddress,
+)
 
 
 class LoginForm(forms.Form):
@@ -68,3 +74,8 @@ class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('date_of_birth', 'photo')
+
+
+EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])
+PhoneFormSet = modelformset_factory(Phone, exclude=['user'])
+PostalAddressFormSet = modelformset_factory(PostalAddress, exclude=['user'])

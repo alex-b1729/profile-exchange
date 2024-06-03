@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponse
-# from django.contrib.auth.models import User
+from django.forms import modelformset_factory
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
 # from django.contrib.auth.forms import UserCreationForm
@@ -16,6 +16,9 @@ from .forms import (
     UserRegistrationForm,
     UserEditForm,
     ProfileEditForm,
+    EmailAddressFormSet,
+    PhoneFormSet,
+    PostalAddressFormSet,
 )
 
 
@@ -69,7 +72,21 @@ def edit(request):
             data=request.POST,
             files=request.FILES,
         )
-        if user_form.is_valid() and profile_form.is_valid():
+        email_formset = EmailAddressFormSet(
+            queryset=EmailAddress.objects.filter(user=request.user),
+            data=request.POST
+        )
+        phone_formset = PhoneFormSet(
+            queryset=Phone.objects.filter(user=request.user),
+            data=request.POST
+        )
+        address_formset = PhoneFormSet(
+            queryset=PostalAddress.objects.filter(user=request.user),
+            data=request.POST
+        )
+        if (user_form.is_valid()
+                and profile_form.is_valid()
+                and email_formset.is_valid()):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Profile updated successfully')
@@ -78,10 +95,17 @@ def edit(request):
     else:
         user_form = UserEditForm(instance=request.user)
         profile_form = ProfileEditForm(instance=request.user)
+        email_formset = EmailAddressFormSet(queryset=EmailAddress.objects.filter(user=request.user))
+        phone_formset = PhoneFormSet(queryset=Phone.objects.filter(user=request.user))
+        address_formset = PhoneFormSet(queryset=PostalAddress.objects.filter(user=request.user))
     return render(
         request,
         'account/edit.html',
-        {'user_form': user_form, 'profile_form': profile_form}
+        {'user_form': user_form,
+         'profile_form': profile_form,
+         'email_formset': email_formset,
+         'phone_formset': phone_formset,
+         'address_formset': address_formset}
     )
 
 
