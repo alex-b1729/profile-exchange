@@ -5,6 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -102,3 +103,38 @@ class PostalAddress(models.Model):
     class Meta:
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
+
+
+class Contact(models.Model):
+    user_from = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='rel_from_set',
+        on_delete=models.CASCADE,
+    )
+    user_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='rel_to_set',
+        on_delete=models.CASCADE
+    )
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+
+    def __str__(self):
+        return f'{self.user_from} is connected to {self.user_to}'
+
+
+# Add following field to User dynamically
+user_model = get_user_model()
+user_model.add_to_class(
+    'connections',
+    models.ManyToManyField(
+        'self',
+        through=Contact,
+        symmetrical=True,
+    ),
+)
