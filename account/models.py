@@ -47,6 +47,9 @@ class EmailAddress(models.Model):
     is_primary = models.BooleanField(null=False)
     last_updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name_plural = 'Email Addresses'
+
     def __str__(self):
         return self.email_address
 
