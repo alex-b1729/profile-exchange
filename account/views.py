@@ -1,12 +1,17 @@
 from django.contrib import messages
 from django.http import HttpResponse
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import Profile
+from .models import (
+    Profile,
+    EmailAddress,
+    Phone,
+    PostalAddress,
+)
 from .forms import (
     UserRegistrationForm,
     UserEditForm,
@@ -16,9 +21,15 @@ from .forms import (
 
 @login_required
 def dashboard(request):
+    emails = EmailAddress.objects.filter(user=request.user)
+    phones = Phone.objects.filter(user=request.user)
+    addresses = PostalAddress.objects.filter(user=request.user)
     return render(request,
                   'account/dashboard.html',
-                  {'section': 'dashboard'})
+                  {'section': 'dashboard',
+                   'emails': emails,
+                   'phones': phones,
+                   'addresses': addresses})
 
 
 def register(request):
@@ -76,7 +87,7 @@ def edit(request):
 
 @login_required
 def user_list(request):
-    users = User.objects.filter(is_active=True)
+    users = get_user_model().objects.filter(is_active=True)
     return render(
         request,
         'account/user/list.html',
@@ -87,7 +98,7 @@ def user_list(request):
 
 @login_required
 def user_detail(request, username):
-    user = get_object_or_404(User,
+    user = get_object_or_404(get_user_model(),
                              username=username,
                              is_active=True)
     return render(

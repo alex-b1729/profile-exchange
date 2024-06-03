@@ -10,7 +10,7 @@
     <a href="{% url "password_change" %}">change your password</a>.
   </p>
   <div class="dashboard">
-    <img id="profilePhoto" src="{{ request.user.profile.photo.url }}" alt="{{ request.user.username }} profile photo">
+    <!-- <img id="profilePhoto" src="{{ request.user.profile.photo.url }}" alt="{{ request.user.username }} profile photo"> -->
     <p id="fullname">{{ request.user.first_name }} {{ request.user.last_name }}</p>
     <p id="headline">{{ request.user.profile.headline }}</p>
     <p id="company">{{ request.user.profile.company }}</p>
@@ -18,5 +18,23 @@
     <p id="location">{{ request.user.profile.location }}</p>
     <p id="primaryEmail">{{ request.user.email }}</p>
     <p id="dob">{{ request.user.profile.date_of_birth }}</p>
+    {% if emails %}
+      {% for email in emails %}
+      <p>{{ email.email_address }}</p>
+      {% endfor %}
+    {% endif %}
+    {% if phones %}
+      {% for phone in phones %}
+      <p>{{ phone.phone_type }}: {{ phone.phone_number }}</p>
+      {% endfor %}
+    {% endif %}
+    {% if addresses %}
+      {% for address in addresses %}
+      <p>{{ address.street1 }}</p>
+      <p>{{ address.street2 }}</p>
+      <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+      <p>{{ address.country }}</p>
+      {% endfor %}
+    {% endif %}
   </div>
 {% endblock %}
