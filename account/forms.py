@@ -6,7 +6,7 @@ from .models import Profile, EmailAddress
 
 class LoginForm(forms.Form):
     # todo: authentication using primary / verified email
-    username = forms.CharField()
+    email = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
 

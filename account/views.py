@@ -6,7 +6,11 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
 from .models import Profile
-from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
+from .forms import (
+    UserRegistrationForm,
+    UserEditForm,
+    ProfileEditForm,
+)
 
 
 @login_required
