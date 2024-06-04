@@ -58,7 +58,7 @@ class UserEditForm(forms.ModelForm):
     # todo: update username on email change?
     class Meta:
         model = get_user_model()
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name')
 
     # def save(self, commit=True):
     #     user = super(UserEditForm, self).save(commit=False)
@@ -73,7 +73,7 @@ class UserEditForm(forms.ModelForm):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('date_of_birth', 'photo')
+        exclude = ['user']
 
 
 EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])

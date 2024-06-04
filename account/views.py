@@ -94,7 +94,7 @@ def edit(request):
             messages.error(request, 'Error updating profile')
     else:
         user_form = UserEditForm(instance=request.user)
-        profile_form = ProfileEditForm(instance=request.user)
+        profile_form = ProfileEditForm(instance=request.user.profile)
         email_formset = EmailAddressFormSet(queryset=EmailAddress.objects.filter(user=request.user))
         phone_formset = PhoneFormSet(queryset=Phone.objects.filter(user=request.user))
         address_formset = PostalAddressFormSet(queryset=PostalAddress.objects.filter(user=request.user))
