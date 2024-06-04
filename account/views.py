@@ -97,7 +97,7 @@ def edit(request):
         profile_form = ProfileEditForm(instance=request.user)
         email_formset = EmailAddressFormSet(queryset=EmailAddress.objects.filter(user=request.user))
         phone_formset = PhoneFormSet(queryset=Phone.objects.filter(user=request.user))
-        address_formset = PhoneFormSet(queryset=PostalAddress.objects.filter(user=request.user))
+        address_formset = PostalAddressFormSet(queryset=PostalAddress.objects.filter(user=request.user))
     return render(
         request,
         'account/edit.html',
