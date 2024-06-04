@@ -1,10 +1,10 @@
 from django.contrib import messages
 from django.http import HttpResponse
-from django.forms import modelformset_factory
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, get_object_or_404
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic.base import TemplateResponseMixin, View
 
 from .models import (
     Profile,
@@ -60,6 +60,62 @@ def register(request):
         {'user_form': user_form}
     )
 
+
+class EditDashboardView(TemplateResponseMixin, View):
+    template_name = 'account/edit.html'  # this right?
+
+    user = None
+    files = None
+
+    def get_user_form(self, data=None):
+        return UserEditForm(instance=self.user, data=data)
+
+    def get_profile_form(self, data=None):
+        return ProfileEditForm(
+            instance=self.user, data=data, files=self.files
+        )
+
+    def get_email_formset(self, data=None):
+        return EmailAddressFormSet(instance=self.user, data=data)
+
+    def dispatch(self, request, *args, **kwargs):
+        # self.user = get_object_or_404(
+        #     get_user_model(), id=pk, user=request.user
+        # )
+        self.user = request.user
+        self.files = request.FILES
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        user_form = self.get_user_form()
+        profile_form = self.get_profile_form()
+        email_formset = self.get_email_formset()
+        return self.render_to_response(
+            {'user_form': user_form,
+             'profile_form': profile_form,
+             'email_formset': email_formset}
+        )
+
+    def post(self, request, *args, **kwargs):
+        user_form = self.get_user_form(data=request.POST)
+        profile_form = self.get_profile_form(data=request.POST)
+        email_formset = self.get_email_formset(data=request.POST)
+        if (
+            user_form.is_valid()
+            and profile_form.is_valid()
+            and email_formset.is_valid()
+        ):
+            user_form.save()
+            profile_form.save()
+            email_formset.save()
+            return redirect('dashboard')
+        return self.render_to_response(
+            {'user_form': user_form,
+             'profile_form': profile_form,
+             'email_formset': email_formset}
+        )
+
+
 @login_required
 def edit(request):
     if request.method == 'POST':
@@ -74,6 +130,7 @@ def edit(request):
         )
         email_formset = EmailAddressFormSet(
             queryset=EmailAddress.objects.filter(user=request.user),
+            instance=request.user.email_addresses,
             data=request.POST
         )
         phone_formset = PhoneFormSet(
@@ -84,18 +141,28 @@ def edit(request):
             queryset=PostalAddress.objects.filter(user=request.user),
             data=request.POST
         )
-        if (user_form.is_valid()
-                and profile_form.is_valid()
-                and email_formset.is_valid()):
+        if (
+            user_form.is_valid()
+            and profile_form.is_valid()
+            and email_formset.is_valid()
+            and phone_formset.is_valid()
+            and address_formset.is_valid()
+        ):
             user_form.save()
             profile_form.save()
+            email_formset.save()
+            phone_formset.save()
+            address_formset.save()
             messages.success(request, 'Profile updated successfully')
         else:
             messages.error(request, 'Error updating profile')
     else:
         user_form = UserEditForm(instance=request.user)
         profile_form = ProfileEditForm(instance=request.user.profile)
-        email_formset = EmailAddressFormSet(queryset=EmailAddress.objects.filter(user=request.user))
+        email_formset = EmailAddressFormSet(
+            # queryset=EmailAddress.objects.filter(user=request.user)
+            instance=request.user.email_addresses
+        )
         phone_formset = PhoneFormSet(queryset=Phone.objects.filter(user=request.user))
         address_formset = PostalAddressFormSet(queryset=PostalAddress.objects.filter(user=request.user))
     return render(

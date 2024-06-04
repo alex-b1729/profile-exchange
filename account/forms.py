@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, inlineformset_factory
 from django.contrib.auth import get_user_model
 
 from .models import (
@@ -76,6 +76,13 @@ class ProfileEditForm(forms.ModelForm):
         exclude = ['user']
 
 
-EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])
+# EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])
+EmailAddressFormSet = inlineformset_factory(
+    get_user_model(),
+    EmailAddress,
+    fields=['email_address', 'is_primary'],
+    extra=1,
+    can_delete=True
+)
 PhoneFormSet = modelformset_factory(Phone, exclude=['user'])
 PostalAddressFormSet = modelformset_factory(PostalAddress, exclude=['user'])
