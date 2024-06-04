@@ -1,20 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Edit your account{% endblock %}
 
 {% block content %}
   <h1>Edit your account</h1>
   <p>You can edit your account using the following form:</p>
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data", id="form-container">
     {{ user_form.as_p }}
     {{ profile_form.as_p }}
 
     {{ email_formset.management_form }}
-      <table>
+      <!-- <table> -->
         {% for form in email_formset %}
-          {{ form }}
+          <div class="email-form">
+            {{ form.as_p }}
+          </div>
         {% endfor %}
-      </table>
+    <button id="add-email-form" type="button">Add Email</button>
+      <!-- </table> -->
 
     {{ phone_formset.management_form }}
       <table>
@@ -33,4 +37,5 @@
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
   </form>
+  <script src="{% static "js/edit.js" %}"></script>
 {% endblock %}
