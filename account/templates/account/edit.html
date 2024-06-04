@@ -16,6 +16,20 @@
         {% endfor %}
       </table>
 
+    {{ phone_formset.management_form }}
+      <table>
+        {% for form in phone_formset %}
+          {{ form }}
+        {% endfor %}
+      </table>
+
+    {{ address_formset.management_form }}
+      <table>
+        {% for form in address_formset %}
+          {{ form }}
+        {% endfor %}
+      </table>
+
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
   </form>

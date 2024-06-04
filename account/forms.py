@@ -84,5 +84,17 @@ EmailAddressFormSet = inlineformset_factory(
     extra=1,
     can_delete=True
 )
-PhoneFormSet = modelformset_factory(Phone, exclude=['user'])
-PostalAddressFormSet = modelformset_factory(PostalAddress, exclude=['user'])
+PhoneFormSet = inlineformset_factory(
+    get_user_model(),
+    Phone,
+    exclude=['user'],
+    extra=1,
+    can_delete=True
+)
+PostalAddressFormSet = inlineformset_factory(
+    get_user_model(),
+    PostalAddress,
+    exclude=['user'],
+    extra=1,
+    can_delete=True
+)

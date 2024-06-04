@@ -62,7 +62,7 @@ def register(request):
 
 
 class EditDashboardView(TemplateResponseMixin, View):
-    template_name = 'account/edit.html'  # this right?
+    template_name = 'account/edit.html'
 
     user = None
     files = None
@@ -78,6 +78,12 @@ class EditDashboardView(TemplateResponseMixin, View):
     def get_email_formset(self, data=None):
         return EmailAddressFormSet(instance=self.user, data=data)
 
+    def get_phone_formset(self, data=None):
+        return PhoneFormSet(instance=self.user, data=data)
+
+    def get_address_formset(self, data=None):
+        return PostalAddressFormSet(instance=self.user, data=data)
+
     def dispatch(self, request, *args, **kwargs):
         # self.user = get_object_or_404(
         #     get_user_model(), id=pk, user=request.user
@@ -90,29 +96,41 @@ class EditDashboardView(TemplateResponseMixin, View):
         user_form = self.get_user_form()
         profile_form = self.get_profile_form()
         email_formset = self.get_email_formset()
+        phone_formset = self.get_phone_formset()
+        address_formset = self.get_address_formset()
         return self.render_to_response(
             {'user_form': user_form,
              'profile_form': profile_form,
-             'email_formset': email_formset}
+             'email_formset': email_formset,
+             'phone_formset': phone_formset,
+             'address_formset': address_formset}
         )
 
     def post(self, request, *args, **kwargs):
         user_form = self.get_user_form(data=request.POST)
         profile_form = self.get_profile_form(data=request.POST)
         email_formset = self.get_email_formset(data=request.POST)
+        phone_formset = self.get_phone_formset(data=request.POST)
+        address_formset = self.get_address_formset(data=request.POST)
         if (
             user_form.is_valid()
             and profile_form.is_valid()
             and email_formset.is_valid()
+            and phone_formset.is_valid()
+            and address_formset.is_valid()
         ):
             user_form.save()
             profile_form.save()
             email_formset.save()
+            phone_formset.save()
+            address_formset.save()
             return redirect('dashboard')
         return self.render_to_response(
             {'user_form': user_form,
              'profile_form': profile_form,
-             'email_formset': email_formset}
+             'email_formset': email_formset,
+             'phone_formset': phone_formset,
+             'address_formset': address_formset}
         )
 
 
