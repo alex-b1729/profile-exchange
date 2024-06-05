@@ -11,28 +11,28 @@
     {{ profile_form.as_p }}
 
     {{ email_formset.management_form }}
-      <!-- <table> -->
-        {% for form in email_formset %}
-          <div class="email-form">
-            {{ form.as_p }}
-          </div>
-        {% endfor %}
+      {% for form in email_formset %}
+        <div class="email-form">
+          {{ form.as_p }}
+        </div>
+      {% endfor %}
     <button id="add-email-form" type="button">Add Email</button>
-      <!-- </table> -->
 
     {{ phone_formset.management_form }}
-      <table>
-        {% for form in phone_formset %}
-          {{ form }}
-        {% endfor %}
-      </table>
+      {% for form in phone_formset %}
+        <div class="phone-form">
+          {{ form.as_p }}
+        </div>
+      {% endfor %}
+    <button id="add-phone-form" type="button">Add Phone</button>
 
     {{ address_formset.management_form }}
-      <table>
-        {% for form in address_formset %}
-          {{ form }}
+      {% for form in address_formset %}
+        <div class="address-form">
+          {{ form.as_p }}
+        </div>
         {% endfor %}
-      </table>
+    <button id="add-address-form" type="button">Add Address</button>
 
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>

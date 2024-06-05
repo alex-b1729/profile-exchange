@@ -88,16 +88,16 @@ EmailAddressFormSet = inlineformset_factory(
 PhoneFormSet = inlineformset_factory(
     get_user_model(),
     Phone,
-    exclude=['user'],
-    extra=1,
+    fields=['phone_number', 'phone_type'],
+    extra=0,
     min_num=1,
     can_delete=True
 )
 PostalAddressFormSet = inlineformset_factory(
     get_user_model(),
     PostalAddress,
-    exclude=['user'],
-    extra=1,
+    fields=['street1', 'street2', 'city', 'state', 'zip', 'country'],
+    extra=0,
     min_num=1,
     can_delete=True
 )
