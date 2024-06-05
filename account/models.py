@@ -26,7 +26,7 @@ class Profile(models.Model):
 
     photo = models.ImageField(
         upload_to=profile_photo_dir_path,
-        default='/users/profile_pic_default.jpg'
+        blank=True
     )
     headline = models.CharField(max_length=50, blank=True)
 

@@ -81,3 +81,18 @@ ol {
 #content {
     padding:30px 10rem;
 }
+
+#profilePhoto {
+    border-radius: 50%;
+}
+
+.profilePhotoContainer {
+    width: 200px;
+    height: 200px;
+    line-height: 200px;
+    background: linear-gradient(45deg, rgba(170,170,170,1) 0%, rgba(240,240,240,1) 50%, rgba(170,170,170,1) 100%);
+    border-radius: 50%;
+    text-align: center;
+    font-size: 90px;
+    font-family: sans-serif;
+}
