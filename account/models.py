@@ -29,6 +29,7 @@ class Profile(models.Model):
         blank=True
     )
     headline = models.CharField(max_length=50, blank=True)
+    home_page = models.URLField()
 
     date_of_birth = models.DateField(blank=True, null=True)
 
@@ -106,6 +107,18 @@ class PostalAddress(models.Model):
     class Meta:
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
+
+
+class SocialProfile(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='social_profiles',
+        on_delete=models.CASCADE
+    )
+    url = models.URLField()
+
+    def __str__(self):
+        return str(self.url)
 
 
 class Contact(models.Model):
