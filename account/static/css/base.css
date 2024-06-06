@@ -1,3 +1,6 @@
+/* account app style */
+
+/* general style */
 body {
     margin:0;
     padding:0;
@@ -33,9 +36,12 @@ ol {
     line-height:1.2;
 }
 
+/* header */
 #header {
     height: 6rem;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
     /*position: fixed;*/
     font-size: 18px;
     /*text-align: center;*/
@@ -84,8 +90,6 @@ ol {
 
 #header .user {
     float: right;
-    padding-top: 1rem;
-    padding-right: 4rem;
     cursor: pointer;
     position: relative;
     display: inline-block;
@@ -93,6 +97,11 @@ ol {
 
 #header .user-dropdown-content {
     display: none;
+
+    /* to make it not overflow right side of page */
+    left: auto !important;
+    right: 1em !important;
+
     position: absolute;
     background-color: #F9F9F9;
     min-width: 160px;
@@ -128,8 +137,15 @@ ol {
     text-decoration: underline;
 }
 
+/* page content style */
 #content {
-    padding:30px 10rem;
+    padding: 1rem 10rem;
+    margin: 1rem auto;
+    width: 80%;
+    max-width: 700px;
+    background-color: white;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.1);
+    text-align: left;
 }
 
 #profilePhoto {
