@@ -76,28 +76,27 @@ class ProfileEditForm(forms.ModelForm):
         fields = ('company', 'job_title', 'location', 'photo', 'headline', 'date_of_birth')
 
 
-# EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])
 EmailAddressFormSet = inlineformset_factory(
     get_user_model(),
     EmailAddress,
     fields=['email_address', 'is_primary'],
-    extra=0,
-    min_num=1,
+    extra=1,
+    min_num=0,
     can_delete=True
 )
 PhoneFormSet = inlineformset_factory(
     get_user_model(),
     Phone,
     fields=['phone_number', 'phone_type'],
-    extra=0,
-    min_num=1,
+    extra=1,
+    min_num=0,
     can_delete=True
 )
 PostalAddressFormSet = inlineformset_factory(
     get_user_model(),
     PostalAddress,
     fields=['street1', 'street2', 'city', 'state', 'zip', 'country'],
-    extra=0,
-    min_num=1,
+    extra=1,
+    min_num=0,
     can_delete=True
 )
