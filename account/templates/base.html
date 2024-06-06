@@ -23,11 +23,16 @@
     {% endif %}
     <span class="user">
       {% if request.user.is_authenticated %}
-        Hello {{ request.user.first_name|default:request.user.username }},
-        <form action="{% url "logout" %}" method="post">
-          <button type="submit">Logout</button>
-          {% csrf_token %}
-        </form>
+        Hello {{ request.user.first_name|default:request.user.username }} &#9660
+        <div class="user-dropdown-content">
+          <a href="{% url "edit" %}">Edit Profile</a>
+          <a href="{% url "password_change" %}">Change Password</a>
+          <!-- https://stackoverflow.com/a/33880971 -->
+          <form action="{% url "logout" %}" method="post" class="logoutForm">
+            <button type="submit" class="logoutButton">Logout</button>
+            {% csrf_token %}
+          </form>
+        </div>
       {% else %}
         <a href="{% url "login" %}">Log-in</a>
       {% endif %}
