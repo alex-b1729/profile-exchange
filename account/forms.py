@@ -73,7 +73,7 @@ class UserEditForm(forms.ModelForm):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        exclude = ['user']
+        fields = ('company', 'job_title', 'location', 'photo', 'headline', 'date_of_birth')
 
 
 # EmailAddressFormSet = modelformset_factory(EmailAddress, fields=['email_address', 'is_primary'])

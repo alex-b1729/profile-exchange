@@ -65,14 +65,15 @@ class EditDashboardView(TemplateResponseMixin, View):
     template_name = 'account/edit.html'
 
     user = None
+    user_profile = None
     files = None
 
     def get_user_form(self, data=None):
         return UserEditForm(instance=self.user, data=data)
 
-    def get_profile_form(self, data=None):
+    def get_profile_form(self, data=None, files=None):
         return ProfileEditForm(
-            instance=self.user, data=data, files=self.files
+            instance=self.user_profile, data=data, files=files
         )
 
     def get_email_formset(self, data=None):
@@ -85,10 +86,11 @@ class EditDashboardView(TemplateResponseMixin, View):
         return PostalAddressFormSet(instance=self.user, data=data)
 
     def dispatch(self, request, *args, **kwargs):
-        # self.user = get_object_or_404(
-        #     get_user_model(), id=pk, user=request.user
-        # )
         self.user = request.user
+        # todo: should create a user profile if fails to find one
+        self.user_profile = get_object_or_404(
+            Profile, user=self.user
+        )
         self.files = request.FILES
         return super().dispatch(request, *args, **kwargs)
 
@@ -108,7 +110,7 @@ class EditDashboardView(TemplateResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
         user_form = self.get_user_form(data=request.POST)
-        profile_form = self.get_profile_form(data=request.POST)
+        profile_form = self.get_profile_form(data=request.POST, files=self.files)
         email_formset = self.get_email_formset(data=request.POST)
         phone_formset = self.get_phone_formset(data=request.POST)
         address_formset = self.get_address_formset(data=request.POST)
