@@ -34,6 +34,14 @@
         {% endfor %}
     <button id="add-address-form" type="button">Add Address</button>
 
+    {{ socials_formset.management_form }}
+      {% for form in socials_formset %}
+        <div class="social-form">
+          {{ form.as_p }}
+        </div>
+        {% endfor %}
+    <button id="add-social-form" type="button">Add Social Profile</button>
+
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
   </form>

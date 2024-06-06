@@ -29,7 +29,7 @@ class Profile(models.Model):
         blank=True
     )
     headline = models.CharField(max_length=50, blank=True)
-    home_page = models.URLField()
+    home_page = models.URLField(blank=True, null=True)
 
     date_of_birth = models.DateField(blank=True, null=True)
 

@@ -12,13 +12,19 @@ let addressForm = document.querySelectorAll(".address-form")
 let addAddressButton = document.querySelector("#add-address-form")
 let totalAddressForms = document.querySelector("#id_postal_addresses-TOTAL_FORMS")
 
+let socialForm = document.querySelectorAll(".social-form")
+let addSocialButton = document.querySelector("#add-social-form")
+let totalSocialForms = document.querySelector("#id_social_profiles-TOTAL_FORMS")
+
 let emailFormNum = emailForm.length - 1
 let phoneFormNum = phoneForm.length - 1
 let addressFormNum = addressForm.length - 1
+let socialFormNum = socialForm.length - 1
 
 addEmailButton.addEventListener('click', addEmailForm)
 addPhoneButton.addEventListener('click', addPhoneForm)
 addAddressButton.addEventListener('click', addAddressForm)
+addSocialButton.addEventListener('click', addSocialForm)
 
 // these functions should be combined
 function addEmailForm(e) {
@@ -77,4 +83,21 @@ function addAddressForm(e) {
     container.insertBefore(newForm, addAddressButton)
 
     totalAddressForms.setAttribute('value', `${addressFormNum+1}`)
+}
+
+function addSocialForm(e) {
+    e.preventDefault()
+
+    let newForm = socialForm[0].cloneNode(true)
+    let formRegex = RegExp(`social_profiles-(\\d){1}-`, 'g')
+
+    socialFormNum++
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `social_profiles-${socialFormNum}-`)
+
+    newForm.querySelector(`#id_social_profiles-${socialFormNum}-url`).setAttribute('value', '')
+    newForm.querySelector(`#id_social_profiles-${socialFormNum}-DELETE`).checked = false
+
+    container.insertBefore(newForm, addSocialButton)
+
+    totalSocialForms.setAttribute('value', `${socialFormNum+1}`)
 }

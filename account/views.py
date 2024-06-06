@@ -11,6 +11,7 @@ from .models import (
     EmailAddress,
     Phone,
     PostalAddress,
+    SocialProfile,
 )
 from .forms import (
     UserRegistrationForm,
@@ -19,6 +20,7 @@ from .forms import (
     EmailAddressFormSet,
     PhoneFormSet,
     PostalAddressFormSet,
+    SocialProfileFormset,
 )
 
 
@@ -27,12 +29,14 @@ def dashboard(request):
     emails = EmailAddress.objects.filter(user=request.user)
     phones = Phone.objects.filter(user=request.user)
     addresses = PostalAddress.objects.filter(user=request.user)
+    socials = SocialProfile.objects.filter(user=request.user)
     return render(request,
                   'account/dashboard.html',
                   {'section': 'dashboard',
                    'emails': emails,
                    'phones': phones,
-                   'addresses': addresses})
+                   'addresses': addresses,
+                   'socials': socials})
 
 
 def register(request):
@@ -85,6 +89,9 @@ class EditDashboardView(TemplateResponseMixin, View):
     def get_address_formset(self, data=None):
         return PostalAddressFormSet(instance=self.user, data=data)
 
+    def get_socials_formset(self, data=None):
+        return SocialProfileFormset(instance=self.user, data=data)
+
     def dispatch(self, request, *args, **kwargs):
         self.user = request.user
         # todo: should create a user profile if fails to find one
@@ -100,12 +107,14 @@ class EditDashboardView(TemplateResponseMixin, View):
         email_formset = self.get_email_formset()
         phone_formset = self.get_phone_formset()
         address_formset = self.get_address_formset()
+        socials_formset = self.get_socials_formset()
         return self.render_to_response(
             {'user_form': user_form,
              'profile_form': profile_form,
              'email_formset': email_formset,
              'phone_formset': phone_formset,
-             'address_formset': address_formset}
+             'address_formset': address_formset,
+             'socials_formset': socials_formset}
         )
 
     def post(self, request, *args, **kwargs):
@@ -114,25 +123,29 @@ class EditDashboardView(TemplateResponseMixin, View):
         email_formset = self.get_email_formset(data=request.POST)
         phone_formset = self.get_phone_formset(data=request.POST)
         address_formset = self.get_address_formset(data=request.POST)
+        socials_formset = self.get_socials_formset(data=request.POST)
         if (
             user_form.is_valid()
             and profile_form.is_valid()
             and email_formset.is_valid()
             and phone_formset.is_valid()
             and address_formset.is_valid()
+            and socials_formset.is_valid()
         ):
             user_form.save()
             profile_form.save()
             email_formset.save()
             phone_formset.save()
             address_formset.save()
+            socials_formset.save()
             return redirect('dashboard')
         return self.render_to_response(
             {'user_form': user_form,
              'profile_form': profile_form,
              'email_formset': email_formset,
              'phone_formset': phone_formset,
-             'address_formset': address_formset}
+             'address_formset': address_formset,
+             'socials_formset': socials_formset}
         )
 
 

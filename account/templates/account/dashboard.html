@@ -18,6 +18,9 @@
     <p id="jobTitle">{{ request.user.profile.job_title }}</p>
     <p id="location">{{ request.user.profile.location }}</p>
     <p id="primaryEmail">{{ request.user.email }}</p>
+    {% if request.user.profile.home_page %}
+      <p id="homePage">Home page: <a href="{{ request.user.profile.home_page }}" target="_blank">{{ request.user.profile.home_page }}</a></p>
+    {% endif %}
     <p id="dob">{{ request.user.profile.date_of_birth }}</p>
     {% if emails %}
       {% for email in emails %}
@@ -36,6 +39,11 @@
       <p>{{ address.street2 }}</p>
       <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
       <p>{{ address.country }}</p>
+      {% endfor %}
+    {% endif %}
+    {% if socials %}
+      {% for social in socials %}
+      <a source="{{ social.url }}" target="_blank">{{ social.url }}</a>
       {% endfor %}
     {% endif %}
   </div>

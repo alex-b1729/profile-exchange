@@ -7,6 +7,7 @@ from .models import (
     EmailAddress,
     Phone,
     PostalAddress,
+    SocialProfile,
 )
 
 
@@ -73,7 +74,7 @@ class UserEditForm(forms.ModelForm):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('company', 'job_title', 'location', 'photo', 'headline', 'date_of_birth')
+        fields = ('company', 'job_title', 'location', 'photo', 'headline', 'home_page', 'date_of_birth')
 
 
 EmailAddressFormSet = inlineformset_factory(
@@ -96,6 +97,14 @@ PostalAddressFormSet = inlineformset_factory(
     get_user_model(),
     PostalAddress,
     fields=['street1', 'street2', 'city', 'state', 'zip', 'country'],
+    extra=1,
+    min_num=0,
+    can_delete=True
+)
+SocialProfileFormset = inlineformset_factory(
+    get_user_model(),
+    SocialProfile,
+    fields=['url'],
     extra=1,
     min_num=0,
     can_delete=True
