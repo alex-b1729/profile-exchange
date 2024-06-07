@@ -221,24 +221,13 @@ def connection_list(request):
 
 
 @login_required
-def user_list(request):
-    users = get_user_model().objects.filter(is_active=True)
+def contact_detail(request, username):
+    contact = get_object_or_404(get_user_model(),
+                                username=username,
+                                is_active=True)
     return render(
         request,
-        'account/user/list.html',
-        {'section': 'people',
-         'users': users}
-    )
-
-
-@login_required
-def user_detail(request, username):
-    user = get_object_or_404(get_user_model(),
-                             username=username,
-                             is_active=True)
-    return render(
-        request,
-        'account/user/detail.html',
-        {'section': 'people',
-         'user': user}
+        'account/user/contact.html',
+        {'section': 'connections',
+         'contact': contact}
     )

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ contact.get_full_name }}{% endblock %}
+
+{% block content %}
+  <h1>{{ contact.get_full_name }}</h1>
+  <div class="contact-info">
+    {% thumbnail contact.profile.photo "200x200" crop="center" as im %}
+      <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ contact.username }} profile photo">
+    {% empty %}
+      <div class="profilePhoto container large">{{ contact.first_name|slice:"1" }}{{ contact.last_name|slice:"1" }}</div>
+    {% endthumbnail %}
+    <p id="fullname">{{ contact.first_name }} {{ contact.last_name }}</p>
+    <p id="headline">{{ contact.profile.headline }}</p>
+    <p id="company">{{ contact.profile.company }}</p>
+    <p id="jobTitle">{{ contact.profile.job_title }}</p>
+    <p id="location">{{ contact.profile.location }}</p>
+    <p id="primaryEmail">{{ contact.email }}</p>
+    {% if contact.profile.home_page %}
+      <p id="homePage">Home page: <a href="{{ contact.profile.home_page }}" target="_blank">{{ contact.profile.home_page }}</a></p>
+    {% endif %}
+    <p id="dob">{{ contact.profile.date_of_birth }}</p>
+
+    {% with emails=contact.email_addresses.all %}
+    {% if emails %}
+      {% for email in emails %}
+    <p>{{ email.email_address }}</p>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% with phones=contact.phone_numbers.all %}
+    {% if phones %}
+      {% for phone in phones %}
+    <p>{{ phone.phone_type }}: {{ phone.phone_number }}</p>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% with addresses=contact.postal_addresses.all %}
+    {% if addresses %}
+      {% for address in addresses %}
+    <p>{{ address.street1 }}</p>
+    <p>{{ address.street2 }}</p>
+    <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+    <p>{{ address.country }}</p>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% with socials=contact.social_profiles.all %}
+    {% if socials %}
+      {% for social in socials %}
+    <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+{% endblock %}
