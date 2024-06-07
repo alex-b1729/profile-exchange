@@ -43,7 +43,7 @@
     {% endif %}
     {% if socials %}
       {% for social in socials %}
-      <a source="{{ social.url }}" target="_blank">{{ social.url }}</a>
+      <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
       {% endfor %}
     {% endif %}
   </div>
