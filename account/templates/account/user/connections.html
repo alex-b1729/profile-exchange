@@ -10,9 +10,9 @@
       <div class="connection">
         <a href="{{ connection.get_absolute_url }}">
           {% thumbnail connection.profile.photo "100x100" crop="center" as im %}
-            <img id="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.username }} profile photo">
+            <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.username }} profile photo">
           {% empty %}
-            <div class="profilePhotoContainer">{{ connection.first_name|slice:"1" }}{{ connection.last_name|slice:"1" }}</div>
+            <div class="profilePhoto container small">{{ connection.first_name|slice:"1" }}{{ connection.last_name|slice:"1" }}</div>
           {% endthumbnail %}
         </a>
         <div class="info">

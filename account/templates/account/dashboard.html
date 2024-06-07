@@ -8,9 +8,9 @@
   <h1>Dashboard</h1>
   <div class="dashboard">
     {% thumbnail request.user.profile.photo "200x200" crop="center" as im %}
-      <img id="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ request.user.username }} profile photo">
+      <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ request.user.username }} profile photo">
     {% empty %}
-      <div class="profilePhotoContainer">{{ request.user.first_name|slice:"1" }}{{ request.user.last_name|slice:"1" }}</div>
+      <div class="profilePhoto container large">{{ request.user.first_name|slice:"1" }}{{ request.user.last_name|slice:"1" }}</div>
     {% endthumbnail %}
     <p id="fullname">{{ request.user.first_name }} {{ request.user.last_name }}</p>
     <p id="headline">{{ request.user.profile.headline }}</p>
