@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}Connections{% endblock %}
+
+{% block content %}
+  <h1>Connections</h1>
+  <div id="connection-list">
+    {% for connection in connections %}
+      <div class="connection">
+        <a href="{{ connection.get_absolute_url }}">
+          {% thumbnail connection.profile.photo "100x100" crop="center" as im %}
+            <img id="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.username }} profile photo">
+          {% empty %}
+            <div class="profilePhotoContainer">{{ connection.first_name|slice:"1" }}{{ connection.last_name|slice:"1" }}</div>
+          {% endthumbnail %}
+        </a>
+        <div class="info">
+          <a href="{{ connection.get_absolute_url }}" class="title">
+            {{ connection.get_full_name }}
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

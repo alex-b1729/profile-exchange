@@ -210,6 +210,17 @@ def edit(request):
 
 
 @login_required
+def connection_list(request):
+    connections = request.user.connections.all()
+    return render(
+        request,
+        'account/user/connections.html',
+        {'section': 'connections',
+         'connections': connections}
+    )
+
+
+@login_required
 def user_list(request):
     users = get_user_model().objects.filter(is_active=True)
     return render(
