@@ -18,21 +18,27 @@
     <p id="jobTitle">{{ request.user.profile.job_title }}</p>
     <p id="location">{{ request.user.profile.location }}</p>
     <p id="primaryEmail">{{ request.user.email }}</p>
-    {% if request.user.profile.home_page %}
-      <p id="homePage">Home page: <a href="{{ request.user.profile.home_page }}" target="_blank">{{ request.user.profile.home_page }}</a></p>
-    {% endif %}
+    <p id="homePage">Home page: <a href="{{ request.user.profile.home_page }}" target="_blank">{{ request.user.profile.home_page }}</a></p>
     <p id="dob">{{ request.user.profile.date_of_birth }}</p>
+
+    {% with emails=request.user.email_addresses.all %}
     {% if emails %}
       {% for email in emails %}
       <p>{{ email.email_address }}</p>
       <!-- TODO: display if verified and link to verity -->
       {% endfor %}
     {% endif %}
+    {% endwith %}
+
+    {% with phones=request.user.phone_numbers.all %}
     {% if phones %}
       {% for phone in phones %}
       <p>{{ phone.phone_type }}: {{ phone.phone_number }}</p>
       {% endfor %}
     {% endif %}
+    {% endwith %}
+
+    {% with addresses=request.user.postal_addresses.all %}
     {% if addresses %}
       {% for address in addresses %}
       <p>{{ address.street1 }}</p>
@@ -41,10 +47,15 @@
       <p>{{ address.country }}</p>
       {% endfor %}
     {% endif %}
+    {% endwith %}
+
+    {% with socials=request.user.social_profiles.all %}
     {% if socials %}
       {% for social in socials %}
       <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
       {% endfor %}
     {% endif %}
+    {% endwith %}
+
   </div>
 {% endblock %}
