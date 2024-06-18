@@ -8,6 +8,8 @@ from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from phonenumber_field.modelfields import PhoneNumberField
 
+# todo: add properties that return full vCard contentline
+
 
 def profile_photo_dir_path(instance, filename):
     return (f'users/{instance.user.id}{dt.datetime.now().strftime("%S%f")}'
@@ -20,21 +22,59 @@ class Profile(models.Model):
         on_delete=models.CASCADE
     )
 
-    company = models.CharField(max_length=250, blank=True)
-    job_title = models.CharField(max_length=250, blank=True)
-    location = models.CharField(max_length=50, blank=True)
+    # 6.2.1-3 Identification Properties
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2
+    # extend base user model's name
+    prefix = models.CharField(max_length=50, blank=True)
+    middle_name = models.CharField(blank=True)
+    suffix = models.CharField(max_length=50, blank=True)
+    nick_name = models.CharField(blank=True)
 
+    # 6.2.4 Photo
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.4
     photo = models.ImageField(
         upload_to=profile_photo_dir_path,
         blank=True
     )
-    headline = models.CharField(max_length=50, blank=True)
-    home_page = models.URLField(blank=True, null=True)
 
-    date_of_birth = models.DateField(blank=True, null=True)
+    home_page = models.URLField(blank=True)
+
+    # 6.6 Organizational Properties
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.6
+    organization = models.CharField(max_length=250, blank=True)
+    title = models.CharField(max_length=250, blank=True)
+    role = models.CharField(max_length=250, blank=True)
+    # logo
+    # work url
+
+    # X-HEADLINE
+    headline = models.CharField(max_length=50, blank=True)
+    # X-LOCATION
+    location = models.CharField(max_length=50, blank=True)
+
+    # 6.2.5 BDAY
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.5
+    birthday = models.DateField(blank=True, null=True)
+
+    # todo: add gender
 
     def __str__(self):
         return f'Profile of {self.user.first_name} {self.user.last_name}'
+
+    @property
+    def FN(self):
+        """
+        Required
+        https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.1
+        """
+        return f'{self.prefix} {self.user.first_name} {self.middle_name} {self.user.last_name}{", " if self.suffix != "" else ""}{self.suffix}'
+
+    @property
+    def N(self):
+        """
+        https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.2
+        """
+        return f'{self.user.last_name};{self.user.first_name};{self.middle_name};{self.prefix};{self.suffix}'
 
 
 class EmailAddress(models.Model):
@@ -57,23 +97,19 @@ class EmailAddress(models.Model):
 
 class Phone(models.Model):
     # todo: handle extensions
-    MOBILE = 'mobile'
-    HOME = 'home'
-    WORK = 'work'
-    SCHOOL = 'school'
-    MAIN = 'main'
-    HOME_FAX = 'home_fax'
-    WORK_FAX = 'work_fax'
-    PAGER = 'pager'
+    CELL = 'CELL'
+    WORK = 'WORK,VOICE'
+    HOME = 'HOME,VOICE'
+    WORK_FAX = 'WORK,FAX'
+    HOME_FAX = 'HOME,FAX'
+    PAGER = 'PAGER'
     OTHER = 'other'
     TYPE_CHOICES = {
-        MOBILE: 'Mobile',
-        HOME: 'Home',
+        CELL: 'Cell',
         WORK: 'Work',
-        SCHOOL: 'School',
-        MAIN: 'Main',
-        HOME_FAX: 'Home Fax',
+        HOME: 'Home',
         WORK_FAX: 'Work Fax',
+        HOME_FAX: 'Home Fax',
         PAGER: 'Pager',
         OTHER: 'Other'
     }
@@ -85,18 +121,37 @@ class Phone(models.Model):
     phone_number = PhoneNumberField(blank=False)
     phone_type = models.CharField(max_length=20,
                                   choices=TYPE_CHOICES,
-                                  default=MOBILE)
+                                  default=CELL)
 
     def __str__(self):
         return str(self.phone_number)
 
+    @property
+    def TEL(self):
+        """
+        https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
+        """
+        # todo: implement with uri specs
+        pass
+
 
 class PostalAddress(models.Model):
+    WORK = 'work'
+    HOME = 'home'
+    OTHER = 'other'
+    TYPE_CHOICES = {
+        WORK: 'Work',
+        HOME: 'Home',
+        OTHER: 'Other'
+    }
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='postal_addresses',
         on_delete=models.CASCADE
     )
+    address_type = models.CharField(max_length=20,
+                                    choices=TYPE_CHOICES,
+                                    default=WORK)
     street1 = models.CharField()
     street2 = models.CharField(blank=True)
     city = models.CharField()
@@ -107,6 +162,14 @@ class PostalAddress(models.Model):
     class Meta:
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
+
+    @property
+    def ADR(self):
+        """
+        https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1
+        First 2 components have interoperability issues and SHOULD be empty according to specs
+        """
+        f';;{self.street1}{"," if self.street2 != "" else ""}{self.street2};{self.city};{self.state};{self.zip};{self.country}'
 
 
 class SocialProfile(models.Model):
