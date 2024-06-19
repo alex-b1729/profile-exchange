@@ -44,8 +44,8 @@ class Profile(models.Model):
     organization = models.CharField(max_length=250, blank=True)
     title = models.CharField(max_length=250, blank=True)
     role = models.CharField(max_length=250, blank=True)
+    work_url = models.URLField(blank=True)
     # logo
-    # work url
 
     # X-HEADLINE
     headline = models.CharField(max_length=50, blank=True)
@@ -67,7 +67,8 @@ class Profile(models.Model):
         Required
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.1
         """
-        return f'{self.prefix} {self.user.first_name} {self.middle_name} {self.user.last_name}{", " if self.suffix != "" else ""}{self.suffix}'
+        return (f'{self.prefix} {self.user.first_name} {self.middle_name} {self.user.last_name}'
+                f'{", " if self.suffix != "" else ""}{self.suffix}')
 
     @property
     def N(self):
@@ -78,11 +79,22 @@ class Profile(models.Model):
 
 
 class EmailAddress(models.Model):
+    WORK = 'WORK'
+    HOME = 'HOME'
+    OTHER = 'other'
+    TYPE_CHOICES = {
+        WORK: 'Work',
+        HOME: 'Home',
+        OTHER: 'Other'
+    }
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='email_addresses',
         on_delete=models.CASCADE
     )
+    email_type = models.CharField(max_length=20,
+                                  choices=TYPE_CHOICES,
+                                  default=WORK)
     email_address = models.EmailField()
     confirmed = models.BooleanField(default=False, null=False)
     is_primary = models.BooleanField(null=False)
@@ -98,10 +110,10 @@ class EmailAddress(models.Model):
 class Phone(models.Model):
     # todo: handle extensions
     CELL = 'CELL'
-    WORK = 'WORK,VOICE'
-    HOME = 'HOME,VOICE'
-    WORK_FAX = 'WORK,FAX'
-    HOME_FAX = 'HOME,FAX'
+    WORK = 'WORK VOICE'
+    HOME = 'HOME VOICE'
+    WORK_FAX = 'WORK FAX'
+    HOME_FAX = 'HOME FAX'
     PAGER = 'PAGER'
     OTHER = 'other'
     TYPE_CHOICES = {
@@ -136,8 +148,8 @@ class Phone(models.Model):
 
 
 class PostalAddress(models.Model):
-    WORK = 'work'
-    HOME = 'home'
+    WORK = 'WORK'
+    HOME = 'HOME'
     OTHER = 'other'
     TYPE_CHOICES = {
         WORK: 'Work',
@@ -163,13 +175,22 @@ class PostalAddress(models.Model):
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
 
+    def __str__(self):
+        s = (f'{self.street1 + ", " if self.street1 != "" else ""}'
+             f'{self.street2 + ", " if self.street2 != "" else ""}'
+             f'{self.city + ", " if self.city != "" else ""}'
+             f'{self.state + " " if self.state != "" else ""}'
+             f'{self.zip if self.zip != "" else ""}')
+        return s
+
     @property
     def ADR(self):
         """
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1
         First 2 components have interoperability issues and SHOULD be empty according to specs
         """
-        f';;{self.street1}{"," if self.street2 != "" else ""}{self.street2};{self.city};{self.state};{self.zip};{self.country}'
+        return (f';;{self.street1}{"," if self.street2 != "" else ""}{self.street2};'
+                f'{self.city};{self.state};{self.zip};{self.country}')
 
 
 class SocialProfile(models.Model):

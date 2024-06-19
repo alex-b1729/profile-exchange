@@ -9,12 +9,13 @@ from .models import (
 )
 
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'date_of_birth', 'photo']
+# @admin.register(Profile)
+# class ProfileAdmin(admin.ModelAdmin):
+#     list_display = ['user', 'date_of_birth', 'photo']
 
 
 # what's needed in prod?
+admin.site.register(Profile)
 admin.site.register(EmailAddress)
 admin.site.register(Phone)
 admin.site.register(PostalAddress)

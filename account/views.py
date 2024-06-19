@@ -25,11 +25,11 @@ from .forms import (
 
 
 @login_required
-def dashboard(request):
+def profile(request):
     return render(
         request,
-        'account/dashboard.html',
-        {'section': 'dashboard'}
+        'account/profile.html',
+        {'section': 'profile'}
     )
 
 
@@ -55,7 +55,7 @@ def register(request):
     )
 
 
-class EditDashboardView(TemplateResponseMixin, View):
+class EditProfileView(TemplateResponseMixin, View):
     template_name = 'account/edit.html'
 
     user = None
@@ -128,7 +128,7 @@ class EditDashboardView(TemplateResponseMixin, View):
             phone_formset.save()
             address_formset.save()
             socials_formset.save()
-            return redirect('dashboard')
+            return redirect('profile')
         return self.render_to_response(
             {'user_form': user_form,
              'profile_form': profile_form,
