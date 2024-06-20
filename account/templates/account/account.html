@@ -9,6 +9,13 @@
   </div>
   <p>Username: {{ user.username }}</p>
   <p>Joined: {{ user.date_joined|date:"M d, Y" }}</p>
-  <p>Primary email: {{ user.email }} <a href="#">update</a></p>
+  <p id="current-email">Primary email: {{ user.email }} <button id="edit-email-button" type="button">Update</button></p>
+  <div id="edit-email-form" hidden>
+    <form method="post" id="form-container">
+      <p>Primary email: {{ user_form.email }} <input type="submit" value="Save"></p>
+      {% csrf_token %}
+    </form>
+  </div>
   <a href="{% url "password_change" %}">Change Password</a>
+  <script src="{% static "js/edit_primary_email.js" %}"></script>
 {% endblock %}

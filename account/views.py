@@ -16,6 +16,7 @@ from .models import (
 from .forms import (
     UserRegistrationForm,
     UserEditNameForm,
+    UserEditEmailForm,
     ProfileEditForm,
     EmailAddressFormSet,
     PhoneFormSet,
@@ -34,9 +35,20 @@ def profile(request):
 
 @login_required
 def account(request):
+    if request.method == 'POST':
+        user_form = UserEditEmailForm(
+            instance=request.user,
+            data=request.POST
+        )
+        if user_form.is_valid():
+            user_form.save()
+            # return redirect('account')
+    else:
+        user_form = UserEditEmailForm(instance=request.user)
     return render(
         request,
-        'account/account.html'
+        'account/account.html',
+        {'user_form': user_form}
     )
 
 

@@ -56,19 +56,15 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserEditNameForm(forms.ModelForm):
-    # todo: update username on email change?
     class Meta:
         model = get_user_model()
-        fields = ('first_name', 'last_name')
+        fields = ('first_name', 'last_name', 'email')
 
-    # def save(self, commit=True):
-    #     user = super(UserEditForm, self).save(commit=False)
-    #     user.username = user.email
-    #     email = EmailAddress.objects.get(user=user.pk)
-    #     email.email_address = user.email
-    #     email.save(commit)
-    #     user.save(commit)
-    #     return user
+
+class UserEditEmailForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('email',)
 
 
 class ProfileEditForm(forms.ModelForm):
