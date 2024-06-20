@@ -8,28 +8,37 @@
   <h1>Profile</h1>
   <div class="profile">
 
-    {% thumbnail request.user.profile.photo "200x200" crop="center" as im %}
-    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ request.user.username }} profile photo">
-    {% empty %}
-    <div class="profilePhoto container large">{{ request.user.first_name|slice:"1" }}{{ request.user.last_name|slice:"1" }}</div>
-    {% endthumbnail %}
+    <div class="profileHeader">
+      {% thumbnail request.user.profile.photo "200x200" crop="center" as im %}
+      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ request.user.username }} profile photo">
+      {% empty %}
+      <div class="profilePhoto container large">{{ request.user.first_name|slice:"1" }}{{ request.user.last_name|slice:"1" }}</div>
+      {% endthumbnail %}
 
-    <p id="FN">{{ request.user.profile.FN }}</p>
-    <p id="X-HEADLINE">{{ request.user.profile.headline }}</p>
-    <p id="X-LOCATION">{{ request.user.profile.location }}</p>
+      <div class="text-container">
+        <p id="FN">{{ request.user.profile.FN }}</p>
+        <p id="X-HEADLINE">{{ request.user.profile.headline }}</p>
+        <p id="X-LOCATION">{{ request.user.profile.location }}</p>
+      </div>
+    </div>
 
     {% with homePage=request.user.profile.home_page %}
     {% with workUrl=request.user.profile.work_url %}
     {% if homePage or workUrl %}
-    <!-- todo: add link svg -->
-    <div id="URL">
-      {% if homePage %}
-      <p class="HOME"><a href="{{ request.user.profile.home_page }}" target="_blank">{{ request.user.profile.home_page }}</a></p>
-      {% endif %}
+    <div class="nameGroup">
+      <h3>URLs</h3>
+      <!-- todo: add link svg -->
+      <div id="URL">
+        <ul>
+          {% if homePage %}
+          <li class="HOME"><a href="{{ request.user.profile.home_page }}" target="_blank">{{ request.user.profile.home_page }}</a></li>
+          {% endif %}
 
-      {% if workUrl %}
-      <p class="WORK"><a href="{{ request.user.profile.work_url }}" target="_blank">{{ request.user.profile.work_url }}</a></p>
-      {% endif %}
+          {% if workUrl %}
+          <li class="WORK"><a href="{{ request.user.profile.work_url }}" target="_blank">{{ request.user.profile.work_url }}</a></li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
     {% endif %}
     {% endwith %}
@@ -37,61 +46,91 @@
 
     {% with socials=request.user.social_profiles.all %}
     {% if socials %}
-    <div id="X-SOCIALPROFILE">
-      {% for social in socials %}
-      <!-- todo: add social svgs -->
-      <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
-      {% endfor %}
+    <div class="nameGroup">
+      <h3>Social Links</h3>
+      <div id="X-SOCIALPROFILE">
+        <ul>
+          {% for social in socials %}
+          <!-- todo: add social svgs -->
+          <li><a href="{{ social.url }}" target="_blank">{{ social.url }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     {% endif %}
     {% endwith %}
 
-    <div id="EMAIL">
-      <p><a href="mailto:{{ request.user.email }}" class="HOME PREF">{{ request.user.email }}</a></p>
+    <div class="nameGroup">
+      <h3>Email</h3>
+      <div id="EMAIL">
+        <ul>
+          <li><a href="mailto:{{ request.user.email }}" class="HOME INTERNET PREF">{{ request.user.email }}</a></li>
 
-      {% with emails=request.user.email_addresses.all %}
-      {% if emails %}
-      {% for email in emails %}
-      <p><a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></p>
-      <!-- TODO: protect mailto links -->
-      <!-- TODO: display if verified and link to verity -->
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
+          {% with emails=request.user.email_addresses.all %}
+          {% if emails %}
+          {% for email in emails %}
+          <li><a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
+          <!-- TODO: protect mailto links -->
+          <!-- TODO: display if verified and link to verity -->
+          {% endfor %}
+          {% endif %}
+          {% endwith %}
+        </ul>
+      </div>
     </div>
 
-    <p id="ORG">{{ request.user.profile.organization }}</p>
-    <p id="TITLE">{{ request.user.profile.title }}</p>
-    <p id="ROLE">{{ request.user.profile.roll }}</p>
+    <div class="nameGroup">
+      <h3>Organization</h3>
+      <div class="text-container">
+        <p id="ORG">{{ request.user.profile.organization }}</p>
+        <p id="TITLE">{{ request.user.profile.title }}</p>
+        <p id="ROLE">{{ request.user.profile.role }}</p>
+      </div>
+    </div>
 
     {% with phones=request.user.phone_numbers.all %}
     {% if phones %}
-    <div id="TEL">
-      {% for phone in phones %}
-      <!-- todo: does phone.phone_type return the key or value? -->
-      <p class="{{ phone.phone_type }}">{{ phone.phone_type }}: {{ phone.phone_number }}</p>
-      {% endfor %}
+    <div class="nameGroup">
+      <h3>Phone</h3>
+      <div id="TEL">
+        <ul>
+          {% for phone in phones %}
+          <!-- todo: does phone.phone_type return the key or value? -->
+          <li class="{{ phone.phone_type }}">{{ phone.phone_type }}: {{ phone.phone_number }}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     {% endif %}
     {% endwith %}
 
     {% with addresses=request.user.postal_addresses.all %}
     {% if addresses %}
-    <div id="ADR">
-      {% for address in addresses %}
-      <div class="{{ address.address_type }}">
-        <p class="addressType">{{ address.address_type }}</p>
-        <p class="adrLine1">{{ address.street1 }}</p>
-        <p class="adrLine2">{{ address.street2 }}</p>
-        <p class="adrLine3">{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
-        <p class="country">{{ address.country }}</p>
+    <div class="nameGroup">
+      <h3>Phone</h3>
+      <div id="ADR">
+        <ul>
+          {% for address in addresses %}
+          <li>
+            <div class="{{ address.address_type }}">
+              <p class="addressType">{{ address.address_type }}</p>
+              <p class="adrLine1">{{ address.street1 }}</p>
+              <p class="adrLine2">{{ address.street2 }}</p>
+              <p class="adrLine3">{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+              <p class="country">{{ address.country }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
-      {% endfor %}
     </div>
     {% endif %}
     {% endwith %}
 
-    <p id="BDAY">{{ request.user.profile.birthday }}</p>
+    <div class="nameGroup">
+      <h3>Personal</h3>
+      <p id="BDAY">{{ request.user.profile.birthday }}</p>
+    </div>
 
   </div>
 {% endblock %}

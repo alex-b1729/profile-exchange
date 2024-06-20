@@ -7,9 +7,11 @@ body {
     font-family:helvetica, sans-serif;
 }
 
+/*
 p {
-    line-height: 1.5;
+    line-height: 1.5rem;
 }
+*/
 
 a {
     color: rgb(27,121,255);
@@ -20,7 +22,16 @@ a:hover {
     text-decoration: underline;
 }
 
-h1, h2, h3, h4, h5 , h6 { font-family: 'Muli', sans-serif; font-weight:normal; }
+/*
+p, h1, h2, h3, h4, h5, h6 {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+*/
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Muli', sans-serif;
+    font-weight: normal;
+}
 
 h1 {
     border-bottom:1px solid #bbb;
@@ -146,6 +157,50 @@ ol {
     background-color: white;
     box-shadow: 0 0 1em rgba(0, 0, 0, 0.1);
     text-align: left;
+}
+
+/* Profile view */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    margin: 1rem;
+    padding: 0.6rem;
+    border-bottom: 1px solid #bbb;
+    gap: 28px;
+}
+.profileHeader .text-container {
+    margin-block-start: 0.5em;
+}
+#FN {
+    font-size: 1.75rem;
+}
+
+.nameGroup {
+    display: flex;
+    /*align-items: center;*/
+    gap: 28px;
+
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f4f4f4;
+}
+.nameGroup ul, ol {
+    padding-inline-start: 1em;
+}
+.nameGroup li {
+    margin-block-start: 1em;
+}
+.nameGroup p {
+    display: block;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+}
+.nameGroup h3 {
+    /*display: block;*/
+    margin-block-start: 0em;
+    margin-block-end: 1em;
 }
 
 .profilePhoto {
