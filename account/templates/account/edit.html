@@ -4,46 +4,114 @@
 {% block title %}Edit your profile{% endblock %}
 
 {% block content %}
-  <h1>Edit your profile</h1>
-  <p>You can edit your account using the following form:</p>
-  <form method="post" enctype="multipart/form-data" id="form-container">
-    {{ user_form.as_p }}
-    {{ profile_form.as_p }}
-
-    {{ email_formset.management_form }}
-      {% for form in email_formset %}
-        <div class="email-form">
-          {{ form.as_p }}
+  <div class="content-header">
+    <h1>Edit your profile</h1>
+    <!-- <p><input type="submit" value="Save changes"></p> -->
+    <!-- doesn't save anything when up here for some reason -->
+  </div>
+  <!-- TODO: add verification errors {{ field.errors }} -->
+  <div class="profile">
+    <form method="post" enctype="multipart/form-data" id="form-container">
+      {% with uform=user_form %}
+      {% with pform=profile_form %}
+      <div class="profileHeader">
+        <div class="profilePhoto">
+          <!-- todo: this ain't not pretty -->
+          {{ pform.photo }}
         </div>
-      {% endfor %}
-    <button id="add-email-form" type="button">Add Email</button>
-
-    {{ phone_formset.management_form }}
-      {% for form in phone_formset %}
-        <div class="phone-form">
-          {{ form.as_p }}
+        <div class="text-container">
+          <p>{{ pform.prefix.label_tag }} {{ pform.prefix }}</p>
+          <p>{{ uform.first_name.label_tag }} {{ uform.first_name }}</p>
+          <p>{{ pform.middle_name.label_tag }} {{ pform.middle_name }}</p>
+          <p>{{ uform.last_name.label_tag }} {{ uform.last_name }}</p>
+          <p>{{ pform.suffix.label_tag }} {{ pform.suffix }}</p>
+          <p>{{ pform.nickname.label_tag }} {{ pform.nickname }}</p>
+          </p>
+          <p>{{ pform.headline.label_tag }} {{ pform.headline }}</p>
+          <p>{{ pform.location.label_tag }} {{ pform.location }}</p>
+          </p>
         </div>
-      {% endfor %}
-    <button id="add-phone-form" type="button">Add Phone</button>
+      </div>
 
-    {{ address_formset.management_form }}
-      {% for form in address_formset %}
-        <div class="address-form">
-          {{ form.as_p }}
+      <div class="nameGroup">
+        <h3>URLs</h3>
+        <div id="URL">
+          <p>{{ pform.home_page.label_tag }} {{ pform.home_page }}</p>
+          <p>{{ pform.work_url.label_tag }} {{ pform.work_url }}</p>
         </div>
-        {% endfor %}
-    <button id="add-address-form" type="button">Add Address</button>
+      </div>
 
-    {{ socials_formset.management_form }}
-      {% for form in socials_formset %}
-        <div class="social-form">
-          {{ form.as_p }}
+      <div class="nameGroup">
+        <h3>Organization</h3>
+        <div class="text-container">
+          <p>{{ pform.organization.label_tag }} {{ pform.organization }}</p>
+          <p>{{ pform.title.label_tag }} {{ pform.title }}</p>
+          <p>{{ pform.role.label_tag }} {{ pform.role }}</p>
         </div>
-        {% endfor %}
-    <button id="add-social-form" type="button">Add Social Profile</button>
+      </div>
 
-    {% csrf_token %}
-    <p><input type="submit" value="Save changes"></p>
-  </form>
+      <div class="nameGroup">
+        <h3>Personal</h3>
+        <p>{{ pform.birthday.label_tag }} {{ pform.birthday }}</p>
+      </div>
+      {% endwith %}
+      {% endwith %}
+
+      <div class="nameGroup">
+        <h3>Email</h3>
+        <div id="EMAIL">
+          {{ email_formset.management_form }}
+          {% for form in email_formset %}
+          <div class="email-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-email-form" type="button">Add Email</button>
+        </div>
+      </div>
+
+      <div class="nameGroup">
+        <h3>Phone</h3>
+        <div id="TEL">
+          {{ phone_formset.management_form }}
+          {% for form in phone_formset %}
+          <div class="phone-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-phone-form" type="button">Add Phone</button>
+        </div>
+      </div>
+
+      <div class="nameGroup">
+        <h3>Addresses</h3>
+        <div id="ADR">
+          {{ address_formset.management_form }}
+          {% for form in address_formset %}
+          <div class="address-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-address-form" type="button">Add Address</button>
+        </div>
+      </div>
+
+      <div class="nameGroup">
+        <h3>Social Links</h3>
+        <div id="X-SOCIALPROFILE">
+          {{ socials_formset.management_form }}
+          {% for form in socials_formset %}
+          <div class="social-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-social-form" type="button">Add Social Profile</button>
+        </div>
+      </div>
+
+      {% csrf_token %}
+      <p><input type="submit" value="Save changes"></p>
+    </form>
+  </div>
   <script src="{% static "js/edit.js" %}"></script>
 {% endblock %}

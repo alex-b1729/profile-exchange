@@ -237,3 +237,13 @@ ol {
     line-height: 100px;
     font-size: 45px;
 }
+
+/* profile edit form */
+.email-form,
+.phone-form,
+.address-form,
+.social-form {
+    display: block;
+    margin-block-start: 0em;
+    margin-block-end: 1em;
+}

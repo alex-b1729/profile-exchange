@@ -1,17 +1,19 @@
-let container = document.querySelector("#form-container")
-
+let emailContainer = document.querySelector("#EMAIL")
 let emailForm = document.querySelectorAll(".email-form")
 let addEmailButton = document.querySelector("#add-email-form")
 let totalEmailForms = document.querySelector("#id_email_addresses-TOTAL_FORMS")
 
+let phoneContainer = document.querySelector("#TEL")
 let phoneForm = document.querySelectorAll(".phone-form")
 let addPhoneButton = document.querySelector("#add-phone-form")
 let totalPhoneForms = document.querySelector("#id_phone_numbers-TOTAL_FORMS")
 
+let addressContainer = document.querySelector("#ADR")
 let addressForm = document.querySelectorAll(".address-form")
 let addAddressButton = document.querySelector("#add-address-form")
 let totalAddressForms = document.querySelector("#id_postal_addresses-TOTAL_FORMS")
 
+let socialContainer = document.querySelector("#X-SOCIALPROFILE")
 let socialForm = document.querySelectorAll(".social-form")
 let addSocialButton = document.querySelector("#add-social-form")
 let totalSocialForms = document.querySelector("#id_social_profiles-TOTAL_FORMS")
@@ -40,7 +42,7 @@ function addEmailForm(e) {
     newForm.querySelector(`#id_email_addresses-${emailFormNum}-is_primary`).checked = false
     newForm.querySelector(`#id_email_addresses-${emailFormNum}-DELETE`).checked = false
 
-    container.insertBefore(newForm, addEmailButton)
+    emailContainer.insertBefore(newForm, addEmailButton)
 
     totalEmailForms.setAttribute('value', `${emailFormNum+1}`)
 }
@@ -58,7 +60,7 @@ function addPhoneForm(e) {
     newForm.querySelector(`#id_phone_numbers-${phoneFormNum}-phone_type`).value = 'mobile'
     newForm.querySelector(`#id_phone_numbers-${phoneFormNum}-DELETE`).checked = false
 
-    container.insertBefore(newForm, addPhoneButton)
+    phoneContainer.insertBefore(newForm, addPhoneButton)
 
     totalPhoneForms.setAttribute('value', `${phoneFormNum+1}`)
 }
@@ -80,7 +82,7 @@ function addAddressForm(e) {
     newForm.querySelector(`#id_postal_addresses-${addressFormNum}-country`).setAttribute('value', '')
     newForm.querySelector(`#id_postal_addresses-${addressFormNum}-DELETE`).checked = false
 
-    container.insertBefore(newForm, addAddressButton)
+    addressContainer.insertBefore(newForm, addAddressButton)
 
     totalAddressForms.setAttribute('value', `${addressFormNum+1}`)
 }
@@ -97,7 +99,7 @@ function addSocialForm(e) {
     newForm.querySelector(`#id_social_profiles-${socialFormNum}-url`).setAttribute('value', '')
     newForm.querySelector(`#id_social_profiles-${socialFormNum}-DELETE`).checked = false
 
-    container.insertBefore(newForm, addSocialButton)
+    socialContainer.insertBefore(newForm, addSocialButton)
 
     totalSocialForms.setAttribute('value', `${socialFormNum+1}`)
 }
