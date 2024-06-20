@@ -17,6 +17,18 @@ def profile_photo_dir_path(instance, filename):
 
 
 class Profile(models.Model):
+    MALE = 'M'
+    FEMAIL = 'F'
+    OTHER = 'O'
+    NONE = 'N'
+    UNKNOWN = 'U'
+    GENDER_TYPE_CHOICES = {
+        MALE: 'Male',
+        FEMAIL: 'Femail',
+        OTHER: 'Other',
+        NONE: 'Not Applicable',
+        UNKNOWN: 'Unknown'
+    }
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
@@ -56,7 +68,18 @@ class Profile(models.Model):
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.5
     birthday = models.DateField(blank=True, null=True)
 
-    # todo: add gender
+    # 6.2.6 Anniversary
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.6
+    anniversary = models.DateField(blank=True, null=True)
+
+    # 6.2.7 Gender
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.7
+    sex = models.CharField(max_length=20,
+                           choices=GENDER_TYPE_CHOICES,
+                           default=None,
+                           null=True,
+                           blank=True)
+    gender = models.CharField(max_length=25, blank=True)
 
     def __str__(self):
         return f'Profile of {self.user.first_name} {self.user.last_name}'

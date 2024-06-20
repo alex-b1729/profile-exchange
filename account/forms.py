@@ -73,7 +73,8 @@ class ProfileEditForm(forms.ModelForm):
         fields = ('prefix', 'middle_name', 'suffix', 'nick_name',
                   'photo', 'home_page', 'headline', 'location',
                   'organization', 'title', 'role', 'work_url',
-                  'birthday')
+                  'birthday', 'anniversary',
+                  'sex', 'gender')
 
 
 EmailAddressFormSet = inlineformset_factory(

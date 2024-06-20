@@ -51,7 +51,12 @@
 
       <div class="nameGroup">
         <h3>Personal</h3>
-        <p>{{ pform.birthday.label_tag }} {{ pform.birthday }}</p>
+        <div class="text-container">
+          <p>{{ pform.birthday.label_tag }} {{ pform.birthday }}</p>
+          <p>{{ pform.anniversary.label_tag }} {{ pform.anniversary }}</p>
+          <p>Biological sex: {{ pform.sex }}</p>
+          <p>Gender: {{ pform.gender }}</p>
+        </div>
       </div>
       {% endwith %}
       {% endwith %}
