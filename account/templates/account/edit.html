@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Edit your account{% endblock %}
+{% block title %}Edit your profile{% endblock %}
 
 {% block content %}
-  <h1>Edit your account</h1>
+  <h1>Edit your profile</h1>
   <p>You can edit your account using the following form:</p>
   <form method="post" enctype="multipart/form-data" id="form-container">
     {{ user_form.as_p }}

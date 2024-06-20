@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your Account{% endblock %}
+
+{% block content %}
+  <div class="content-header">
+    <h1>Your Account</h1>
+  </div>
+  <p>Username: {{ user.username }}</p>
+  <p>Joined: {{ user.date_joined|date:"M d, Y" }}</p>
+  <p>Primary email: {{ user.email }} <a href="#">update</a></p>
+  <a href="{% url "password_change" %}">Change Password</a>
+{% endblock %}

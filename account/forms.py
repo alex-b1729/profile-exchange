@@ -55,7 +55,7 @@ class UserRegistrationForm(forms.ModelForm):
     #     return user
 
 
-class UserEditForm(forms.ModelForm):
+class UserEditNameForm(forms.ModelForm):
     # todo: update username on email change?
     class Meta:
         model = get_user_model()

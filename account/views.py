@@ -15,7 +15,7 @@ from .models import (
 )
 from .forms import (
     UserRegistrationForm,
-    UserEditForm,
+    UserEditNameForm,
     ProfileEditForm,
     EmailAddressFormSet,
     PhoneFormSet,
@@ -30,6 +30,13 @@ def profile(request):
         request,
         'account/profile.html',
         {'section': 'profile'}
+    )
+
+@login_required
+def account(request):
+    return render(
+        request,
+        'account/account.html'
     )
 
 
@@ -63,7 +70,7 @@ class EditProfileView(TemplateResponseMixin, View):
     files = None
 
     def get_user_form(self, data=None):
-        return UserEditForm(instance=self.user, data=data)
+        return UserEditNameForm(instance=self.user, data=data)
 
     def get_profile_form(self, data=None, files=None):
         return ProfileEditForm(
