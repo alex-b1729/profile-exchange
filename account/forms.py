@@ -59,12 +59,20 @@ class UserEditNameForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ('first_name', 'last_name', 'email')
+        widgets = {
+            'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
+            'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'}),
+            'email': forms.TextInput(attrs={'autocomplete': 'email'}),
+        }
 
 
 class UserEditEmailForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ('email',)
+        widgets = {
+            'email': forms.EmailInput(attrs={'autocomplete': 'email'}),
+        }
 
 
 class ProfileEditForm(forms.ModelForm):
@@ -75,27 +83,76 @@ class ProfileEditForm(forms.ModelForm):
                   'organization', 'title', 'role', 'work_url',
                   'birthday', 'anniversary',
                   'sex', 'gender')
+        widgets = {
+            'prefix': forms.TextInput(attrs={'autocomplete': 'honorific-prefix'}),
+            'middle_name': forms.TextInput(attrs={'autocomplete': 'additional-name'}),
+            'suffix': forms.TextInput(attrs={'autocomplete': 'honorific-suffix'}),
+            'nick_name': forms.TextInput(attrs={'autocomplete': 'nickname'}),
+            'organization': forms.TextInput(attrs={'autocomplete': 'organization'}),
+            'title': forms.TextInput(attrs={'autocomplete': 'organization-title'}),
+            'birthday': forms.TextInput(attrs={'autocomplete': 'bday'}),
+            'gender': forms.TextInput(attrs={'autocomplete': 'sex'}),
+        }
+
+
+class EmailAddressForm(forms.ModelForm):
+    class Meta:
+        model = EmailAddress
+        fields = ['email_type', 'email_address', 'is_primary']
+        widgets = {
+            'email_address': forms.EmailInput(attrs={'autocomplete': 'email'}),
+        }
 
 
 EmailAddressFormSet = inlineformset_factory(
     get_user_model(),
     EmailAddress,
+    form=EmailAddressForm,
     fields=['email_type', 'email_address', 'is_primary'],
     extra=1,
     min_num=0,
     can_delete=True
 )
+
+
+class PhoneForm(forms.ModelForm):
+    class Meta:
+        model = Phone
+        fields = ['phone_number', 'phone_type']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={'autocomplete': 'tel'}),
+        }
+
+
 PhoneFormSet = inlineformset_factory(
     get_user_model(),
     Phone,
+    form=PhoneForm,
     fields=['phone_number', 'phone_type'],
     extra=1,
     min_num=0,
     can_delete=True
 )
+
+
+class PostalAddressForm(forms.ModelForm):
+    class Meta:
+        model = PostalAddress
+        fields = ['address_type', 'street1', 'street2', 'city', 'state', 'zip', 'country']
+        widgets = {
+            'street1': forms.TextInput(attrs={'autocomplete': 'address-line1'}),
+            'street2': forms.TextInput(attrs={'autocomplete': 'address-line2'}),
+            'city': forms.TextInput(attrs={'autocomplete': 'address-level2'}),
+            'state': forms.TextInput(attrs={'autocomplete': 'address-level1'}),
+            'zip': forms.TextInput(attrs={'autocomplete': 'postal-code'}),
+            'country': forms.TextInput(attrs={'autocomplete': 'country'}),
+        }
+
+
 PostalAddressFormSet = inlineformset_factory(
     get_user_model(),
     PostalAddress,
+    form=PostalAddressForm,
     fields=['address_type', 'street1', 'street2', 'city', 'state', 'zip', 'country'],
     extra=1,
     min_num=0,
