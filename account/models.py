@@ -166,8 +166,8 @@ class Phone(models.Model):
         """
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
         """
-        # todo: implement with uri specs
-        pass
+        # todo: gotta format the number correctly
+        return self.phone_number
 
 
 class PostalAddress(models.Model):
@@ -217,6 +217,7 @@ class PostalAddress(models.Model):
 
 
 class SocialProfile(models.Model):
+    # todo: add label
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='social_profiles',
