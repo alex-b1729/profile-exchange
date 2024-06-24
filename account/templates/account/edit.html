@@ -4,19 +4,20 @@
 {% block title %}Edit your profile{% endblock %}
 
 {% block content %}
+  <form method="post" enctype="multipart/form-data" id="form-container">
   <div class="content-header">
     <h1>Edit your profile</h1>
-    <!-- <p><input type="submit" value="Save changes"></p> -->
+    {% csrf_token %}
+    <p><input type="submit" value="Save changes"></p>
     <!-- doesn't save anything when up here for some reason -->
   </div>
   <!-- TODO: add verification errors {{ field.errors }} -->
   <div class="profile">
-    <form method="post" enctype="multipart/form-data" id="form-container">
       {% with uform=user_form %}
       {% with pform=profile_form %}
       <div class="profileHeader">
         <div class="profilePhoto">
-          <!-- todo: this ain't not pretty -->
+          <!-- todo: this ain't pretty -->
           {{ pform.photo }}
         </div>
         <div class="text-container">
@@ -61,6 +62,7 @@
       {% endwith %}
       {% endwith %}
 
+      <!-- todo: remove the delete button on new forms using if form.instance.pk render form.DELETE -->
       <div class="nameGroup">
         <h3>Email</h3>
         <div id="EMAIL">
@@ -116,9 +118,9 @@
         </div>
       </div>
 
-      {% csrf_token %}
-      <p><input type="submit" value="Save changes"></p>
-    </form>
+      <!-- {% csrf_token %} -->
+      <!-- <p><input type="submit" value="Save changes"></p>-->
   </div>
+  </form>
   <script src="{% static "js/edit_profile.js" %}"></script>
 {% endblock %}
