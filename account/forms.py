@@ -19,16 +19,20 @@ class LoginForm(forms.Form):
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(
         label='Password',
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
     )
     password2 = forms.CharField(
         label='Repeat password',
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
     )
 
     class Meta:
         model = get_user_model()
         fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'email': forms.EmailInput(attrs={'autocomplete': 'email'})
+        }
 
     def clean_password2(self):
         cd = self.cleaned_data
