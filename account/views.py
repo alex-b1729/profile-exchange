@@ -264,20 +264,19 @@ def download_vcard(request, username=None):
     )
 
 
-# @login_required
-# def connection_list(request):
-#     connections = request.user.connections.all()
-#     return render(
-#         request,
-#         'account/user/connections.html',
-#         {'section': 'connections',
-#          'connections': connections}
-#     )
+@login_required
+def connection_list(request):
+    connections = Connection.objects.filter(user_from=request.user)
+    return render(
+        request,
+        'account/user/connections.html',
+        {'section': 'connections',
+         'connections': connections}
+    )
 
 
 @login_required
 def connection_detail(request, connection_id):
-    # return 'hello world'
     connection = get_object_or_404(Connection,
                                    id=connection_id,
                                    # below so you can't try to query connections you're not part of
@@ -286,5 +285,5 @@ def connection_detail(request, connection_id):
         request,
         'account/user/contact.html',
         {'section': 'connections',
-         'user_to': connection.user_to}
+         'connection': connection}
     )

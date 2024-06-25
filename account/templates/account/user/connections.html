@@ -4,23 +4,26 @@
 {% block title %}Connections{% endblock %}
 
 {% block content %}
+<div class="content-header">
   <h1>Connections</h1>
-  <div id="connection-list">
-    {% for connection in connections %}
-      <div class="connection">
-        <a href="{{ connection.get_absolute_url }}">
-          {% thumbnail connection.profile.photo "100x100" crop="center" as im %}
-            <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.username }} profile photo">
-          {% empty %}
-            <div class="profilePhoto container small">{{ connection.first_name|slice:"1" }}{{ connection.last_name|slice:"1" }}</div>
-          {% endthumbnail %}
-        </a>
-        <div class="info">
-          <a href="{{ connection.get_absolute_url }}" class="title">
-            {{ connection.get_full_name }}
-          </a>
-        </div>
-      </div>
-    {% endfor %}
+</div>
+<div id="connection-list">
+  {% for connection in connections %}
+  <div class="connection">
+    <a href="{{ connection.get_absolute_url }}">
+      {% thumbnail connection.user_to.profile.photo "100x100" crop="center" as im %}
+        <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.user_to.username }} profile photo">
+      {% empty %}
+        <div class="profilePhoto container small">{{ connection.user_to.first_name|slice:"1" }}{{ connection.user_to.last_name|slice:"1" }}</div>
+      {% endthumbnail %}
+    </a>
+    <div class="info">
+      <a href="{{ connection.get_absolute_url }}" class="title">
+        {{ connection.user_to.first_name }} {{ connection.user_to.last_name }}
+      </a>
+    </div>
   </div>
+  <!-- todo something with empty -->
+  {% endfor %}
+</div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load thumbnail %}
 
-{% block title %}{{ user_to.get_full_name }}{% endblock %}
+{% block title %}Connections | {{ connection.user_to.get_full_name }}{% endblock %}
 <!-- todo: why not just rerender profile.html? -->
 {% block content %}
   <div class="content-header">
@@ -9,24 +9,25 @@
     <!-- <a href="{% url 'download_vcard' %}" download>Download vCard</a> -->
     <a href="#" download>Download vCard</a>
   </div>
+<p>Connected {{ connection.created }}</p>
   <div class="profile">
 
     <div class="profileHeader">
-      {% thumbnail user_to.profile.photo "200x200" crop="center" as im %}
-      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ user_to.username }} profile photo">
+      {% thumbnail connection.user_to.profile.photo "200x200" crop="center" as im %}
+      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.user_to.username }} profile photo">
       {% empty %}
-      <div class="profilePhoto container large">{{ user_to.first_name|slice:"1" }}{{ user_to.last_name|slice:"1" }}</div>
+      <div class="profilePhoto container large">{{ connection.user_to.first_name|slice:"1" }}{{ connection.user_to.last_name|slice:"1" }}</div>
       {% endthumbnail %}
 
       <div class="text-container">
-        <p id="FN">{{ user_to.profile.FN }}</p>
-        <p id="X-HEADLINE">{{ user_to.profile.headline }}</p>
-        <p id="X-LOCATION">{{ user_to.profile.location }}</p>
+        <p id="FN">{{ connection.user_to.profile.FN }}</p>
+        <p id="X-HEADLINE">{{ connection.user_to.profile.headline }}</p>
+        <p id="X-LOCATION">{{ connection.user_to.profile.location }}</p>
       </div>
     </div>
 
-    {% with homePage=user_to.profile.home_page %}
-    {% with workUrl=user_to.profile.work_url %}
+    {% with homePage=connection.user_to.profile.home_page %}
+    {% with workUrl=connection.user_to.profile.work_url %}
     {% if homePage or workUrl %}
     <div class="nameGroup">
       <h3>URLs</h3>
@@ -34,11 +35,11 @@
       <div id="URL">
         <ul>
           {% if homePage %}
-          <li class="HOME"><a href="{{ user_to.profile.home_page }}" target="_blank">{{ user_to.profile.home_page }}</a></li>
+          <li class="HOME"><a href="{{ connection.user_to.profile.home_page }}" target="_blank">{{ connection.user_to.profile.home_page }}</a></li>
           {% endif %}
 
           {% if workUrl %}
-          <li class="WORK"><a href="{{ user_to.profile.work_url }}" target="_blank">{{ user_to.profile.work_url }}</a></li>
+          <li class="WORK"><a href="{{ connection.user_to.profile.work_url }}" target="_blank">{{ connection.user_to.profile.work_url }}</a></li>
           {% endif %}
         </ul>
       </div>
@@ -47,7 +48,7 @@
     {% endwith %}
     {% endwith %}
 
-    {% with socials=user_to.social_profiles.all %}
+    {% with socials=connection.user_to.social_profiles.all %}
     {% if socials %}
     <div class="nameGroup">
       <h3>Social Links</h3>
@@ -63,7 +64,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with emails=user_to.email_addresses.all %}
+    {% with emails=connection.user_to.email_addresses.all %}
     {% if emails %}
     <div class="nameGroup">
       <h3>Email</h3>
@@ -80,9 +81,9 @@
     {% endif %}
     {% endwith %}
 
-    {% with org=user_to.profile.organization %}
-    {% with title=user_to.profile.title %}
-    {% with role=user_to.profile.role %}
+    {% with org=connection.user_to.profile.organization %}
+    {% with title=connection.user_to.profile.title %}
+    {% with role=connection.user_to.profile.role %}
     {% if org or title or role %}
     <div class="nameGroup">
       <h3>Organization</h3>
@@ -103,7 +104,7 @@
     {% endwith %}
     {% endwith %}
 
-    {% with phones=user_to.phone_numbers.all %}
+    {% with phones=connection.user_to.phone_numbers.all %}
     {% if phones %}
     <div class="nameGroup">
       <h3>Phone</h3>
@@ -119,7 +120,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with addresses=user_to.postal_addresses.all %}
+    {% with addresses=connection.user_to.postal_addresses.all %}
     {% if addresses %}
     <div class="nameGroup">
       <h3>Addresses</h3>
@@ -142,10 +143,10 @@
     {% endif %}
     {% endwith %}
 
-    {% with bday=user_to.profile.birthday %}
-    {% with anniv=user_to.profile.anniversary %}
-    {% with sex=user_to.profile.sex %}
-    {% with gender=user_to.profile.gender %}
+    {% with bday=connection.user_to.profile.birthday %}
+    {% with anniv=connection.user_to.profile.anniversary %}
+    {% with sex=connection.user_to.profile.sex %}
+    {% with gender=connection.user_to.profile.gender %}
     {% if bday or anniv or sex or gender != "" %}
     <div class="nameGroup">
       <h3>Personal</h3>

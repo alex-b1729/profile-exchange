@@ -150,7 +150,7 @@ AUTHENTICATION_BACKENDS = [
     'account.authentication.EmailAuthBackend',
 ]
 
-ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: reverse_lazy('contact_detail',
-                                        args=[u.username])
-}
+# ABSOLUTE_URL_OVERRIDES = {
+#     'auth.user': lambda u: reverse_lazy('connection_detail',
+#                                         args=[u.username])
+# }

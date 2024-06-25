@@ -3,8 +3,8 @@ import os.path
 import datetime as dt
 
 from django.db import models
-from django.conf import settings
 from django.urls import reverse
+from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from phonenumber_field.modelfields import PhoneNumberField
@@ -244,6 +244,9 @@ class Connection(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
+    def get_absolute_url(self):
+        return reverse('connection_detail', kwargs={'connection_id': self.id})
+
     class Meta:
         indexes = [
             models.Index(fields=['-created']),
@@ -251,7 +254,7 @@ class Connection(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return f'{self.user_from} is connected to {self.user_to}'
+        return f'Connection {self.user_from} -> {self.user_to}'
 
 
 # Add following field to User dynamically
