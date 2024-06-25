@@ -229,7 +229,7 @@ class SocialProfile(models.Model):
         return str(self.url)
 
 
-class Contact(models.Model):
+class Connection(models.Model):
     user_from = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='rel_from_set',
@@ -258,7 +258,7 @@ user_model.add_to_class(
     'connections',
     models.ManyToManyField(
         'self',
-        through=Contact,
+        through=Connection,
         symmetrical=True,
     ),
 )

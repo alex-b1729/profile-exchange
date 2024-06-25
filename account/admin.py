@@ -5,7 +5,8 @@ from .models import (
     EmailAddress,
     Phone,
     PostalAddress,
-    Contact,
+    SocialProfile,
+    Connection,
 )
 
 
@@ -19,4 +20,5 @@ admin.site.register(Profile)
 admin.site.register(EmailAddress)
 admin.site.register(Phone)
 admin.site.register(PostalAddress)
-admin.site.register(Contact)
+admin.site.register(SocialProfile)
+admin.site.register(Connection)
