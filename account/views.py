@@ -267,25 +267,25 @@ def download_vcard(request, username=None):
     )
 
 
-@login_required
-def connection_list(request):
-    connections = request.user.connections.all()
-    return render(
-        request,
-        'account/user/connections.html',
-        {'section': 'connections',
-         'connections': connections}
-    )
-
-
-@login_required
-def contact_detail(request, username):
-    contact = get_object_or_404(get_user_model(),
-                                username=username,
-                                is_active=True)
-    return render(
-        request,
-        'account/user/contact.html',
-        {'section': 'connections',
-         'contact': contact}
-    )
+# @login_required
+# def connection_list(request):
+#     connections = request.user.connections.all()
+#     return render(
+#         request,
+#         'account/user/connections.html',
+#         {'section': 'connections',
+#          'connections': connections}
+#     )
+#
+#
+# @login_required
+# def contact_detail(request, username):
+#     contact = get_object_or_404(get_user_model(),
+#                                 username=username,
+#                                 is_active=True)
+#     return render(
+#         request,
+#         'account/user/contact.html',
+#         {'section': 'connections',
+#          'contact': contact}
+#     )
