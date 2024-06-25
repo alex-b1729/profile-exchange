@@ -24,7 +24,7 @@ class Profile(models.Model):
     UNKNOWN = 'U'
     GENDER_TYPE_CHOICES = {
         MALE: 'Male',
-        FEMAIL: 'Femail',
+        FEMAIL: 'Female',
         OTHER: 'Other',
         NONE: 'Not Applicable',
         UNKNOWN: 'Unknown'
