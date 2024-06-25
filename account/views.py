@@ -191,7 +191,7 @@ class VCard(object):
         if p.role != '': yield f'ROLE{self.charset}:{p.role}\n'
         if p.organization != '': yield f'ORG{self.charset}:{p.organization}\n'
 
-        if p.anniversary is not None: yield f'ANNIVERSARY:{p.anniversary.format("%Y%m%d")}\n'
+        if p.anniversary is not None: yield f'ANNIVERSARY:{p.anniversary.strftime("%Y%m%d")}\n'
 
         if p.sex is not None or p.gender != '':
             g = f'GENDER{self.charset}:'
@@ -250,16 +250,19 @@ class VCard(object):
 
 
 @login_required
-def download_vcard(request, username):
-    user = get_object_or_404(get_user_model(),
-                             username=username,
-                             is_active=True)
+def download_vcard(request, username=None):
+    if username is None:
+        user = request.user
+    else:
+        user = get_object_or_404(get_user_model(),
+                                 username=username,
+                                 is_active=True)
     content = ContentFile(VCard(user).vcard_text())
     return HttpResponse(
         content,
         headers={
             'Content-Type': 'text/plain',
-            'Content-Disposition': f'attachment; filename="{user.username}.vcf'
+            'Content-Disposition': f'attachment; filename="{user.first_name}{user.last_name}.vcf'
         }
     )
 

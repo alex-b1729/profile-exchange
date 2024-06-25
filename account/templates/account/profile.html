@@ -7,7 +7,7 @@
 {% block content %}
   <div class="content-header">
     <h1>Profile</h1>
-    <a href="{% url 'download_vcard' username=request.user.username %}" download>Download vCard</a>
+    <a href="{% url 'download_vcard' %}" download>Download vCard</a>
     <a href="{% url "edit" %}">Edit Profile</a>
   </div>
   <div class="profile">
