@@ -7,6 +7,7 @@ from .models import (
     PostalAddress,
     SocialProfile,
     Connection,
+    ConnectionNote,
 )
 
 
@@ -22,3 +23,4 @@ admin.site.register(Phone)
 admin.site.register(PostalAddress)
 admin.site.register(SocialProfile)
 admin.site.register(Connection)
+admin.site.register(ConnectionNote)

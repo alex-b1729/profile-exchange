@@ -267,3 +267,22 @@ user_model.add_to_class(
         symmetrical=True,
     ),
 )
+
+
+class ConnectionNote(models.Model):
+    connection = models.ForeignKey(
+        Connection,
+        related_name='notes',
+        on_delete=models.CASCADE
+    )
+    note = models.CharField(blank=False)
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.note[:100]

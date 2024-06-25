@@ -169,4 +169,21 @@
     {% endwith %}
 
   </div>
+
+  <div class="connection-notes">
+    <h2>Notes</h2>
+    <p><a href="#">Add a note</a></p>
+    {% with notes=connection.notes.all %}
+    {% if notes %}
+    <ul>
+      {% for note in notes %}
+      <li>
+        <p>{{ note.created }}</p>
+        <p>{{ note.note }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+  </div>
 {% endblock %}
