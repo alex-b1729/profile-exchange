@@ -1,7 +1,9 @@
 import datetime as dt
 from django.contrib import messages
 from django.http import HttpResponse
+from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.views.generic.detail import DetailView
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -239,6 +241,27 @@ class VCard(object):
         yield from self.yield_social_features()
         yield self.rev % dt.datetime.now()  # todo: update formatting
         yield self.end_vcard
+
+    def vcard_text(self):
+        s = ''
+        for line in self.generate_vcard():
+            s += line
+        return s
+
+
+@login_required
+def download_vcard(request, username):
+    user = get_object_or_404(get_user_model(),
+                             username=username,
+                             is_active=True)
+    content = ContentFile(VCard(user).vcard_text())
+    return HttpResponse(
+        content,
+        headers={
+            'Content-Type': 'text/plain',
+            'Content-Disposition': f'attachment; filename="{user.username}.vcf'
+        }
+    )
 
 
 @login_required
