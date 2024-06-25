@@ -218,13 +218,13 @@ class PostalAddress(models.Model):
 
 
 class SocialProfile(models.Model):
-    # todo: add label
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='social_profiles',
         on_delete=models.CASCADE
     )
     url = models.URLField()
+    label = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return str(self.url)
