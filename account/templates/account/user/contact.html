@@ -1,60 +1,171 @@
 {% extends "base.html" %}
 {% load thumbnail %}
 
-{% block title %}{{ contact.get_full_name }}{% endblock %}
-
+{% block title %}{{ user_to.get_full_name }}{% endblock %}
+<!-- todo: why not just rerender profile.html? -->
 {% block content %}
-  <h1>{{ contact.get_full_name }}</h1>
-  <div class="contact-info">
-    {% thumbnail contact.profile.photo "200x200" crop="center" as im %}
-      <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ contact.username }} profile photo">
-    {% empty %}
-      <div class="profilePhoto container large">{{ contact.first_name|slice:"1" }}{{ contact.last_name|slice:"1" }}</div>
-    {% endthumbnail %}
-    <p id="fullname">{{ contact.first_name }} {{ contact.last_name }}</p>
-    <p id="headline">{{ contact.profile.headline }}</p>
-    <p id="company">{{ contact.profile.company }}</p>
-    <p id="jobTitle">{{ contact.profile.job_title }}</p>
-    <p id="location">{{ contact.profile.location }}</p>
-    <p id="primaryEmail">{{ contact.email }}</p>
-    {% if contact.profile.home_page %}
-      <p id="homePage">Home page: <a href="{{ contact.profile.home_page }}" target="_blank">{{ contact.profile.home_page }}</a></p>
-    {% endif %}
-    <p id="dob">{{ contact.profile.date_of_birth }}</p>
+  <div class="content-header">
+    <h1>Profile</h1>
+    <!-- <a href="{% url 'download_vcard' %}" download>Download vCard</a> -->
+    <a href="#" download>Download vCard</a>
+  </div>
+  <div class="profile">
 
-    {% with emails=contact.email_addresses.all %}
-    {% if emails %}
-      {% for email in emails %}
-    <p>{{ email.email_address }}</p>
-      {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <div class="profileHeader">
+      {% thumbnail user_to.profile.photo "200x200" crop="center" as im %}
+      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ user_to.username }} profile photo">
+      {% empty %}
+      <div class="profilePhoto container large">{{ user_to.first_name|slice:"1" }}{{ user_to.last_name|slice:"1" }}</div>
+      {% endthumbnail %}
 
-    {% with phones=contact.phone_numbers.all %}
-    {% if phones %}
-      {% for phone in phones %}
-    <p>{{ phone.phone_type }}: {{ phone.phone_number }}</p>
-      {% endfor %}
-    {% endif %}
-    {% endwith %}
+      <div class="text-container">
+        <p id="FN">{{ user_to.profile.FN }}</p>
+        <p id="X-HEADLINE">{{ user_to.profile.headline }}</p>
+        <p id="X-LOCATION">{{ user_to.profile.location }}</p>
+      </div>
+    </div>
 
-    {% with addresses=contact.postal_addresses.all %}
-    {% if addresses %}
-      {% for address in addresses %}
-    <p>{{ address.street1 }}</p>
-    <p>{{ address.street2 }}</p>
-    <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
-    <p>{{ address.country }}</p>
-      {% endfor %}
+    {% with homePage=user_to.profile.home_page %}
+    {% with workUrl=user_to.profile.work_url %}
+    {% if homePage or workUrl %}
+    <div class="nameGroup">
+      <h3>URLs</h3>
+      <!-- todo: add link svg -->
+      <div id="URL">
+        <ul>
+          {% if homePage %}
+          <li class="HOME"><a href="{{ user_to.profile.home_page }}" target="_blank">{{ user_to.profile.home_page }}</a></li>
+          {% endif %}
+
+          {% if workUrl %}
+          <li class="WORK"><a href="{{ user_to.profile.work_url }}" target="_blank">{{ user_to.profile.work_url }}</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
     {% endif %}
     {% endwith %}
+    {% endwith %}
 
-    {% with socials=contact.social_profiles.all %}
+    {% with socials=user_to.social_profiles.all %}
     {% if socials %}
-      {% for social in socials %}
-    <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
-      {% endfor %}
+    <div class="nameGroup">
+      <h3>Social Links</h3>
+      <div id="X-SOCIALPROFILE">
+        <ul>
+          {% for social in socials %}
+          <!-- todo: add social svgs -->
+          <li><a href="{{ social.url }}" target="_blank">{{ social.url }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
     {% endif %}
     {% endwith %}
+
+    {% with emails=user_to.email_addresses.all %}
+    {% if emails %}
+    <div class="nameGroup">
+      <h3>Email</h3>
+      <div id="EMAIL">
+        <ul>
+          {% for email in emails %}
+          <li><a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
+          <!-- TODO: protect mailto links -->
+          <!-- TODO: display if verified and link to verity -->
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% with org=user_to.profile.organization %}
+    {% with title=user_to.profile.title %}
+    {% with role=user_to.profile.role %}
+    {% if org or title or role %}
+    <div class="nameGroup">
+      <h3>Organization</h3>
+      <div class="text-container">
+        {% if org %}
+        <p id="ORG">Organization: {{ org }}</p>
+        {% endif %}
+        {% if title %}
+        <p id="TITLE">Title: {{ title }}</p>
+        {% endif %}
+        {% if role %}
+        <p id="ROLE">Role: {{ role }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+
+    {% with phones=user_to.phone_numbers.all %}
+    {% if phones %}
+    <div class="nameGroup">
+      <h3>Phone</h3>
+      <div id="TEL">
+        <ul>
+          {% for phone in phones %}
+          <!-- todo: does phone.phone_type return the key or value? -->
+          <li class="{{ phone.phone_type }}">{{ phone.phone_type }}: {{ phone.phone_number }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% with addresses=user_to.postal_addresses.all %}
+    {% if addresses %}
+    <div class="nameGroup">
+      <h3>Addresses</h3>
+      <div id="ADR">
+        <ul>
+          {% for address in addresses %}
+          <li>
+            <div class="{{ address.address_type }}">
+              <p class="addressType">{{ address.address_type }}</p>
+              <p class="adrLine1">{{ address.street1 }}</p>
+              <p class="adrLine2">{{ address.street2 }}</p>
+              <p class="adrLine3">{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+              <p class="country">{{ address.country }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% with bday=user_to.profile.birthday %}
+    {% with anniv=user_to.profile.anniversary %}
+    {% with sex=user_to.profile.sex %}
+    {% with gender=user_to.profile.gender %}
+    {% if bday or anniv or sex or gender != "" %}
+    <div class="nameGroup">
+      <h3>Personal</h3>
+      <div class="text-container">
+        {% if bday %}
+        <p id="BDAY">Birthday: {{ bday }}</p>
+        {% endif %}
+        {% if anniv %}
+        <p id="ANNIVERARY">Anniversary: {{ anniv }}</p>
+        {% endif %}
+        {% if sex or sex != "" or gender != "" %}
+        <p id="gender">{% if sex != "" %}{{ sex }} - {% endif %}{% if gender != "" %}{{ gender }}{% endif %}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+
   </div>
 {% endblock %}

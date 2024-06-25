@@ -11,10 +11,7 @@ from django.views.generic.base import TemplateResponseMixin, View
 
 from .models import (
     Profile,
-    EmailAddress,
-    Phone,
-    PostalAddress,
-    SocialProfile,
+    Connection,
 )
 from .forms import (
     UserRegistrationForm,
@@ -276,16 +273,18 @@ def download_vcard(request, username=None):
 #         {'section': 'connections',
 #          'connections': connections}
 #     )
-#
-#
-# @login_required
-# def contact_detail(request, username):
-#     contact = get_object_or_404(get_user_model(),
-#                                 username=username,
-#                                 is_active=True)
-#     return render(
-#         request,
-#         'account/user/contact.html',
-#         {'section': 'connections',
-#          'contact': contact}
-#     )
+
+
+@login_required
+def connection_detail(request, connection_id):
+    # return 'hello world'
+    connection = get_object_or_404(Connection,
+                                   id=connection_id,
+                                   # below so you can't try to query connections you're not part of
+                                   user_from=request.user)
+    return render(
+        request,
+        'account/user/contact.html',
+        {'section': 'connections',
+         'user_to': connection.user_to}
+    )

@@ -13,5 +13,5 @@ urlpatterns = [
     path('download/', views.download_vcard, name='download_vcard'),
     # path('users/', views.user_list, name='user_list'),
     # path('connections/', views.connection_list, name='connection_list'),
-    # path('connections/<username>/', views.contact_detail, name='contact_detail'),
+    path('connections/<uuid:connection_id>/', views.connection_detail, name='connection_detail'),
 ]
