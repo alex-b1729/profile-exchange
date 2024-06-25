@@ -64,33 +64,45 @@
     {% endif %}
     {% endwith %}
 
+    {% with emails=request.user.email_addresses.all %}
+    {% if emails %}
     <div class="nameGroup">
       <h3>Email</h3>
       <div id="EMAIL">
         <ul>
-          <li><a href="mailto:{{ request.user.email }}" class="HOME INTERNET PREF">{{ request.user.email }}</a></li>
-
-          {% with emails=request.user.email_addresses.all %}
-          {% if emails %}
           {% for email in emails %}
           <li><a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
           <!-- TODO: protect mailto links -->
           <!-- TODO: display if verified and link to verity -->
           {% endfor %}
-          {% endif %}
-          {% endwith %}
         </ul>
       </div>
     </div>
+    {% endif %}
+    {% endwith %}
 
+    {% with org=request.user.profile.organization %}
+    {% with title=request.user.profile.title %}
+    {% with role=request.user.profile.role %}
+    {% if org or title or role %}
     <div class="nameGroup">
       <h3>Organization</h3>
       <div class="text-container">
-        <p id="ORG">Organization: {{ request.user.profile.organization }}</p>
-        <p id="TITLE">Title: {{ request.user.profile.title }}</p>
-        <p id="ROLE">Role: {{ request.user.profile.role }}</p>
+        {% if org %}
+        <p id="ORG">Organization: {{ org }}</p>
+        {% endif %}
+        {% if title %}
+        <p id="TITLE">Title: {{ title }}</p>
+        {% endif %}
+        {% if role %}
+        <p id="ROLE">Role: {{ role }}</p>
+        {% endif %}
       </div>
     </div>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
 
     {% with phones=request.user.phone_numbers.all %}
     {% if phones %}
@@ -131,10 +143,30 @@
     {% endif %}
     {% endwith %}
 
+    {% with bday=request.user.profile.birthday %}
+    {% with anniv=request.user.profile.anniversary %}
+    {% with sex=request.user.profile.sex %}
+    {% with gender=request.user.profile.gender %}
+    {% if bday or anniv or sex or gender != "" %}
     <div class="nameGroup">
       <h3>Personal</h3>
-      <p id="BDAY">{{ request.user.profile.birthday }}</p>
+      <div class="text-container">
+        {% if bday %}
+        <p id="BDAY">Birthday: {{ bday }}</p>
+        {% endif %}
+        {% if anniv %}
+        <p id="ANNIVERARY">Anniversary: {{ anniv }}</p>
+        {% endif %}
+        {% if sex or sex != "" or gender != "" %}
+        <p id="gender">{% if sex != "" %}{{ sex }} - {% endif %}{% if gender != "" %}{{ gender }}{% endif %}</p>
+        {% endif %}
+      </div>
     </div>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
 
   </div>
 {% endblock %}
