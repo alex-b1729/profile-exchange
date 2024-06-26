@@ -3,10 +3,15 @@
 {% block title %}Create an account{% endblock %}
 
 {% block content %}
-  <h1>Create an account</h1>
-  <p>Please, sign up using the following form:</p>
+  <h1>Create your account</h1>
+  <p>This info will not be part of your contact profile. </p>
   <form method="post">
-    {{ user_form.as_p }}
+    <p>{{ user_form.username.label_tag }} {{ user_form.username }}</p>
+    <p><i>{{ user_form.username.help_text }}</i></p>
+    <p>{{ user_form.email.label_tag }} {{ user_form.email }}</p>
+    <p>{{ user_form.password.label_tag }} {{ user_form.password }}</p>
+    <p>{{ user_form.password2.label_tag }} {{ user_form.password2 }}</p>
+    <!--user_form.as_p-->
     {% csrf_token %}
     <p><input type="submit" value="Create my account"></p>
   </form>
