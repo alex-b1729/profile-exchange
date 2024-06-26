@@ -62,11 +62,10 @@ class UserRegistrationForm(forms.ModelForm):
 class UserEditNameForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name')
         widgets = {
             'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
             'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'}),
-            'email': forms.TextInput(attrs={'autocomplete': 'email'}),
         }
 
 
