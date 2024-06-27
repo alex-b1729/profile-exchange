@@ -247,3 +247,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Proj specific stuff
+resources/
