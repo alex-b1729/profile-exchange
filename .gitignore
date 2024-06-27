@@ -249,4 +249,6 @@ dmypy.json
 cython_debug/
 
 # Proj specific stuff
-resources/
+resources/*.jpg
+resources/*.jpeg
+resources/*.png
