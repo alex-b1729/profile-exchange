@@ -10,7 +10,8 @@ from django.contrib.auth import get_user_model
 from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 
-# todo: add properties that return full vCard contentline
+# todo: worth understanding how popular systems parse vcards
+# https://alessandrorossini.org/the-sad-story-of-the-vcard-format-and-its-lack-of-interoperability/
 
 
 WORK = 'WORK'
@@ -44,8 +45,7 @@ class Vcard(models.Model):
     END = 'VCARD'
     SOURCE = ''  # uri
     XML = ''
-    # todo: PRODID *1 should specify that this app made the vCard
-    PRODID = 'ALEX\'S AWESOME APP!'
+    PRODID = ''
 
     INDIVIDUAL = 'individual'
     GROUP = 'group'
@@ -143,7 +143,6 @@ class Vcard(models.Model):
         ordering = ['last_name', 'first_name']
 
     def __str__(self):
-        # todo: return vcard str here?
         return (f'vCard:{" (" + self.user.username + ")" if self.user is not None else ""} '
                 f'{self.first_name} {self.last_name}')
 
@@ -174,6 +173,55 @@ class Vcard(models.Model):
         # todo: should this be time of vCard export or last time a user updated a value of the model?
         return dt.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
 
+    @property
+    def vcf(self):
+        """
+        return formatted vcard
+        I'm choosing to add newline chars at end of each property.
+        """
+        # todo: implement line folding over 75 chars as outlined in
+        # https://datatracker.ietf.org/doc/html/rfc6350#section-3.2
+        s = f"""
+        BEGIN:{self.BEGIN}
+        VERSION:{self.VERSION}
+        KIND:{self.kind}
+        FN:{self.FN}
+        N:{self.N}
+        {'NICKNAME:' + self.nickname if self.nickname!='' else ''}
+        """
+
+        # todo: photo encoding
+
+        # TODO: date w/o year won't be interpreted by Apple contacts
+        if self.birthday is not None:
+            year = str(self.birthday_year) if self.birthday_year is not None else '--'
+            bday = f'{self.birthday.month:02}{self.birthday.day:02}'
+            s += f'BDAY:{year}{bday}\n'
+
+        if self.anniversary is not None:
+            year = str(self.anniversary_year) if self.anniversary_year is not None else '--'
+            anniv = f'{self.anniversary.month:02}{self.anniversary.day:02}'
+            s += f'BDAY:{year}{anniv}\n'
+
+        if self.sex is not None or self.gender!='':
+            s += (f'GENDER:{self.sex if self.sex is not None else ""}'
+                  f'{";" + self.gender if self.gender!="" else ""}\n')
+
+        s += ''.join([f'ADR{adr.ADR}\n' for adr in self.address_set.all()])
+        s += ''.join([f'TEL{tel.TEL}\n' for tel in self.phone_set.all()])
+        s += ''.join([f'EMAIL{email.EMAIL}\n' for email in self.email_set.all()])
+        s += ''.join([org.formatted_organizational_properties for org in self.organization_set.all()])
+        s += ''.join([f'URL{url.URL}\n' for url in self.url_set.all()])
+
+        s += f'NOTE:{self.note}\n' if self.note!='' else ''
+
+        categories = [cat.CATEGORIES for cat in self.tag_set.all()]
+        if categories != []:
+            s += f'CATEGORIES:{",".join(categories)}\n'
+
+        s += f'REV:{self.REV}\n'
+        s += f'END:{self.END}'
+
 
 class Address(models.Model):
     """
@@ -183,7 +231,6 @@ class Address(models.Model):
     """
     vcard = models.ForeignKey(
         Vcard,
-        related_name='addresses',
         on_delete=models.CASCADE
     )
     address_type = models.CharField(max_length=5,
@@ -216,7 +263,8 @@ class Address(models.Model):
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1
         First 2 components have interoperability issues and SHOULD be empty according to specs
         """
-        return (f';;{self.street1}{"," if self.street2 != "" else ""}{self.street2};'
+        return (f'{";TYPE=" + self.address_type if self.address_type not in ["", "other"] else ""}:'
+                f';;{self.street1}{"," + self.street2 if self.street2 != "" else ""};'
                 f'{self.city};{self.state};{self.zip};{self.country}')
 
 
@@ -249,7 +297,6 @@ class Phone(models.Model):
     }
     vcard = models.ForeignKey(
         Vcard,
-        related_name='phones',
         on_delete=models.CASCADE
     )
     phone_number = PhoneNumberField(blank=False)
@@ -270,7 +317,8 @@ class Phone(models.Model):
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
         """
         # todo: gotta format the number correctly
-        return f'tel:{self.phone_number}{";" + self.EXT if self.EXT != "" else ""}'
+        return (f';VALUE=uri{";TYPE=" + self.phone_type if self.phone_type not in ["", "other"] else ""}:'
+                f'tel:{self.phone_number}{";ext=" + self.EXT if self.EXT != "" else ""}')
 
 
 class Email(models.Model):
@@ -281,7 +329,6 @@ class Email(models.Model):
     """
     vcard = models.ForeignKey(
         Vcard,
-        related_name='emails',
         on_delete=models.CASCADE
     )
     email_type = models.CharField(max_length=5,
@@ -293,6 +340,11 @@ class Email(models.Model):
 
     def __str__(self):
         return self.email_address
+
+    @property
+    def EMAIL(self):
+        return (f'{";TYPE=" + self.email_type if self.email_type not in ["", "other"] else ""}:'
+                f'{self.email_address}')
 
 
 # todo: add IMPP, LAN, and geographical property class
@@ -318,10 +370,17 @@ class Organization(models.Model):
         null=True
     )
     organization = models.CharField(max_length=250, blank=True, null=True)
-    work_url = models.URLField(blank=True, null=True)
     # todo: handle member and related
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.6.5
     # todo: add meta so this displays as something like "work" or "job" to users
+
+    @property
+    def formatted_organizational_properties(self):
+        # todo: add encoded logo
+        s = f'TITLE:{self.title}\n' if self.title!='' else ''
+        s += f'ROLL:{self.role}\n' if self.role!='' else ''
+        s += f'ORG:{self.organization}\n' if self.organization!='' else ''
+        return s
 
 
 class Tag(models.Model):
@@ -343,6 +402,10 @@ class Tag(models.Model):
     def __str__(self):
         return self.tag
 
+    @property
+    def CATEGORIES(self):
+        return str(self.tag)
+
 
 class Url(models.Model):
     """
@@ -350,7 +413,6 @@ class Url(models.Model):
     cardinality: *
     https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.8
     """
-    # todo: when to export as X-SOCIALPROFILE vs URL?
     vcard = models.ForeignKey(
         Vcard,
         on_delete=models.CASCADE
@@ -367,6 +429,12 @@ class Url(models.Model):
 
     def __str__(self):
         return str(self.url)
+
+    @property
+    def URL(self):
+        # todo: when to export as X-SOCIALPROFILE vs URL?
+        return (f'{";TYPE=" + self.url_type if self.url_type not in ["", "other"] else ""}:'
+                f'{self.url}')
 
 
 # todo: implement security properties 6.8, KEY
