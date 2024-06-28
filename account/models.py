@@ -13,6 +13,16 @@ from phonenumber_field.modelfields import PhoneNumberField
 # todo: add properties that return full vCard contentline
 
 
+WORK = 'WORK'
+HOME = 'HOME'
+OTHER = 'other'
+TYPE_WH_CHOICES = {
+    WORK: 'Work',
+    HOME: 'Home',
+    OTHER: 'Other'
+}
+
+
 def vcard_img_dir_path(instance, filename):
     # todo: a uuid file name would be better
     return (f'users/{instance.user.id}{dt.datetime.now().strftime("%S%f")}'
@@ -171,22 +181,13 @@ class Address(models.Model):
     cardinality: *
     https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1
     """
-    # todo: type should accept user input / label
-    WORK = 'WORK'
-    HOME = 'HOME'
-    OTHER = 'other'
-    TYPE_CHOICES = {
-        WORK: 'Work',
-        HOME: 'Home',
-        OTHER: 'Other'
-    }
     vcard = models.ForeignKey(
         Vcard,
         related_name='addresses',
         on_delete=models.CASCADE
     )
     address_type = models.CharField(max_length=5,
-                                    choices=TYPE_CHOICES,
+                                    choices=TYPE_WH_CHOICES,
                                     default=WORK,
                                     blank=True,
                                     null=True)
@@ -227,20 +228,22 @@ class Phone(models.Model):
     """
     # todo: handle extensions
     EXT = ''
-    # todo: type should accept user input / label
+
     CELL = 'CELL'
-    WORK = 'WORK VOICE'
-    HOME = 'HOME VOICE'
-    WORK_FAX = 'WORK FAX'
-    HOME_FAX = 'HOME FAX'
+    WORK = 'WORK'
+    HOME = 'HOME'
+    VOICE = 'VOICE'
+    TEXT = 'TEXT'
+    FAX = 'FAX'
     PAGER = 'PAGER'
     OTHER = 'other'
     TYPE_CHOICES = {
         CELL: 'Cell',
         WORK: 'Work',
         HOME: 'Home',
-        WORK_FAX: 'Work Fax',
-        HOME_FAX: 'Home Fax',
+        VOICE: 'Voice',
+        TEXT: 'Text',
+        FAX: 'Fax',
         PAGER: 'Pager',
         OTHER: 'Other'
     }
@@ -250,11 +253,13 @@ class Phone(models.Model):
         on_delete=models.CASCADE
     )
     phone_number = PhoneNumberField(blank=False)
-    phone_type = models.CharField(max_length=10,
-                                  choices=TYPE_CHOICES,
-                                  default=CELL,
-                                  null=True,
-                                  blank=True)
+    phone_type = models.CharField(
+        max_length=5,
+        choices=TYPE_CHOICES,
+        default=CELL,
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return str(self.phone_number)
@@ -274,21 +279,13 @@ class Email(models.Model):
     cardinality: *
     https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.2
     """
-    WORK = 'WORK'
-    HOME = 'HOME'
-    OTHER = 'other'
-    TYPE_CHOICES = {
-        WORK: 'Work',
-        HOME: 'Home',
-        OTHER: 'Other'
-    }
     vcard = models.ForeignKey(
         Vcard,
         related_name='emails',
         on_delete=models.CASCADE
     )
     email_type = models.CharField(max_length=5,
-                                  choices=TYPE_CHOICES,
+                                  choices=TYPE_WH_CHOICES,
                                   default=None,
                                   null=True,
                                   blank=True)
@@ -353,13 +350,19 @@ class Url(models.Model):
     cardinality: *
     https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.8
     """
-    # todo: really need a vcard LABEL associated with this
     # todo: when to export as X-SOCIALPROFILE vs URL?
     vcard = models.ForeignKey(
         Vcard,
         on_delete=models.CASCADE
     )
     url = models.URLField(blank=False)
+    url_type = models.CharField(
+        max_length=5,
+        choices=TYPE_WH_CHOICES,
+        default=None,
+        null=True,
+        blank=True
+    )
     label = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
