@@ -12,12 +12,31 @@ from phonenumber_field.modelfields import PhoneNumberField
 # todo: add properties that return full vCard contentline
 
 
-def profile_photo_dir_path(instance, filename):
+def vcard_img_dir_path(instance, filename):
+    # todo: a uuid file name would be better
     return (f'users/{instance.user.id}{dt.datetime.now().strftime("%S%f")}'
             f'{os.path.splitext(filename)[-1]}')
 
 
-class Profile(models.Model):
+class Vcard(models.Model):
+    """
+    Generally Vcard fields include vCard properties where cardinality is 1 or *1.
+    E.g. where exactly on instance MUST / MAY be present.
+    Fields with 1* or * are their own classes related to a vcard
+    through a foreign key.
+    But if my implementation allows only 1 instance per vcard then I include it here.
+    """
+    # todo: am I able to query other models linked to an instance of this model? To build the ADR etc.
+    # todo: implement: SOUND 6.7.5, UUID .6, CLIENTPIDMAP .7
+    BEGIN = 'VCARD'
+    VERSION = '4.0'
+    END = 'VCARD'
+    SOURCE = ''  # uri
+    KIND = 'individual'
+    XML = ''
+    # todo: PRODID *1 should speicify that this app made the vCard
+    PRODID = 'ALEX\'S AWESOME APP!'
+
     MALE = 'M'
     FEMAIL = 'F'
     OTHER = 'O'
@@ -30,148 +49,100 @@ class Profile(models.Model):
         NONE: 'Not Applicable',
         UNKNOWN: 'Unknown'
     }
+    # note: cascading delete means that linked contact info disappears if other side leaves
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     # 6.2.1-3 Identification Properties
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2
-    # extend base user model's name
+    # use this instead of base user model first and last name
     prefix = models.CharField(max_length=50, blank=True)
-    middle_name = models.CharField(blank=True)
+    first_name = models.CharField(max_length=50, blank=False)
+    middle_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=False)
     suffix = models.CharField(max_length=50, blank=True)
-    nick_name = models.CharField(blank=True)
+
+    # 6.2.3
+    # cardinality: * - I coerce to *1
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.3
+    nickname = models.CharField(blank=True)
 
     # 6.2.4 Photo
+    # cardinality: * - I coerce to *1
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.4
     photo = models.ImageField(
-        upload_to=profile_photo_dir_path,
+        upload_to=vcard_img_dir_path,
         blank=True
     )
 
-    home_page = models.URLField(blank=True)
-
-    # 6.6 Organizational Properties
-    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.6
-    organization = models.CharField(max_length=250, blank=True)
-    title = models.CharField(max_length=250, blank=True)
-    role = models.CharField(max_length=250, blank=True)
-    work_url = models.URLField(blank=True)
-    # logo
-
-    # X-HEADLINE
-    headline = models.CharField(max_length=50, blank=True)
-    # X-LOCATION
-    location = models.CharField(max_length=50, blank=True)
-
     # 6.2.5 BDAY
+    # cardinality: *1
+    # text allowed in specs but I coerce to datetime
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.5
+    # todo: allow yearless
     birthday = models.DateField(blank=True, null=True)
 
     # 6.2.6 Anniversary
+    # cardinality: *1
+    # text allowed in specs but I coerce to datetime
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.6
     anniversary = models.DateField(blank=True, null=True)
 
     # 6.2.7 Gender
+    # cardinality: *1
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.7
     sex = models.CharField(max_length=20,
                            choices=GENDER_TYPE_CHOICES,
                            default=None,
                            null=True,
                            blank=True)
-    gender = models.CharField(max_length=25, blank=True)
+    gender = models.CharField(max_length=50, blank=True)
+
+    # 6.7.2 Note
+    # cardinality * - but I'm coercing to 1
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.2
+    note = models.CharField(max_length=1024, blank=True, null=True)
 
     def __str__(self):
-        return f'Profile of {self.user.first_name} {self.user.last_name}'
+        # todo: return vcard str here?
+        return f'vCard:{" (" + self.user.username + ")" if self.user is not None else ""} {self.first_name} {self.last_name}'
 
     @property
     def FN(self):
         """
-        Required
+        6.2.1
+        cardinality: 1* - I coerce to 1 for now
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.1
         """
-        return (f'{self.prefix} {self.user.first_name} {self.middle_name} {self.user.last_name}'
+        return (f'{self.prefix} {self.first_name} {self.middle_name} {self.last_name}'
                 f'{", " if self.suffix != "" else ""}{self.suffix}')
 
     @property
     def N(self):
         """
+        6.2.2
+        cardinality: *1
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.2
         """
         return f'{self.user.last_name};{self.user.first_name};{self.middle_name};{self.prefix};{self.suffix}'
 
-
-class EmailAddress(models.Model):
-    WORK = 'WORK'
-    HOME = 'HOME'
-    OTHER = 'other'
-    TYPE_CHOICES = {
-        WORK: 'Work',
-        HOME: 'Home',
-        OTHER: 'Other'
-    }
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='email_addresses',
-        on_delete=models.CASCADE
-    )
-    email_type = models.CharField(max_length=20,
-                                  choices=TYPE_CHOICES,
-                                  default=WORK)
-    email_address = models.EmailField()
-    confirmed = models.BooleanField(default=False, null=False)
-    is_primary = models.BooleanField(null=False)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name_plural = 'Email Addresses'
-
-    def __str__(self):
-        return self.email_address
-
-
-class Phone(models.Model):
-    # todo: handle extensions
-    CELL = 'CELL'
-    WORK = 'WORK VOICE'
-    HOME = 'HOME VOICE'
-    WORK_FAX = 'WORK FAX'
-    HOME_FAX = 'HOME FAX'
-    PAGER = 'PAGER'
-    OTHER = 'other'
-    TYPE_CHOICES = {
-        CELL: 'Cell',
-        WORK: 'Work',
-        HOME: 'Home',
-        WORK_FAX: 'Work Fax',
-        HOME_FAX: 'Home Fax',
-        PAGER: 'Pager',
-        OTHER: 'Other'
-    }
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='phone_numbers',
-        on_delete=models.CASCADE
-    )
-    phone_number = PhoneNumberField(blank=False)
-    phone_type = models.CharField(max_length=20,
-                                  choices=TYPE_CHOICES,
-                                  default=CELL)
-
-    def __str__(self):
-        return str(self.phone_number)
-
     @property
-    def TEL(self):
-        """
-        https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
-        """
-        # todo: gotta format the number correctly
-        return self.phone_number
+    def REV(self):
+        # todo: should this be time of vCard export or last time a user updated a value of the model?
+        return dt.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
 
 
-class PostalAddress(models.Model):
+class Address(models.Model):
+    """
+    6.3.1
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1
+    """
+    # todo: type should accept user input / label
     WORK = 'WORK'
     HOME = 'HOME'
     OTHER = 'other'
@@ -180,23 +151,25 @@ class PostalAddress(models.Model):
         HOME: 'Home',
         OTHER: 'Other'
     }
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='postal_addresses',
+    vcard = models.ForeignKey(
+        Vcard,
+        related_name='addresses',
         on_delete=models.CASCADE
     )
-    address_type = models.CharField(max_length=20,
+    address_type = models.CharField(max_length=5,
                                     choices=TYPE_CHOICES,
-                                    default=WORK)
-    street1 = models.CharField()
-    street2 = models.CharField(blank=True)
-    city = models.CharField()
-    state = models.CharField()
-    zip = models.CharField(max_length=10)
-    country = models.CharField(blank=True)
+                                    default=WORK,
+                                    blank=True,
+                                    null=True)
+    # todo: idk about blank/null here. How will people want to hack these fields?
+    street1 = models.CharField(blank=False)
+    street2 = models.CharField(blank=True, null=True)
+    city = models.CharField(blank=False)
+    state = models.CharField(blank=False)
+    zip = models.CharField(max_length=10, blank=False)  # todo: validate
+    country = models.CharField(blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
 
     def __str__(self):
@@ -217,19 +190,229 @@ class PostalAddress(models.Model):
                 f'{self.city};{self.state};{self.zip};{self.country}')
 
 
-class SocialProfile(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='social_profiles',
+class Phone(models.Model):
+    """
+    6.4.1
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
+    """
+    # todo: handle extensions
+    EXT = ''
+    # todo: type should accept user input / label
+    CELL = 'CELL'
+    WORK = 'WORK VOICE'
+    HOME = 'HOME VOICE'
+    WORK_FAX = 'WORK FAX'
+    HOME_FAX = 'HOME FAX'
+    PAGER = 'PAGER'
+    OTHER = 'other'
+    TYPE_CHOICES = {
+        CELL: 'Cell',
+        WORK: 'Work',
+        HOME: 'Home',
+        WORK_FAX: 'Work Fax',
+        HOME_FAX: 'Home Fax',
+        PAGER: 'Pager',
+        OTHER: 'Other'
+    }
+    vcard = models.ForeignKey(
+        Vcard,
+        related_name='phones',
         on_delete=models.CASCADE
     )
-    url = models.URLField()
-    label = models.CharField(max_length=30, blank=True)
+    phone_number = PhoneNumberField(blank=False)
+    phone_type = models.CharField(max_length=10,
+                                  choices=TYPE_CHOICES,
+                                  default=CELL,
+                                  null=True,
+                                  blank=True)
+
+    def __str__(self):
+        return str(self.phone_number)
+
+    @property
+    def TEL(self):
+        """
+        https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
+        """
+        # todo: gotta format the number correctly
+        return f'tel:{self.phone_number}{";" + self.EXT if self.EXT != "" else ""}'
+
+
+class Email(models.Model):
+    """
+    6.4.2
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.2
+    """
+    WORK = 'WORK'
+    HOME = 'HOME'
+    OTHER = 'other'
+    TYPE_CHOICES = {
+        WORK: 'Work',
+        HOME: 'Home',
+        OTHER: 'Other'
+    }
+    vcard = models.ForeignKey(
+        Vcard,
+        related_name='emails',
+        on_delete=models.CASCADE
+    )
+    email_type = models.CharField(max_length=5,
+                                  choices=TYPE_CHOICES,
+                                  default=None,
+                                  null=True,
+                                  blank=True)
+    email_address = models.EmailField(blank=False)
+
+    def __str__(self):
+        return self.email_address
+
+
+# todo: add IMPP, LAN, and geographical property class
+# 6.4.3 - 6.5.2
+# https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.3
+
+
+class Organization(models.Model):
+    """
+    6.6
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.6
+    """
+    vcard = models.ForeignKey(
+        Vcard,
+        on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=250, blank=True, null=True)
+    role = models.CharField(max_length=250, blank=False)
+    logo = models.ImageField(
+        upload_to=vcard_img_dir_path,
+        blank=True,
+        null=True
+    )
+    organization = models.CharField(max_length=250, blank=True, null=True)
+    work_url = models.URLField(blank=True, null=True)
+    # todo: handle member and related
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.6.5
+    # todo: add meta so this displays as something like "work" or "job" to users
+
+
+class Tag(models.Model):
+    """
+    Categories: 6.7.1
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.1
+    Also known as "tags" so I'll use that here
+    """
+    # does it make most sense to have these associated with vcard or contact model?
+    # vcard you can tag yourself but CATEGORIES isn't interpreted by Apple contacts
+    # todo: user's will expect to easily query all the tags they've used
+    vcard = models.ForeignKey(
+        Vcard,
+        on_delete=models.CASCADE
+    )
+    tag = models.CharField(max_length=30, blank=False)
+
+    def __str__(self):
+        return self.tag
+
+
+class Url(models.Model):
+    """
+    6.7.8
+    cardinality: *
+    https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.8
+    """
+    # todo: really need a vcard LABEL associated with this
+    # todo: when to export as X-SOCIALPROFILE vs URL?
+    vcard = models.ForeignKey(
+        Vcard,
+        on_delete=models.CASCADE
+    )
+    url = models.URLField(blank=False)
+    label = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return str(self.url)
 
 
+# todo: implement security properties 6.8, KEY
+# todo: implement Calendar Properties 6.9
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+
+    # X-HEADLINE
+    headline = models.CharField(max_length=120, blank=True, null=True)
+    # X-LOCATION
+    location = models.CharField(max_length=80, blank=True, null=True)
+    # X-DESCRIPTION
+    description = models.CharField(blank=True, null=True)
+
+    def __str__(self):
+        return f'Profile: {self.user.username}'
+
+
+# class ContactBook(models.Model):
+#     # todo: do I need an inbetween model?
+#     # for now joining Contact model directly to user
+#     user = models.OneToOneField(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE
+#     )
+#
+#     def __str__(self):
+#         return f'ContactBook: {self.user.username}'
+
+
+class Contact(models.Model):
+    """
+    Every contact links to one vCard which is self.user's personal vcard of the Contact
+    If self.profile is not None then it indicates the contact is linked to a connection
+    """
+    # todo: enforce (vcard, profile) unique
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    vcard = models.OneToOneField(
+        Vcard,
+        on_delete=models.CASCADE
+    )
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
+
+class ContactNote(models.Model):
+    # todo: naming? This'll will get confusing with Vcard.note
+    # todo: would be fun to have tags associated with these
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.CASCADE,
+    )
+    note = models.CharField(blank=False)
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+
+    def __str__(self):
+        return f'{self.note[:50]}...({len(self.note-50)}'
+
+
+"""
 class Connection(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_from = models.ForeignKey(
@@ -267,22 +450,4 @@ user_model.add_to_class(
         symmetrical=True,
     ),
 )
-
-
-class ConnectionNote(models.Model):
-    connection = models.ForeignKey(
-        Connection,
-        related_name='notes',
-        on_delete=models.CASCADE
-    )
-    note = models.CharField(blank=False)
-    created = models.DateTimeField(auto_now_add=True, editable=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['-created']),
-        ]
-        ordering = ['-created']
-
-    def __str__(self):
-        return self.note[:100]
+"""
