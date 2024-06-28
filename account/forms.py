@@ -121,7 +121,7 @@ class AddressForm(forms.ModelForm):
 
 
 AddressFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Address,
     form=AddressForm,
     fields=['address_type', 'street1', 'street2', 'city', 'state', 'zip', 'country'],
@@ -141,7 +141,7 @@ class PhoneForm(forms.ModelForm):
 
 
 PhoneFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Phone,
     form=PhoneForm,
     fields=['phone_type', 'phone_number'],
@@ -161,7 +161,7 @@ class EmailForm(forms.ModelForm):
 
 
 EmailFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Email,
     form=EmailForm,
     fields=['email_type', 'email_address'],
@@ -178,7 +178,7 @@ class OrganizationForm(forms.ModelForm):
 
 
 OrganizationFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Organization,
     form=OrganizationForm,
     fields=['title', 'role', 'logo', 'organization'],
@@ -195,7 +195,7 @@ class TagForm(forms.ModelForm):
 
 
 TagFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Tag,
     form=TagForm,
     fields=('tag',),
@@ -212,7 +212,7 @@ class UrlForm(forms.ModelForm):
 
 
 UrlFormSet = inlineformset_factory(
-    get_user_model(),
+    Vcard,
     Url,
     form=UrlForm,
     fields=['url_type', 'url', 'label'],
