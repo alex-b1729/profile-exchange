@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 
 # todo: add properties that return full vCard contentline
@@ -32,10 +33,20 @@ class Vcard(models.Model):
     VERSION = '4.0'
     END = 'VCARD'
     SOURCE = ''  # uri
-    KIND = 'individual'
     XML = ''
-    # todo: PRODID *1 should speicify that this app made the vCard
+    # todo: PRODID *1 should specify that this app made the vCard
     PRODID = 'ALEX\'S AWESOME APP!'
+
+    INDIVIDUAL = 'individual'
+    GROUP = 'group'
+    ORG = 'org'
+    LOCATION = 'location'
+    KIND_CHOICES = {
+        INDIVIDUAL: 'Individual',
+        GROUP: 'Group',
+        ORG: 'Organization',
+        LOCATION: 'Location'
+    }
 
     MALE = 'M'
     FEMAIL = 'F'
@@ -57,19 +68,29 @@ class Vcard(models.Model):
         blank=True
     )
 
+    # 6.1.4
+    # cardinality *1
+    # https://datatracker.ietf.org/doc/html/rfc6350#section-6.1.4
+    kind = models.CharField(
+        max_length=15,
+        choices=KIND_CHOICES,
+        default=INDIVIDUAL
+    )
+
     # 6.2.1-3 Identification Properties
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2
     # use this instead of base user model first and last name
     prefix = models.CharField(max_length=50, blank=True)
-    first_name = models.CharField(max_length=50, blank=False)
+    first_name = models.CharField(max_length=50, blank=True)
     middle_name = models.CharField(max_length=50, blank=True)
+    # last name serves as name if kind is not individual
     last_name = models.CharField(max_length=50, blank=False)
     suffix = models.CharField(max_length=50, blank=True)
 
     # 6.2.3
     # cardinality: * - I coerce to *1
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.3
-    nickname = models.CharField(blank=True)
+    nickname = models.CharField(max_length=50, blank=True)
 
     # 6.2.4 Photo
     # cardinality: * - I coerce to *1
@@ -83,19 +104,20 @@ class Vcard(models.Model):
     # cardinality: *1
     # text allowed in specs but I coerce to datetime
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.5
-    # todo: allow yearless
-    birthday = models.DateField(blank=True, null=True)
+    birthday = YearlessDateField(blank=True, null=True)
+    birthday_year = models.PositiveSmallIntegerField(blank=True, null=True)
 
     # 6.2.6 Anniversary
     # cardinality: *1
     # text allowed in specs but I coerce to datetime
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.6
-    anniversary = models.DateField(blank=True, null=True)
+    anniversary = YearlessDateField(blank=True, null=True)
+    anniversary_year = models.PositiveSmallIntegerField(blank=True, null=True)
 
     # 6.2.7 Gender
     # cardinality: *1
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.7
-    sex = models.CharField(max_length=20,
+    sex = models.CharField(max_length=1,
                            choices=GENDER_TYPE_CHOICES,
                            default=None,
                            null=True,
@@ -105,11 +127,15 @@ class Vcard(models.Model):
     # 6.7.2 Note
     # cardinality * - but I'm coercing to 1
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.2
-    note = models.CharField(max_length=1024, blank=True, null=True)
+    note = models.CharField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
 
     def __str__(self):
         # todo: return vcard str here?
-        return f'vCard:{" (" + self.user.username + ")" if self.user is not None else ""} {self.first_name} {self.last_name}'
+        return (f'vCard:{" (" + self.user.username + ")" if self.user is not None else ""} '
+                f'{self.first_name} {self.last_name}')
 
     @property
     def FN(self):
@@ -118,8 +144,11 @@ class Vcard(models.Model):
         cardinality: 1* - I coerce to 1 for now
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.1
         """
-        return (f'{self.prefix} {self.first_name} {self.middle_name} {self.last_name}'
-                f'{", " if self.suffix != "" else ""}{self.suffix}')
+        return (f'{self.prefix + " " if self.prefix!="" else ""}'
+                f'{self.first_name + " " if self.first_name!="" else ""}'
+                f'{self.middle_name + "" if self.middle_name!="" else ""}'
+                f'{self.last_name}'
+                f'{", " + self.suffix if self.suffix!="" else ""}')
 
     @property
     def N(self):
@@ -300,7 +329,7 @@ class Organization(models.Model):
 
 class Tag(models.Model):
     """
-    Categories: 6.7.1
+    6.7.1 Categories
     cardinality: *
     https://datatracker.ietf.org/doc/html/rfc6350#section-6.7.1
     Also known as "tags" so I'll use that here
@@ -342,6 +371,11 @@ class Url(models.Model):
 
 
 class Profile(models.Model):
+    """
+    Contains information about a user that does not fit in the Vcard model.
+    Users specify this info about themselves.
+    """
+    # todo: add attachments and CV/resume related fields
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
@@ -358,27 +392,22 @@ class Profile(models.Model):
         return f'Profile: {self.user.username}'
 
 
-# class ContactBook(models.Model):
-#     # todo: do I need an inbetween model?
-#     # for now joining Contact model directly to user
-#     user = models.OneToOneField(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE
-#     )
-#
-#     def __str__(self):
-#         return f'ContactBook: {self.user.username}'
-
-
 class Contact(models.Model):
     """
     Every contact links to one vCard which is self.user's personal vcard of the Contact
     If self.profile is not None then it indicates the contact is linked to a connection
+
+    Notes:
+        - The same profile will be linked to multiple user's
+        - Each Contact links to one, unique Vcard
+        - The same Profile will link to multiple Vcards
+        - BUT, a user can only link a Profile to one Contact.
+          E.g. Contacts are unique on (user, profile) as enforced
+          by the unique_user_connection constraint.
     """
-    # todo: enforce (vcard, profile) unique
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     vcard = models.OneToOneField(
         Vcard,
@@ -390,6 +419,23 @@ class Contact(models.Model):
         blank=True,
         null=True
     )
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'profile'],
+                name='unique_user_connection',
+                nulls_distinct=True
+            )
+        ]
+
+    def __str__(self):
+        return f'Contact: {self.user.username} -> {self.vcard.FN}'
 
 
 class ContactNote(models.Model):
@@ -409,7 +455,7 @@ class ContactNote(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return f'{self.note[:50]}...({len(self.note-50)}'
+        return f'{self.note[:50]}{"..." + len(self.note-50) if len(self.note>51) else ""}'
 
 
 """
