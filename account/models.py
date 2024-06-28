@@ -157,7 +157,7 @@ class Vcard(models.Model):
         """
         return (f'{self.prefix + " " if self.prefix!="" else ""}'
                 f'{self.first_name + " " if self.first_name!="" else ""}'
-                f'{self.middle_name + "" if self.middle_name!="" else ""}'
+                f'{self.middle_name + " " if self.middle_name!="" else ""}'
                 f'{self.last_name}'
                 f'{", " + self.suffix if self.suffix!="" else ""}')
 

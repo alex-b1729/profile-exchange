@@ -169,7 +169,7 @@ ol {
 }
 
 /* Profile view */
-.profileHeader {
+.profile {
     display: flex;
     align-items: center;
     margin: 1rem;
@@ -177,14 +177,14 @@ ol {
     border-bottom: 1px solid #bbb;
     gap: 28px;
 }
-.profileHeader .text-container {
+.profile .text-container {
     margin-block-start: 0.5em;
 }
 #FN {
     font-size: 1.75rem;
 }
 
-.nameGroup {
+.vcardGroup {
     display: flex;
     /*align-items: center;*/
     gap: 28px;
@@ -195,18 +195,18 @@ ol {
     border-radius: 5px;
     background-color: #f4f4f4;
 }
-.nameGroup ul, ol {
+.vcardGroup ul, ol {
     padding-inline-start: 1em;
 }
-.nameGroup li {
+.vcardGroup li {
     margin-block-start: 1em;
 }
-.nameGroup p {
+.vcardGroup p {
     display: block;
     margin-block-start: 0em;
     margin-block-end: 0em;
 }
-.nameGroup h3 {
+.vcardGroup h3 {
     /*display: block;*/
     margin-block-start: 0em;
     margin-block-end: 1em;
