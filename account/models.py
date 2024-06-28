@@ -5,8 +5,10 @@ import datetime as dt
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -221,6 +223,16 @@ class Vcard(models.Model):
 
         s += f'REV:{self.REV}\n'
         s += f'END:{self.END}'
+
+    def vcf_http_reponse(self, request):
+        # testing having this here
+        return HttpResponse(
+            ContentFile(self.vcf),
+            headers={
+                'Content-Type': 'text/plain',
+                'Content-Disposition': f'attachment; filename="{self.FN}.vcf"'
+            }
+        )
 
 
 class Address(models.Model):

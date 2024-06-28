@@ -1,13 +1,16 @@
 from django.contrib import admin
 
 from .models import (
-    Profile,
-    EmailAddress,
+    Vcard,
+    Address,
     Phone,
-    PostalAddress,
-    SocialProfile,
-    Connection,
-    ConnectionNote,
+    Email,
+    Organization,
+    Tag,
+    Url,
+    Profile,
+    Contact,
+    ContactNote
 )
 
 
@@ -17,10 +20,13 @@ from .models import (
 
 
 # what's needed in prod?
-admin.site.register(Profile)
-admin.site.register(EmailAddress)
+admin.site.register(Vcard)
+admin.site.register(Address)
 admin.site.register(Phone)
-admin.site.register(PostalAddress)
-admin.site.register(SocialProfile)
-admin.site.register(Connection)
-admin.site.register(ConnectionNote)
+admin.site.register(Email)
+admin.site.register(Organization)
+admin.site.register(Tag)
+admin.site.register(Url)
+admin.site.register(Profile)
+admin.site.register(Contact)
+admin.site.register(ContactNote)
