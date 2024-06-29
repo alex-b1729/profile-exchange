@@ -167,6 +167,21 @@
     {% endwith %}
     {% endwith %}
 
+    {% with tags=request.user.vcard.tag_set.all %}
+    {% if tags %}
+    <div class="vcardGroup">
+      <h3>Tags</h3>
+      <div id="#CATEGORIES">
+        <ul>
+          {% for tag in tags %}
+          <li><a href="#" class="{{ tag.tag }}">{{ tag.tag }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
     {% with note=request.user.vcard.note %}
     {% if note %}
     <div class="vcardGroup">

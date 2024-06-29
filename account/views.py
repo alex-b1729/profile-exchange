@@ -98,22 +98,22 @@ class EditProfileView(TemplateResponseMixin, View):
         )
 
     def get_address_formset(self, data=None):
-        return AddressFormSet(instance=self.user, data=data)
+        return AddressFormSet(instance=self.user_vcard, data=data)
 
     def get_phone_formset(self, data=None):
-        return PhoneFormSet(instance=self.user, data=data)
+        return PhoneFormSet(instance=self.user_vcard, data=data)
 
     def get_email_formset(self, data=None):
-        return EmailFormSet(instance=self.user, data=data)
+        return EmailFormSet(instance=self.user_vcard, data=data)
 
     def get_org_formset(self, data=None, files=None):
-        return OrganizationFormSet(instance=self.user, data=data, files=files)
+        return OrganizationFormSet(instance=self.user_vcard, data=data, files=files)
 
     def get_tag_formset(self, data=None):
-        return TagFormSet(instance=self.user, data=data)
+        return TagFormSet(instance=self.user_vcard, data=data)
 
     def get_url_formset(self, data=None):
-        return UrlFormSet(instance=self.user, data=data)
+        return UrlFormSet(instance=self.user_vcard, data=data)
 
     def dispatch(self, request, *args, **kwargs):
         self.user = request.user

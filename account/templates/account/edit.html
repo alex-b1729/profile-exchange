@@ -9,79 +9,40 @@
     <h1>Edit your profile</h1>
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
-    <!-- doesn't save anything when up here for some reason -->
+    <!-- todo: doesn't save anything when up here for some reason?? -->
   </div>
   <!-- TODO: add verification errors {{ field.errors }} -->
+
   <div class="profile">
-      {% with uform=user_form %}
+      {% with vform=vcard_form %}
       {% with pform=profile_form %}
-      <div class="profileHeader">
-        <div class="profilePhoto">
-          <!-- todo: this ain't pretty -->
-          {{ pform.photo }}
-        </div>
-        <div class="text-container">
-          <p>{{ pform.prefix.label_tag }} {{ pform.prefix }}</p>
-          <p>{{ uform.first_name.label_tag }} {{ uform.first_name }}</p>
-          <p>{{ pform.middle_name.label_tag }} {{ pform.middle_name }}</p>
-          <p>{{ uform.last_name.label_tag }} {{ uform.last_name }}</p>
-          <p>{{ pform.suffix.label_tag }} {{ pform.suffix }}</p>
-          <p>{{ pform.nickname.label_tag }} {{ pform.nickname }}</p>
-
-          <p>{{ pform.headline.label_tag }} {{ pform.headline }}</p>
-          <p>{{ pform.location.label_tag }} {{ pform.location }}</p>
-        </div>
+      <div class="profilePhoto">
+        <!-- todo: this ain't pretty -->
+        {{ pform.photo }}
       </div>
+      <div class="text-container">
+        <p>{{ vform.prefix.label_tag }} {{ vform.prefix }}</p>
+        <p>{{ vform.first_name.label_tag }} {{ vform.first_name }}</p>
+        <p>{{ vform.middle_name.label_tag }} {{ vform.middle_name }}</p>
+        <p>{{ vform.last_name.label_tag }} {{ vform.last_name }}</p>
+        <p>{{ vform.suffix.label_tag }} {{ vform.suffix }}</p>
+        <p>{{ vform.nickname.label_tag }} {{ vform.nickname }}</p>
 
-      <div class="nameGroup">
-        <h3>URLs</h3>
-        <div id="URL">
-          <p>{{ pform.home_page.label_tag }} {{ pform.home_page }}</p>
-          <p>{{ pform.work_url.label_tag }} {{ pform.work_url }}</p>
-        </div>
+        <p>{{ pform.headline.label_tag }} {{ pform.headline }}</p>
+        <p>{{ pform.location.label_tag }} {{ pform.location }}</p>
+        <p>{{ pform.description.label_tag }} {{ pform.description }}</p>
       </div>
+    </div>
+    {% endwith %} <!-- end pform -->
+    <!-- vform ends after personal -->
 
-      <div class="nameGroup">
-        <h3>Organization</h3>
-        <div class="text-container">
-          <p>{{ pform.organization.label_tag }} {{ pform.organization }}</p>
-          <p>{{ pform.title.label_tag }} {{ pform.title }}</p>
-          <p>{{ pform.role.label_tag }} {{ pform.role }}</p>
-        </div>
-      </div>
-
-      <div class="nameGroup">
-        <h3>Personal</h3>
-        <div class="text-container">
-          <p>{{ pform.birthday.label_tag }} {{ pform.birthday }}</p>
-          <p>{{ pform.anniversary.label_tag }} {{ pform.anniversary }}</p>
-          <p>Biological sex: {{ pform.sex }}</p>
-          <p>Gender: {{ pform.gender }}</p>
-        </div>
-      </div>
-      {% endwith %}
-      {% endwith %}
-
-      <!-- todo: remove the delete button on new forms using if form.instance.pk render form.DELETE -->
-      <div class="nameGroup">
-        <h3>Email</h3>
-        <div id="EMAIL">
-          <div class="primary-email-form">
-            <p>Primary email: {{ user_form.email }}</p>
-          </div>
-          {{ email_formset.management_form }}
-          {% for form in email_formset %}
-          <div class="email-form">
-            {{ form.as_div }}
-          </div>
-          {% endfor %}
-          <button id="add-email-form" type="button">Add Email</button>
-        </div>
-      </div>
-
-      <div class="nameGroup">
+    <div class="vcard">
+      <h2>Contact Info</h2>
+      <p>{{ vform.kind.label_tag }} {{ vform.kind }}</p>
+      
+      <div class="vcardGroup">
         <h3>Phone</h3>
-        <div id="TEL">
+        <div id="phone-form-container">
           {{ phone_formset.management_form }}
           {% for form in phone_formset %}
           <div class="phone-form">
@@ -92,9 +53,36 @@
         </div>
       </div>
 
-      <div class="nameGroup">
+      <!-- todo: remove the delete button on new forms using if form.instance.pk render form.DELETE -->
+      <div class="vcardGroup">
+        <h3>Email</h3>
+        <div id="email-form-container">
+          {{ email_formset.management_form }}
+          {% for form in email_formset %}
+          <div class="email-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-email-form" type="button">Add Email</button>
+        </div>
+      </div>
+
+      <div class="vcardGroup">
+        <h3>URLs</h3>
+        <div id="url-form-container">
+          {{ url_formset.management_form }}
+          {% for form in url_formset %}
+          <div class="url-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-url-form" type="button">Add URL</button>
+        </div>
+      </div>
+
+      <div class="vcardGroup">
         <h3>Addresses</h3>
-        <div id="ADR">
+        <div id="address-form-container">
           {{ address_formset.management_form }}
           {% for form in address_formset %}
           <div class="address-form">
@@ -105,21 +93,49 @@
         </div>
       </div>
 
-      <div class="nameGroup">
-        <h3>Social Links</h3>
-        <div id="X-SOCIALPROFILE">
-          {{ socials_formset.management_form }}
-          {% for form in socials_formset %}
-          <div class="social-form">
+      <div class="vcardGroup">
+        <h3>Organization</h3>
+        <div class="org-form-container">
+          {{ org_formset.management_form }}
+          {% for form in org_formset %}
+          <div class="org-form">
             {{ form.as_div }}
           </div>
           {% endfor %}
-          <button id="add-social-form" type="button">Add Social Profile</button>
+          <button id="add-org-form" type="button">Add Organization</button>
         </div>
       </div>
 
-      <!-- {% csrf_token %} -->
-      <!-- <p><input type="submit" value="Save changes"></p>-->
+      <div class="vcardGroup">
+        <h3>Personal</h3>
+        <div class="text-container">
+          <!-- todo: need to use the yearlessdate form here so has dropdowns -->
+          <p>{{ vform.birthday.label_tag }} {{ vform.birthday }}</p>
+          <p>{{ vform.anniversary.label_tag }} {{ vform.anniversary }}</p>
+          <p>Biological sex: {{ vform.sex }}</p>
+          <p>Gender: {{ vform.gender }}</p>
+        </div>
+      </div>
+
+      <div class="vcardGroup">
+        <h3>Tags</h3>
+        <div id="tag-form-container">
+          {{ tag_formset.management_form }}
+          {% for form in tag_formset %}
+          <div class="tag-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-tag-form" type="button">Add Tag</button>
+        </div>
+      </div>
+
+      <div class="vcardGroup">
+        <h3>Note</h3>
+        {{ vform.note }}
+      </div>
+      {% endwith %} <!-- end vform -->
+
   </div>
   </form>
   <script src="{% static "js/edit_profile.js" %}"></script>

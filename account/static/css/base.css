@@ -239,10 +239,12 @@ ol {
 }
 
 /* profile edit form */
-.email-form,
 .phone-form,
+.email-form,
+.url-form,
 .address-form,
-.social-form {
+.org-form,
+.tag-form, {
     display: block;
     margin-block-start: 0em;
     margin-block-end: 1em;

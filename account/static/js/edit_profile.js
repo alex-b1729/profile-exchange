@@ -1,105 +1,63 @@
-let emailContainer = document.querySelector("#EMAIL")
-let emailForm = document.querySelectorAll(".email-form")
-let addEmailButton = document.querySelector("#add-email-form")
-let totalEmailForms = document.querySelector("#id_email_addresses-TOTAL_FORMS")
+let addPhoneButton = document.querySelector("#add-phone-form");
+addPhoneButton.addEventListener('click', addForm);
+addPhoneButton.content = 'phone';
 
-let phoneContainer = document.querySelector("#TEL")
-let phoneForm = document.querySelectorAll(".phone-form")
-let addPhoneButton = document.querySelector("#add-phone-form")
-let totalPhoneForms = document.querySelector("#id_phone_numbers-TOTAL_FORMS")
+let addEmailButton = document.querySelector("#add-email-form");
+addEmailButton.addEventListener('click', addForm);
+addEmailButton.content = 'email';
 
-let addressContainer = document.querySelector("#ADR")
-let addressForm = document.querySelectorAll(".address-form")
-let addAddressButton = document.querySelector("#add-address-form")
-let totalAddressForms = document.querySelector("#id_postal_addresses-TOTAL_FORMS")
+let addUrlButton = document.querySelector("#add-url-form");
+addUrlButton.addEventListener('click', addForm);
+addUrlButton.content = 'url';
 
-let socialContainer = document.querySelector("#X-SOCIALPROFILE")
-let socialForm = document.querySelectorAll(".social-form")
-let addSocialButton = document.querySelector("#add-social-form")
-let totalSocialForms = document.querySelector("#id_social_profiles-TOTAL_FORMS")
+let addAddressButton = document.querySelector("#add-address-form");
+addAddressButton.addEventListener('click', addForm);
+addAddressButton.content = 'address';
 
-let emailFormNum = emailForm.length - 1
-let phoneFormNum = phoneForm.length - 1
-let addressFormNum = addressForm.length - 1
-let socialFormNum = socialForm.length - 1
+let addOrgButton = document.querySelector("#add-org-form");
+addOrgButton.addEventListener('click', addForm);
+addOrgButton.content = 'org';
+// todo: doesn't work for org, maybe logo?
+// todo: how do I reset the logo once that's working?
 
-addEmailButton.addEventListener('click', addEmailForm)
-addPhoneButton.addEventListener('click', addPhoneForm)
-addAddressButton.addEventListener('click', addAddressForm)
-addSocialButton.addEventListener('click', addSocialForm)
+let addTagButton = document.querySelector("#add-tag-form");
+addTagButton.addEventListener('click', addForm);
+addTagButton.content = 'tag';
 
-// these functions should be combined
-function addEmailForm(e) {
-    e.preventDefault()
+function addForm(e) {
+    e.preventDefault();
+    let content = e.currentTarget.content;
 
-    let newForm = emailForm[0].cloneNode(true)
-    let formRegex = RegExp(`email_addresses-(\\d){1}-`, 'g')
+    let container = document.querySelector(`#${content}-form-container`);
+    let form = document.querySelectorAll(`.${content}-form`);
+    let addButton = document.querySelector(`#add-${content}-form`);
+    let totalForms = document.querySelector(`#id_${content}-TOTAL_FORMS`);
 
-    emailFormNum++
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `email_addresses-${emailFormNum}-`)
+    let formNum = form.length - 1;
 
-    newForm.querySelector(`#id_email_addresses-${emailFormNum}-email_address`).setAttribute('value', '')
-    newForm.querySelector(`#id_email_addresses-${emailFormNum}-is_primary`).checked = false
-    newForm.querySelector(`#id_email_addresses-${emailFormNum}-DELETE`).checked = false
+    let newForm = form[0].cloneNode(true);
+    let formRegex = RegExp(`${content}-(\\d){1}-`, 'g');
 
-    emailContainer.insertBefore(newForm, addEmailButton)
+    formNum++;
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${content}-${formNum}-`);
 
-    totalEmailForms.setAttribute('value', `${emailFormNum+1}`)
-}
+    let inputs = newForm.querySelectorAll('input');
+    inputs.forEach(input => {
+        // todo: doesn't set choices correctly
+        if (input.hasAttribute('value')) {
+            if (content === 'phone') {
+                input.setAttribute('value', 'Cell');
+            } else if (content === 'address'){
+                input.setAttribute('value', 'Work');
+            } else {
+                input.setAttribute('value', '');
+            }
+        }
+        if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+        }
+    });
 
-function addPhoneForm(e) {
-    e.preventDefault()
-
-    let newForm = phoneForm[0].cloneNode(true)
-    let formRegex = RegExp(`phone_numbers-(\\d){1}-`, 'g')
-
-    phoneFormNum++
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `phone_numbers-${phoneFormNum}-`)
-
-    newForm.querySelector(`#id_phone_numbers-${phoneFormNum}-phone_number`).setAttribute('value', '')
-    newForm.querySelector(`#id_phone_numbers-${phoneFormNum}-phone_type`).value = 'mobile'
-    newForm.querySelector(`#id_phone_numbers-${phoneFormNum}-DELETE`).checked = false
-
-    phoneContainer.insertBefore(newForm, addPhoneButton)
-
-    totalPhoneForms.setAttribute('value', `${phoneFormNum+1}`)
-}
-
-function addAddressForm(e) {
-    e.preventDefault()
-
-    let newForm = addressForm[0].cloneNode(true)
-    let formRegex = RegExp(`postal_addresses-(\\d){1}-`, 'g')
-
-    addressFormNum++
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `postal_addresses-${addressFormNum}-`)
-    
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-street1`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-street2`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-city`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-state`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-zip`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-country`).setAttribute('value', '')
-    newForm.querySelector(`#id_postal_addresses-${addressFormNum}-DELETE`).checked = false
-
-    addressContainer.insertBefore(newForm, addAddressButton)
-
-    totalAddressForms.setAttribute('value', `${addressFormNum+1}`)
-}
-
-function addSocialForm(e) {
-    e.preventDefault()
-
-    let newForm = socialForm[0].cloneNode(true)
-    let formRegex = RegExp(`social_profiles-(\\d){1}-`, 'g')
-
-    socialFormNum++
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `social_profiles-${socialFormNum}-`)
-
-    newForm.querySelector(`#id_social_profiles-${socialFormNum}-url`).setAttribute('value', '')
-    newForm.querySelector(`#id_social_profiles-${socialFormNum}-DELETE`).checked = false
-
-    socialContainer.insertBefore(newForm, addSocialButton)
-
-    totalSocialForms.setAttribute('value', `${socialFormNum+1}`)
+    container.insertBefore(newForm, addButton);
+    totalForms.setAttribute('value', `${formNum + 1}`);
 }
