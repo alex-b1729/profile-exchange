@@ -12,7 +12,7 @@ from django.views.generic.base import TemplateResponseMixin, View
 from .models import (
     Vcard,
     Profile,
-    Connection,
+    # Connection,
 )
 from .forms import (
     UserRegistrationForm,
@@ -189,15 +189,15 @@ class EditProfileView(TemplateResponseMixin, View):
         )
 
 
-@login_required
-def connection_list(request):
-    connections = request.user.connection_set.all()
-    return render(
-        request,
-        'account/user/connections.html',
-        {'section': 'connections',
-         'connections': connections}
-    )
+# @login_required
+# def connection_list(request):
+#     connections = request.user.connection_set.all()
+#     return render(
+#         request,
+#         'account/user/connections.html',
+#         {'section': 'connections',
+#          'connections': connections}
+#     )
 
 # @login_required
 # def download_vcard(request, username=None):

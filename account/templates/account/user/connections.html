@@ -11,15 +11,15 @@
   {% for connection in connections %}
   <div class="connection">
     <a href="{{ connection.get_absolute_url }}">
-      {% thumbnail connection.user_to.profile.photo "100x100" crop="center" as im %}
-        <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.user_to.username }} profile photo">
+      {% thumbnail connection.vcard.photo "100x100" crop="center" as im %}
+        <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.vcard.FN }} profile photo">
       {% empty %}
-        <div class="profilePhoto container small">{{ connection.user_to.first_name|slice:"1" }}{{ connection.user_to.last_name|slice:"1" }}</div>
+        <div class="profilePhoto container small">{{ connection.vcard.first_name|slice:"1" }}{{ connection.vcard.last_name|slice:"1" }}</div>
       {% endthumbnail %}
     </a>
     <div class="info">
       <a href="{{ connection.get_absolute_url }}" class="title">
-        {{ connection.user_to.first_name }} {{ connection.user_to.last_name }}
+        {{ connection.vcard.FN }}
       </a>
     </div>
   </div>
