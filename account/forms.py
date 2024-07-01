@@ -83,7 +83,6 @@ class UserEditEmailForm(forms.ModelForm):
 
 
 class VcardEditForm(forms.ModelForm):
-    # birthday = YearlessDateField()
     class Meta:
         model = Vcard
         fields = (

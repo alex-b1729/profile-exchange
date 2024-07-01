@@ -83,7 +83,70 @@ def register(request):
     )
 
 
-class EditCardView(TemplateResponseMixin, View, vcard_id=None):
+def edit_connection(request, connection_id=None):
+    # todo: contact edit form?
+    connection = None
+    vcard = None
+    if connection_id:
+        connection = get_object_or_404(Connection,
+                                       id=connection_id,
+                                       # below so you can't try to query connections you're not part of
+                                       user=request.user)
+        vcard = get_object_or_404(Vcard, id=connection.vcard.pk)
+    else:
+        # connection = Connection()
+        vcard = Vcard()
+    if request.method == 'POST':
+        vcard_form = VcardEditForm(instance=vcard, data=request.POST)
+        address_formset = AddressFormSet(instance=vcard, data=request.POST)
+        phone_formset = PhoneFormSet(instance=vcard, data=request.POST)
+        email_formset = EmailFormSet(instance=vcard, data=request.POST)
+        org_formset = OrganizationFormSet(instance=vcard, data=request.POST)
+        tag_formset = TagFormSet(instance=vcard, data=request.POST)
+        url_formset = UrlFormSet(instance=vcard, data=request.POST)
+        if (
+            vcard_form.is_valid()
+            and address_formset.is_valid()
+            and phone_formset.is_valid()
+            and email_formset.is_valid()
+            and org_formset.is_valid()
+            and tag_formset.is_valid()
+            and url_formset.is_valid()
+        ):
+            new_vcard = vcard_form.save()
+            address_formset.save()
+            phone_formset.save()
+            email_formset.save()
+            org_formset.save()
+            tag_formset.save()
+            url_formset.save()
+            if not connection:
+                Connection.objects.create(user=request.user, vcard=new_vcard)
+            # todo: return view of saved vcard
+            return HttpResponse('success!')
+    else:
+        vcard_form = VcardEditForm(instance=vcard)
+        address_formset = AddressFormSet(instance=vcard)
+        phone_formset = PhoneFormSet(instance=vcard)
+        email_formset = EmailFormSet(instance=vcard)
+        org_formset = OrganizationFormSet(instance=vcard)
+        tag_formset = TagFormSet(instance=vcard)
+        url_formset = UrlFormSet(instance=vcard)
+    return render(
+        request,
+        'account/edit.html',  # todo: this or something else?
+        {'vcard_form': vcard_form,
+         'address_formset': address_formset,
+         'phone_formset': phone_formset,
+         'email_formset': email_formset,
+         'org_formset': org_formset,
+         'tag_formset': tag_formset,
+         'url_formset': url_formset
+         }
+    )
+
+
+class EditCardView(TemplateResponseMixin, View):
     """
     Edits Vcard [and Profile]
     """

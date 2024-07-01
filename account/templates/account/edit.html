@@ -7,16 +7,16 @@
   <form method="post" enctype="multipart/form-data" id="form-container">
   <div class="content-header">
     <h1>Edit your profile</h1>
+    <!-- todo: update to display different if creating new -->
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
   </div>
 
   <div class="profile">
       {% with vform=vcard_form %}
-      {% with pform=profile_form %}
       <div class="profilePhoto">
         <!-- todo: this ain't pretty -->
-        {{ pform.photo }}
+        {{ vform.photo }}
       </div>
       <div class="text-container">
         <p>{{ vform.prefix.label_tag }} {{ vform.prefix }} {{ vform.prefix.errors }}</p>
@@ -26,13 +26,15 @@
         <p>{{ vform.suffix.label_tag }} {{ vform.suffix }} {{ vform.suffix.errors }}</p>
         <p>{{ vform.nickname.label_tag }} {{ vform.nickname }} {{ vform.nickname.errors }}</p>
 
+        {% with pform=profile_form %}
+        {% if pform %}
         <p>{{ pform.headline.label_tag }} {{ pform.headline }} {{ pform.headline.errors }}</p>
         <p>{{ pform.location.label_tag }} {{ pform.location }} {{ pform.location.errors }}</p>
         <p>{{ pform.description.label_tag }} {{ pform.description }} {{ pform.description.errors }}</p>
+        {% endif %}
+        {% endwith %}
       </div>
     </div>
-    {% endwith %} <!-- end pform -->
-    <!-- vform ends after personal -->
 
     <div class="vcard">
       <h2>Contact Info</h2>

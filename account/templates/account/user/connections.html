@@ -6,6 +6,7 @@
 {% block content %}
 <div class="content-header">
   <h1>Connections</h1>
+  <a href="{% url "edit_connection" %}">Add Card</a>
 </div>
 <div id="connection-list">
   {% for connection in connections %}
