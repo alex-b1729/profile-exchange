@@ -9,7 +9,7 @@ from .models import (
     Tag,
     Url,
     Profile,
-    Contact,
+    Connection,
     ContactNote
 )
 
@@ -28,5 +28,5 @@ admin.site.register(Organization)
 admin.site.register(Tag)
 admin.site.register(Url)
 admin.site.register(Profile)
-admin.site.register(Contact)
+admin.site.register(Connection)
 admin.site.register(ContactNote)

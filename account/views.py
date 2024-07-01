@@ -12,6 +12,7 @@ from django.views.generic.base import TemplateResponseMixin, View
 from .models import (
     Vcard,
     Profile,
+    Connection,
 )
 from .forms import (
     UserRegistrationForm,
@@ -188,93 +189,15 @@ class EditProfileView(TemplateResponseMixin, View):
         )
 
 
-# class VCard(object):
-#     # todo: add photo
-#     # todo: remove hardcoded vcard feature names
-#     # todo: x-features
-#     # todo: sanitize user inputs!
-#     # todo: implement labels for social profiles
-#     begin_vcard = 'BEGIN:VCARD\n'
-#     vcard_version = 'VERSION:3.0\n'
-#     charset = ';CHARSET=UTF-8'  # todo: what does this really do? It's included by vcardmaker
-#     rev = 'REV:%s\n'
-#     end_vcard = 'END:VCARD\n'
-#     def __init__(self, user):
-#         # self.requesting_user = request.user?
-#         self.user = user
-#         self.profile = get_object_or_404(Profile,
-#                                          user=self.user)
-#
-#     def yield_profile_features(self):
-#         p: Profile = self.profile
-#         if p.nick_name != '': yield f'NICKNAME{self.charset}:{p.nick_name}\n'
-#
-#         if p.birthday is not None: yield f'BDAY:{p.birthday.strftime("%Y%m%d")}\n' # format?
-#
-#         if p.home_page != '': yield f'URL;type=HOME{self.charset}:{p.home_page}\n'
-#
-#         # org
-#         if p.title != '': yield f'TITLE{self.charset}:{p.title}\n'
-#         if p.role != '': yield f'ROLE{self.charset}:{p.role}\n'
-#         if p.organization != '': yield f'ORG{self.charset}:{p.organization}\n'
-#
-#         if p.anniversary is not None: yield f'ANNIVERSARY:{p.anniversary.strftime("%Y%m%d")}\n'
-#
-#         if p.sex is not None or p.gender != '':
-#             g = f'GENDER{self.charset}:'
-#             if p.sex is not None: g += f'{p.sex}'
-#             if p.gender != '': g += f';{p.gender}'
-#             yield g + '\n'
-#
-#     def yield_email_features(self):
-#         email_list = self.user.email_addresses.all()
-#         # what is email_list when there're no emails? None?
-#         for e in email_list:
-#             s = f'EMAIL;TYPE=INTERNET'
-#             if e.email_type != 'other': s += f';TYPE={e.email_type}'
-#             s += f':{e.email_address}\n'
-#             yield s
-#
-#     def yield_phone_features(self):
-#         phone_list = self.user.phone_numbers.all()
-#         for p in phone_list:
-#             s = 'TEL'
-#             if p.phone_type != 'other': s += f';TYPE={p.phone_type.replace(" ", ",")}'
-#             s += f':{p.TEL}\n'
-#             yield s
-#
-#     def yield_address_features(self):
-#         address_list = self.user.postal_addresses.all()
-#         for a in address_list:
-#             s = f'ADR{self.charset}'
-#             if a.address_type != 'other': s += f';TYPE={a.address_type}'
-#             s += f':{a.ADR}\n'
-#             yield s
-#
-#     def yield_social_features(self):
-#         social_list = self.user.social_profiles.all()
-#         for s in social_list:
-#             yield f'X-SOCIALPROFILE:{s.url}\n'
-#
-#     def generate_vcard(self):
-#         yield self.begin_vcard
-#         yield self.vcard_version
-#         yield f'FN{self.charset}:{self.profile.FN}\n'
-#         yield f'N{self.charset}:{self.profile.N}\n'
-#         yield from self.yield_profile_features()
-#         yield from self.yield_email_features()
-#         yield from self.yield_phone_features()
-#         yield from self.yield_address_features()
-#         yield from self.yield_social_features()
-#         yield self.rev % dt.datetime.now()  # todo: update formatting
-#         yield self.end_vcard
-#
-#     def vcard_text(self):
-#         s = ''
-#         for line in self.generate_vcard():
-#             s += line
-#         return s
-
+@login_required
+def connection_list(request):
+    connections = request.user.connection_set.all()
+    return render(
+        request,
+        'account/user/connections.html',
+        {'section': 'connections',
+         'connections': connections}
+    )
 
 # @login_required
 # def download_vcard(request, username=None):
@@ -291,17 +214,6 @@ class EditProfileView(TemplateResponseMixin, View):
 #             'Content-Type': 'text/plain',
 #             'Content-Disposition': f'attachment; filename="{user.first_name}{user.last_name}.vcf'
 #         }
-#     )
-
-
-# @login_required
-# def connection_list(request):
-#     connections = Connection.objects.filter(user_from=request.user)
-#     return render(
-#         request,
-#         'account/user/connections.html',
-#         {'section': 'connections',
-#          'connections': connections}
 #     )
 #
 #

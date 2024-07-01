@@ -378,6 +378,7 @@ class Organization(models.Model):
     logo = models.ImageField(
         upload_to=vcard_img_dir_path,
         blank=True,
+        null=True
     )
     organization = models.CharField(max_length=250, blank=True, null=True)
     # todo: handle member and related
@@ -473,10 +474,10 @@ class Profile(models.Model):
         return f'Profile: {self.user.username}'
 
 
-class Contact(models.Model):
+class Connection(models.Model):
     """
-    Every contact links to one vCard which is self.user's personal vcard of the Contact
-    If self.profile is not None then it indicates the contact is linked to a connection
+    Every connection links to one vCard which is self.user's personal vcard of the connection
+    If self.profile is not None then it indicates the contact is linked
 
     Notes:
         - The same profile will be linked to multiple user's
@@ -516,14 +517,14 @@ class Contact(models.Model):
         ]
 
     def __str__(self):
-        return f'Contact: {self.user.username} -> {self.vcard.FN}'
+        return f'Connection: {self.user.username} -> {self.vcard.FN}'
 
 
 class ContactNote(models.Model):
     # todo: naming? This'll will get confusing with Vcard.note
     # todo: would be fun to have tags associated with these
-    contact = models.ForeignKey(
-        Contact,
+    connection = models.ForeignKey(
+        Connection,
         on_delete=models.CASCADE,
     )
     note = models.CharField(blank=False)
