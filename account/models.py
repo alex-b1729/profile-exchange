@@ -28,8 +28,7 @@ TYPE_WH_CHOICES = {
 
 def vcard_img_dir_path(instance, filename):
     # todo: a uuid file name would be better
-    return (f'users/{instance.user.id}{dt.datetime.now().strftime("%S%f")}'
-            f'{os.path.splitext(filename)[-1]}')
+    return (f'users/{filename}')
 
 
 class Vcard(models.Model):
@@ -225,7 +224,7 @@ class Vcard(models.Model):
         s += f'END:{self.END}'
 
     def vcf_http_reponse(self, request):
-        # testing having this here
+        # todo: downloading will involve the linked vcard as well
         return HttpResponse(
             ContentFile(self.vcf),
             headers={
@@ -379,7 +378,6 @@ class Organization(models.Model):
     logo = models.ImageField(
         upload_to=vcard_img_dir_path,
         blank=True,
-        null=True
     )
     organization = models.CharField(max_length=250, blank=True, null=True)
     # todo: handle member and related

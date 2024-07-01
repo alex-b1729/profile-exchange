@@ -14,11 +14,9 @@ let addAddressButton = document.querySelector("#add-address-form");
 addAddressButton.addEventListener('click', addForm);
 addAddressButton.content = 'address';
 
-let addOrgButton = document.querySelector("#add-org-form");
+let addOrgButton = document.querySelector("#add-organization-form");
 addOrgButton.addEventListener('click', addForm);
-addOrgButton.content = 'org';
-// todo: doesn't work for org, maybe logo?
-// todo: how do I reset the logo once that's working?
+addOrgButton.content = 'organization';
 
 let addTagButton = document.querySelector("#add-tag-form");
 addTagButton.addEventListener('click', addForm);
@@ -31,32 +29,15 @@ function addForm(e) {
     let container = document.querySelector(`#${content}-form-container`);
     let form = document.querySelectorAll(`.${content}-form`);
     let addButton = document.querySelector(`#add-${content}-form`);
-    let totalForms = document.querySelector(`#id_${content}-TOTAL_FORMS`);
+    let totalForms = document.querySelector(`#id_${content}_set-TOTAL_FORMS`);
 
     let formNum = form.length - 1;
 
-    let newForm = form[0].cloneNode(true);
-    let formRegex = RegExp(`${content}-(\\d){1}-`, 'g');
+    let newForm = form[form.length-1].cloneNode(true);
+    let formRegex = RegExp(`${content}_set-(\\d){1}-`, 'g');
 
     formNum++;
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${content}-${formNum}-`);
-
-    let inputs = newForm.querySelectorAll('input');
-    inputs.forEach(input => {
-        // todo: doesn't set choices correctly
-        if (input.hasAttribute('value')) {
-            if (content === 'phone') {
-                input.setAttribute('value', 'Cell');
-            } else if (content === 'address'){
-                input.setAttribute('value', 'Work');
-            } else {
-                input.setAttribute('value', '');
-            }
-        }
-        if (input.type === 'checkbox' || input.type === 'radio') {
-            input.checked = false;
-        }
-    });
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${content}_set-${formNum}-`);
 
     container.insertBefore(newForm, addButton);
     totalForms.setAttribute('value', `${formNum + 1}`);

@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 from django.contrib.auth import get_user_model
+from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
 from .models import (
     Vcard,
@@ -82,6 +83,7 @@ class UserEditEmailForm(forms.ModelForm):
 
 
 class VcardEditForm(forms.ModelForm):
+    # birthday = YearlessDateField()
     class Meta:
         model = Vcard
         fields = (
@@ -101,7 +103,7 @@ class VcardEditForm(forms.ModelForm):
             'nick_name': forms.TextInput(attrs={'autocomplete': 'nickname'}),
             'organization': forms.TextInput(attrs={'autocomplete': 'organization'}),
             'title': forms.TextInput(attrs={'autocomplete': 'organization-title'}),
-            'birthday': forms.TextInput(attrs={'autocomplete': 'bday'}),
+            # 'birthday': YearlessDateField(), #attrs={'autocomplete': 'bday'}),
             'gender': forms.TextInput(attrs={'autocomplete': 'sex'}),
         }
 
@@ -174,14 +176,14 @@ EmailFormSet = inlineformset_factory(
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
-        fields = ['title', 'role', 'logo', 'organization']
+        fields = ['title', 'role', 'organization', 'logo']
 
 
 OrganizationFormSet = inlineformset_factory(
     Vcard,
     Organization,
     form=OrganizationForm,
-    fields=['title', 'role', 'logo', 'organization'],
+    fields=['title', 'role', 'organization', 'logo'],
     extra=1,
     min_num=0,
     can_delete=True

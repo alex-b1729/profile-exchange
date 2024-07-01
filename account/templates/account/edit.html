@@ -9,9 +9,7 @@
     <h1>Edit your profile</h1>
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>
-    <!-- todo: doesn't save anything when up here for some reason?? -->
   </div>
-  <!-- TODO: add verification errors {{ field.errors }} -->
 
   <div class="profile">
       {% with vform=vcard_form %}
@@ -21,16 +19,16 @@
         {{ pform.photo }}
       </div>
       <div class="text-container">
-        <p>{{ vform.prefix.label_tag }} {{ vform.prefix }}</p>
-        <p>{{ vform.first_name.label_tag }} {{ vform.first_name }}</p>
-        <p>{{ vform.middle_name.label_tag }} {{ vform.middle_name }}</p>
-        <p>{{ vform.last_name.label_tag }} {{ vform.last_name }}</p>
-        <p>{{ vform.suffix.label_tag }} {{ vform.suffix }}</p>
-        <p>{{ vform.nickname.label_tag }} {{ vform.nickname }}</p>
+        <p>{{ vform.prefix.label_tag }} {{ vform.prefix }} {{ vform.prefix.errors }}</p>
+        <p>{{ vform.first_name.label_tag }} {{ vform.first_name }} {{ vform.first_name.errors }}</p>
+        <p>{{ vform.middle_name.label_tag }} {{ vform.middle_name }} {{ vform.middle_name.errors }}</p>
+        <p>{{ vform.last_name.label_tag }} {{ vform.last_name }} {{ vform.last_name.errors }}</p>
+        <p>{{ vform.suffix.label_tag }} {{ vform.suffix }} {{ vform.suffix.errors }}</p>
+        <p>{{ vform.nickname.label_tag }} {{ vform.nickname }} {{ vform.nickname.errors }}</p>
 
-        <p>{{ pform.headline.label_tag }} {{ pform.headline }}</p>
-        <p>{{ pform.location.label_tag }} {{ pform.location }}</p>
-        <p>{{ pform.description.label_tag }} {{ pform.description }}</p>
+        <p>{{ pform.headline.label_tag }} {{ pform.headline }} {{ pform.headline.errors }}</p>
+        <p>{{ pform.location.label_tag }} {{ pform.location }} {{ pform.location.errors }}</p>
+        <p>{{ pform.description.label_tag }} {{ pform.description }} {{ pform.description.errors }}</p>
       </div>
     </div>
     {% endwith %} <!-- end pform -->
@@ -38,7 +36,7 @@
 
     <div class="vcard">
       <h2>Contact Info</h2>
-      <p>{{ vform.kind.label_tag }} {{ vform.kind }}</p>
+      <p>{{ vform.kind.label_tag }} {{ vform.kind }} {{ vform.kind.errors }}</p>
       
       <div class="vcardGroup">
         <h3>Phone</h3>
@@ -95,25 +93,26 @@
 
       <div class="vcardGroup">
         <h3>Organization</h3>
-        <div class="org-form-container">
+        <div id="organization-form-container">
           {{ org_formset.management_form }}
           {% for form in org_formset %}
-          <div class="org-form">
+          <div class="organization-form">
             {{ form.as_div }}
           </div>
           {% endfor %}
-          <button id="add-org-form" type="button">Add Organization</button>
+          <button id="add-organization-form" type="button">Add Organization</button>
         </div>
       </div>
 
       <div class="vcardGroup">
         <h3>Personal</h3>
         <div class="text-container">
-          <!-- todo: need to use the yearlessdate form here so has dropdowns -->
-          <p>{{ vform.birthday.label_tag }} {{ vform.birthday }}</p>
-          <p>{{ vform.anniversary.label_tag }} {{ vform.anniversary }}</p>
-          <p>Biological sex: {{ vform.sex }}</p>
-          <p>Gender: {{ vform.gender }}</p>
+          <p>{{ vform.birthday.label_tag }}{{ vform.birthday }} {{ vform.birthday.errors }}</p>
+          <p>{{ vform.birthday_year.label_tag }} {{ vform.birthday_year }} {{ vform.birthday_year.errors }}</p>
+          <p>{{ vform.anniversary.label_tag }} {{ vform.anniversary }} {{ vform.anniversary.errors }}</p>
+          <p>{{ vform.anniversary_year.label_tag }} {{ vform.anniversary_year }} {{ vform.anniversary_year.errors }}</p>
+          <p>Biological sex: {{ vform.sex }} {{ vform.sex.errors }}</p>
+          <p>Gender: {{ vform.gender }} {{ vform.gender.errors }}</p>
         </div>
       </div>
 
@@ -132,7 +131,7 @@
 
       <div class="vcardGroup">
         <h3>Note</h3>
-        {{ vform.note }}
+        {{ vform.note }} {{ vform.note.errors }}
       </div>
       {% endwith %} <!-- end vform -->
 

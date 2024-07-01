@@ -163,7 +163,7 @@ class EditProfileView(TemplateResponseMixin, View):
             and address_formset.is_valid()
             and phone_formset.is_valid()
             and email_formset.is_valid()
-            and org_formset.is_vaid()
+            and org_formset.is_valid()
             and tag_formset.is_valid()
             and url_formset.is_valid()
         ):
