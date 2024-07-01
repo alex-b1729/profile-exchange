@@ -12,7 +12,7 @@ from django.views.generic.base import TemplateResponseMixin, View
 from .models import (
     Vcard,
     Profile,
-    # Connection,
+    Connection,
 )
 from .forms import (
     UserRegistrationForm,
@@ -30,10 +30,16 @@ from .forms import (
 
 @login_required
 def profile(request):
+    vcard = request.user.vcard
+    profile = request.user.profile
     return render(
         request,
-        'account/profile.html',
-        {'section': 'profile'}
+        'account/card.html',
+        {
+            'section': 'profile',
+            'vcard': vcard,
+            'protile': profile
+        }
     )
 
 @login_required
@@ -77,9 +83,9 @@ def register(request):
     )
 
 
-class EditProfileView(TemplateResponseMixin, View):
+class EditCardView(TemplateResponseMixin, View, vcard_id=None):
     """
-    Edits both user's Profile and Vcard
+    Edits Vcard [and Profile]
     """
     template_name = 'account/edit.html'
 
@@ -189,15 +195,15 @@ class EditProfileView(TemplateResponseMixin, View):
         )
 
 
-# @login_required
-# def connection_list(request):
-#     connections = request.user.connection_set.all()
-#     return render(
-#         request,
-#         'account/user/connections.html',
-#         {'section': 'connections',
-#          'connections': connections}
-#     )
+@login_required
+def connection_list(request):
+    connections = request.user.connection_set.all()
+    return render(
+        request,
+        'account/user/connections.html',
+        {'section': 'connections',
+         'connections': connections}
+    )
 
 # @login_required
 # def download_vcard(request, username=None):
@@ -217,15 +223,18 @@ class EditProfileView(TemplateResponseMixin, View):
 #     )
 #
 #
-# @login_required
-# def connection_detail(request, connection_id):
-#     connection = get_object_or_404(Connection,
-#                                    id=connection_id,
-#                                    # below so you can't try to query connections you're not part of
-#                                    user_from=request.user)
-#     return render(
-#         request,
-#         'account/user/contact.html',
-#         {'section': 'connections',
-#          'connection': connection}
-#     )
+@login_required
+def connection_detail(request, connection_id):
+    connection = get_object_or_404(Connection,
+                                   id=connection_id,
+                                   # below so you can't try to query connections you're not part of
+                                   user=request.user)
+    return render(
+        request,
+        'account/card.html',
+        {
+            'section': 'connections',
+            'vcard': connection.vcard,
+            'profile': connection.profile
+        }
+    )

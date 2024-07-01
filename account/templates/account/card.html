@@ -11,30 +11,30 @@
   </div>
 
   <div class="profile">
-    {% thumbnail request.user.vcard.photo "200x200" crop="center" as im %}
-    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ request.user.vcard.FN }} profile photo">
+    {% thumbnail vcard.photo "200x200" crop="center" as im %}
+    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ vcard.FN }} profile photo">
     {% empty %}
-    <div class="profilePhoto container large">{{ request.user.vcard.first_name|slice:"1" }}{{ request.user.vcard.last_name|slice:"1" }}</div>
+    <div class="profilePhoto container large">{{ vcard.first_name|slice:"1" }}{{ vcard.last_name|slice:"1" }}</div>
     {% endthumbnail %}
 
     <div class="text-container">
-      <p id="FN">{{ request.user.vcard.FN }}</p>
-      {% with nickname=request.user.vcard.nickname %}
+      <p id="FN">{{ vcard.FN }}</p>
+      {% with nickname=vcard.nickname %}
       {% if nickname %}
       <p id="NICKNAME">"{{ nickname }}"</p>
       {% endif %}
       {% endwith %}
-      {% with headline=request.user.profile.headline %}
+      {% with headline=profile.headline %}
       {% if headline %}
       <p id="headline">{{ headline }}</p>
       {% endif %}
       {% endwith %}
-      {% with location=request.user.profile.location %}
+      {% with location=profile.location %}
       {% if location %}
       <p id="location">{{ location }}</p>
       {% endif %}
       {% endwith %}
-      {% with description=request.user.profile.description %}
+      {% with description=profile.description %}
       {% if description %}
       <p id="description">{{ description }}</p>
       {% endif %}
@@ -46,7 +46,7 @@
     <h2>Contact Info</h2>
     <p><i>{{ user.vcard.get_kind_display }}</i></p>
 
-    {% with phones=request.user.vcard.phone_set.all %}
+    {% with phones=vcard.phone_set.all %}
     {% if phones %}
     <div class="vcardGroup">
       <h3>Phone</h3>
@@ -62,7 +62,7 @@
     {% endif %}
     {% endwith %}
     
-    {% with emails=request.user.vcard.email_set.all %}
+    {% with emails=vcard.email_set.all %}
     {% if emails %}
     <div class="vcardGroup">
       <h3>Email</h3>
@@ -78,7 +78,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with urls=request.user.vcard.url_set.all %}
+    {% with urls=vcard.url_set.all %}
     {% if urls %}
     <div class="vcardGroup">
       <h3>URLs</h3>
@@ -93,7 +93,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with addresses=request.user.vcard.addresses_set.all %}
+    {% with addresses=vcard.addresses_set.all %}
     {% if addresses %}
     <div class="vcardGroup">
       <h3>Addresses</h3>
@@ -117,7 +117,7 @@
     {% endwith %}
 
     <!-- todo: add org logo -->
-    {% with orgs=request.user.vcard.organization_set.all %}
+    {% with orgs=vcard.organization_set.all %}
     {% if orgs %}
     <div class="vcardGroup">
       <h3>Organizations</h3>
@@ -136,22 +136,22 @@
     {% endwith %}
 
 
-    {% with bday=request.user.vcard.birthday %}
-    {% with anniv=request.user.vcard.anniversary %}
-    {% with sex=request.user.vcard.sex %}
-    {% with gender=request.user.vcard.gender %}
+    {% with bday=vcard.birthday %}
+    {% with anniv=vcard.anniversary %}
+    {% with sex=vcard.sex %}
+    {% with gender=vcard.gender %}
     {% if bday or anniv or sex or gender != "" %}
     <div class="vcardGroup">
       <h3>Personal</h3>
       <div class="text-container">
         <ul>
           {% if bday %}
-          {% with bdayy=request.user.vcard.birthday_year %}
+          {% with bdayy=vcard.birthday_year %}
           <li id="BDAY">Birthday: {{ bday }}{% if bdayy %}, {{ bdayy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
           {% if anniv %}
-          {% with annivy=request.user.vcard.anniversary_year %}
+          {% with annivy=vcard.anniversary_year %}
           <li id="ANNIVERARY">Anniversary: {{ anniv }}{% if annivy %}, {{ annivy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
@@ -167,7 +167,7 @@
     {% endwith %}
     {% endwith %}
 
-    {% with tags=request.user.vcard.tag_set.all %}
+    {% with tags=vcard.tag_set.all %}
     {% if tags %}
     <div class="vcardGroup">
       <h3>Tags</h3>
@@ -182,7 +182,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with note=request.user.vcard.note %}
+    {% with note=vcard.note %}
     {% if note %}
     <div class="vcardGroup">
       <h3>Note</h3>
