@@ -474,54 +474,54 @@ class Profile(models.Model):
         return f'Profile: {self.user.username}'
 
 
-# class Connection(models.Model):
-#     """
-#     Every connection links to one vCard which is self.user's personal vcard of the connection
-#     If self.profile is not None then it indicates the contact is linked
-#
-#     Notes:
-#         - The same profile will be linked to multiple user's
-#         - Each Contact links to one, unique Vcard
-#         - The same Profile will link to multiple Vcards
-#         - BUT, a user can only link a Profile to one Contact.
-#           E.g. Contacts are unique on (user, profile) as enforced
-#           by the unique_user_connection constraint.
-#     """
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE
-#     )
-#     vcard = models.OneToOneField(
-#         Vcard,
-#         on_delete=models.CASCADE
-#     )
-#     profile = models.ForeignKey(
-#         Profile,
-#         on_delete=models.SET_NULL,
-#         blank=True,
-#         null=True
-#     )
-#     created = models.DateTimeField(auto_now_add=True, editable=False)
-#
-#     class Meta:
-#         indexes = [
-#             models.Index(fields=['-created']),
-#         ]
-#         ordering = ['-created']
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=['user', 'profile'],
-#                 name='unique_user_connection',
-#                 nulls_distinct=True
-#             )
-#         ]
-#
-#     def get_absolute_url(self):
-#         return reverse('connection_detail', kwargs={'connection_id': self.id})
-#
-#     def __str__(self):
-#         return f'Connection: {self.user.username} -> {self.vcard.FN}'
+class Connection(models.Model):
+    """
+    Every connection links to one vCard which is self.user's personal vcard of the connection
+    If self.profile is not None then it indicates the contact is linked
+
+    Notes:
+        - The same profile will be linked to multiple user's
+        - Each Contact links to one, unique Vcard
+        - The same Profile will link to multiple Vcards
+        - BUT, a user can only link a Profile to one Contact.
+          E.g. Contacts are unique on (user, profile) as enforced
+          by the unique_user_connection constraint.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    vcard = models.OneToOneField(
+        Vcard,
+        on_delete=models.CASCADE
+    )
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'profile'],
+                name='unique_user_connection',
+                nulls_distinct=True
+            )
+        ]
+
+    def get_absolute_url(self):
+        return reverse('connection_detail', kwargs={'connection_id': self.id})
+
+    def __str__(self):
+        return f'Connection: {self.user.username} -> {self.vcard.FN}'
 
 
 # class ContactNote(models.Model):
