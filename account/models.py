@@ -167,7 +167,7 @@ class Vcard(models.Model):
         cardinality: *1
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.2
         """
-        return f'{self.user.last_name};{self.user.first_name};{self.middle_name};{self.prefix};{self.suffix}'
+        return f'{self.last_name};{self.first_name};{self.middle_name};{self.prefix};{self.suffix}'
 
     @property
     def REV(self):
@@ -182,14 +182,13 @@ class Vcard(models.Model):
         """
         # todo: implement line folding over 75 chars as outlined in
         # https://datatracker.ietf.org/doc/html/rfc6350#section-3.2
-        s = f"""
-        BEGIN:{self.BEGIN}
-        VERSION:{self.VERSION}
-        KIND:{self.kind}
-        FN:{self.FN}
-        N:{self.N}
-        {'NICKNAME:' + self.nickname if self.nickname!='' else ''}
-        """
+        s = f'BEGIN:{self.BEGIN}\n'
+        s += f'VERSION:{self.VERSION}\n'
+        s += f'KIND:{self.kind}\n'
+        s += f'FN:{self.FN}\n'
+        s += f'N:{self.N}\n'
+        if self.nickname!='':
+            s += f"{'NICKNAME:' + self.nickname if self.nickname!='' else ''}\n"
 
         # todo: photo encoding
 
@@ -222,6 +221,8 @@ class Vcard(models.Model):
 
         s += f'REV:{self.REV}\n'
         s += f'END:{self.END}'
+
+        return s
 
     def vcf_http_reponse(self, request):
         # todo: downloading will involve the linked vcard as well
@@ -261,11 +262,7 @@ class Address(models.Model):
         verbose_name_plural = 'Addresses'
 
     def __str__(self):
-        s = (f'{self.street1 + ", " if self.street1 != "" else ""}'
-             f'{self.street2 + ", " if self.street2 != "" else ""}'
-             f'{self.city + ", " if self.city != "" else ""}'
-             f'{self.state + " " if self.state != "" else ""}'
-             f'{self.zip if self.zip != "" else ""}')
+        s = (f'{self.street1}')
         return s
 
     @property
@@ -275,8 +272,8 @@ class Address(models.Model):
         First 2 components have interoperability issues and SHOULD be empty according to specs
         """
         return (f'{";TYPE=" + self.address_type if self.address_type not in ["", "other"] else ""}:'
-                f';;{self.street1}{"," + self.street2 if self.street2 != "" else ""};'
-                f'{self.city};{self.state};{self.zip};{self.country}')
+                f';;{self.street1}{"," + self.street2 if self.street2 is not None else ""};'
+                f'{self.city};{self.state};{self.zip};{self.country if self.country is not None else ""}')
 
 
 class Phone(models.Model):
@@ -328,8 +325,8 @@ class Phone(models.Model):
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.1
         """
         # todo: gotta format the number correctly
-        return (f';VALUE=uri{";TYPE=" + self.phone_type if self.phone_type not in ["", "other"] else ""}:'
-                f'tel:{self.phone_number}{";ext=" + self.EXT if self.EXT != "" else ""}')
+        return (f'{";TYPE=" + self.phone_type if self.phone_type not in ["", "other"] else ""}:'
+                f':{self.phone_number}{";ext=" + self.EXT if self.EXT != "" else ""}')
 
 
 class Email(models.Model):
@@ -444,7 +441,7 @@ class Url(models.Model):
     @property
     def URL(self):
         # todo: when to export as X-SOCIALPROFILE vs URL?
-        return (f'{";TYPE=" + self.url_type if self.url_type not in ["", "other"] else ""}:'
+        return (f'{";TYPE=" + self.url_type if self.url_type not in [None, "", "other"] else ""}:'
                 f'{self.url}')
 
 

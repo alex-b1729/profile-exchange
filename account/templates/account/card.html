@@ -7,7 +7,8 @@
 {% block content %}
   <div class="content-header">
     <h1>Profile</h1>
-    <a href="{% url "edit" %}">Edit</a>
+    {% if entity == "self" %}<a href="{% url "edit" %}">Edit</a>{% endif %}
+    {% if entity == "connection" %}<a href="{% url "edit_connection" connection.id %}">Edit</a>{% endif %}
   </div>
 
   <div class="profile">
@@ -44,6 +45,8 @@
 
   <div class="vcard">
     <h2>Contact Info</h2>
+    {% if entity == "self" %}<a href="{% url "download_vcard" %}">Download</a>{% endif %}
+    {% if entity == "connection" %}<a href="{% url "download_connection_vcard" connection.id %}">Download</a>{% endif %}
     <p><i>{{ user.vcard.get_kind_display }}</i></p>
 
     {% with phones=vcard.phone_set.all %}
@@ -93,7 +96,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with addresses=vcard.addresses_set.all %}
+    {% with addresses=vcard.address_set.all %}
     {% if addresses %}
     <div class="vcardGroup">
       <h3>Addresses</h3>

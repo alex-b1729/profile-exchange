@@ -6,7 +6,9 @@
 {% block content %}
   <form method="post" enctype="multipart/form-data" id="form-container">
   <div class="content-header">
-    <h1>Edit your profile</h1>
+    {% if mode == "edit" %}<h1>Edit Card</h1>{% endif %}
+    {% if mode == "new" %}<h1>New Card</h1>{% endif%}
+    {% if mode == "self" %}<h1>Edit your profile and card</h1>{% endif %}
     <!-- todo: update to display different if creating new -->
     {% csrf_token %}
     <p><input type="submit" value="Save changes"></p>

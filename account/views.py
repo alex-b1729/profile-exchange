@@ -37,8 +37,9 @@ def profile(request):
         'account/card.html',
         {
             'section': 'profile',
+            'entity': 'self',
             'vcard': vcard,
-            'protile': profile
+            'profile': profile
         }
     )
 
@@ -87,21 +88,24 @@ def edit_connection(request, connection_id=None):
     # todo: contact edit form?
     connection = None
     vcard = None
+    mode = None  # context for whether vcard is new or existing
     if connection_id:
         connection = get_object_or_404(Connection,
                                        id=connection_id,
                                        # below so you can't try to query connections you're not part of
                                        user=request.user)
         vcard = get_object_or_404(Vcard, id=connection.vcard.pk)
+        mode = 'edit'
     else:
         # connection = Connection()
         vcard = Vcard()
+        mode = 'new'
     if request.method == 'POST':
-        vcard_form = VcardEditForm(instance=vcard, data=request.POST)
+        vcard_form = VcardEditForm(instance=vcard, data=request.POST, files=request.FILES)
         address_formset = AddressFormSet(instance=vcard, data=request.POST)
         phone_formset = PhoneFormSet(instance=vcard, data=request.POST)
         email_formset = EmailFormSet(instance=vcard, data=request.POST)
-        org_formset = OrganizationFormSet(instance=vcard, data=request.POST)
+        org_formset = OrganizationFormSet(instance=vcard, data=request.POST, files=request.FILES)
         tag_formset = TagFormSet(instance=vcard, data=request.POST)
         url_formset = UrlFormSet(instance=vcard, data=request.POST)
         if (
@@ -121,9 +125,11 @@ def edit_connection(request, connection_id=None):
             tag_formset.save()
             url_formset.save()
             if not connection:
-                Connection.objects.create(user=request.user, vcard=new_vcard)
+                connection = Connection(user=request.user, vcard=new_vcard)
+                connection.save()
             # todo: return view of saved vcard
-            return HttpResponse('success!')
+            # return HttpResponse('success!')
+            return redirect(connection)
     else:
         vcard_form = VcardEditForm(instance=vcard)
         address_formset = AddressFormSet(instance=vcard)
@@ -135,13 +141,15 @@ def edit_connection(request, connection_id=None):
     return render(
         request,
         'account/edit.html',  # todo: this or something else?
-        {'vcard_form': vcard_form,
-         'address_formset': address_formset,
-         'phone_formset': phone_formset,
-         'email_formset': email_formset,
-         'org_formset': org_formset,
-         'tag_formset': tag_formset,
-         'url_formset': url_formset
+        {
+            'mode': mode,
+            'vcard_form': vcard_form,
+            'address_formset': address_formset,
+            'phone_formset': phone_formset,
+            'email_formset': email_formset,
+            'org_formset': org_formset,
+            'tag_formset': tag_formset,
+            'url_formset': url_formset
          }
     )
 
@@ -208,7 +216,8 @@ class EditCardView(TemplateResponseMixin, View):
         tag_formset = self.get_tag_formset()
         url_formset = self.get_url_formset()
         return self.render_to_response(
-            {'vcard_form': vcard_form,
+            {'mode': 'self',
+             'vcard_form': vcard_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
              'phone_formset': phone_formset,
@@ -247,7 +256,8 @@ class EditCardView(TemplateResponseMixin, View):
             url_formset.save()
             return redirect('profile')
         return self.render_to_response(
-            {'vcard_form': vcard_form,
+            {'mode': 'self',
+             'vcard_form': vcard_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
              'phone_formset': phone_formset,
@@ -268,24 +278,20 @@ def connection_list(request):
          'connections': connections}
     )
 
-# @login_required
-# def download_vcard(request, username=None):
-#     if username is None:
-#         user = request.user
-#     else:
-#         user = get_object_or_404(get_user_model(),
-#                                  username=username,
-#                                  is_active=True)
-#     content = ContentFile(VCard(user).vcard_text())
-#     return HttpResponse(
-#         content,
-#         headers={
-#             'Content-Type': 'text/plain',
-#             'Content-Disposition': f'attachment; filename="{user.first_name}{user.last_name}.vcf'
-#         }
-#     )
-#
-#
+@login_required
+def download_vcard(request, connection_id=None):
+    if connection_id:
+        connection = get_object_or_404(
+            Connection,
+            id=connection_id,
+            user=request.user
+        )
+        vcard = connection.vcard
+    else:
+        vcard = request.user.vcard
+    return vcard.vcf_http_reponse(request)
+
+
 @login_required
 def connection_detail(request, connection_id):
     connection = get_object_or_404(Connection,
@@ -297,6 +303,8 @@ def connection_detail(request, connection_id):
         'account/card.html',
         {
             'section': 'connections',
+            'entity': 'connection',
+            'connection': connection,
             'vcard': connection.vcard,
             'profile': connection.profile
         }
