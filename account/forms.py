@@ -50,17 +50,22 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Email is already registered.')
         return data
 
-    # def save(self, commit=True):
-    #     user = super(UserRegistrationForm, self).save(commit=False)
-    #     user.username = user.email
-    #     user.save(commit)
-    #     email = Email(
-    #         user=user,
-    #         email_address=user.email,
-    #         is_primary=True
-    #     )
-    #     email.save(commit)
-    #     return user
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save(commit=False)
+        user.set_password(self.cleaned_data['password2'])
+        user.save(commit)
+        return user
+
+
+class VcardNameForm(forms.Form):
+    first_name = forms.CharField(max_length=50)
+    last_name = forms.CharField(max_length=50)
+
+    class Meta:
+        widgets = {
+            'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
+            'last_name': forms.EmailInput(attrs={'autocomplete': 'family-name'})
+        }
 
 
 # class UserEditNameForm(forms.ModelForm):

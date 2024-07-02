@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.views.generic.detail import DetailView
+from formtools.wizard.views import SessionWizardView
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -16,6 +17,7 @@ from .models import (
 )
 from .forms import (
     UserRegistrationForm,
+    VcardNameForm,
     UserEditEmailForm,
     VcardEditForm,
     AddressFormSet,
@@ -82,6 +84,26 @@ def register(request):
         'account/register.html',
         {'user_form': user_form}
     )
+
+
+class RegisterWizard(SessionWizardView):
+    template_name = 'account/register.html'
+
+    def done(self, form_list, **kwargs):
+        new_user = form_list[0].save(commit=False)
+
+        name_form_data = form_list[1].cleaned_data
+        fn = name_form_data['first_name']
+        ln = name_form_data['last_name']
+
+        new_user.save()
+        Profile.objects.create(user=new_user)
+        Vcard.objects.create(user=new_user, first_name=fn, last_name=ln)
+        return render(
+            self.request,
+            'account/register_done.html',
+            {'new_user': new_user},
+        )
 
 
 def edit_connection(request, connection_id=None):

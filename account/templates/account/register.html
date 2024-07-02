@@ -2,17 +2,36 @@
 
 {% block title %}Create an account{% endblock %}
 
+{% block head %}
+{{ wizard.form.media }}
+{% endblock %}
+
 {% block content %}
-  <h1>Create your account</h1>
+    <h1>Create your account</h1>
+{% if wizard.steps.step0 == 0 %}
   <p>This info will not be part of your contact profile. </p>
-  <form method="post">
-    <p>{{ user_form.username.label_tag }} {{ user_form.username }}</p>
-    <p><i>{{ user_form.username.help_text }}</i></p>
-    <p>{{ user_form.email.label_tag }} {{ user_form.email }}</p>
-    <p>{{ user_form.password.label_tag }} {{ user_form.password }}</p>
-    <p>{{ user_form.password2.label_tag }} {{ user_form.password2 }}</p>
+{% endif %}
+{% if wizard.steps.step0 == 1 %}
+  <p>Set up your name for your contact card</p>
+{% endif %}
+  <form method="post">{% csrf_token %}
+<!--    <p>{{ user_form.username.label_tag }} {{ user_form.username }}</p>-->
+<!--    <p><i>{{ user_form.username.help_text }}</i></p>-->
+<!--    <p>{{ user_form.email.label_tag }} {{ user_form.email }}</p>-->
+<!--    <p>{{ user_form.password.label_tag }} {{ user_form.password }}</p>-->
+<!--    <p>{{ user_form.password2.label_tag }} {{ user_form.password2 }}</p>-->
     <!--user_form.as_p-->
-    {% csrf_token %}
-    <p><input type="submit" value="Create my account"></p>
+    <table>
+      {{ wizard.management_form }}
+      {% if wizard.form.forms %}
+          {{ wizard.form.management_form }}
+          {% for form in wizard.form.forms %}
+              {{ form.as_table }}
+          {% endfor %}
+      {% else %}
+          {{ wizard.form }}
+      {% endif %}
+    </table>
+    <p><input type="submit" value="Submit"></p>
   </form>
 {% endblock %}

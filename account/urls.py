@@ -1,12 +1,17 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
+from account.forms import UserRegistrationForm, VcardNameForm
+
 from . import views
 
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', views.profile, name='profile'),
-    path('register/', views.register, name='register'),
+    # path('register/', views.register, name='register'),
+    path('register/',
+         views.RegisterWizard.as_view([UserRegistrationForm, VcardNameForm]),
+         name='register'),
     path('edit/', views.EditCardView.as_view(), name='edit'),
     path('account/', views.account, name='account'),
     path('download/', views.download_vcard, name='download_vcard'),
