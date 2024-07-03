@@ -73,11 +73,9 @@ class Vcard(models.Model):
         UNKNOWN: 'Unknown'
     }
     # note: cascading delete means that linked contact info disappears if other side leaves
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True
     )
 
     # 6.1.4
@@ -327,7 +325,7 @@ class Phone(models.Model):
         """
         # todo: gotta format the number correctly
         return (f'{";TYPE=" + self.phone_type if self.phone_type not in ["", "other"] else ""}:'
-                f':{self.phone_number}{";ext=" + self.EXT if self.EXT != "" else ""}')
+                f'{self.phone_number}{";ext=" + self.EXT if self.EXT != "" else ""}')
 
 
 class Email(models.Model):
@@ -352,7 +350,7 @@ class Email(models.Model):
 
     @property
     def EMAIL(self):
-        return (f'{";TYPE=" + self.email_type if self.email_type not in ["", "other"] else ""}:'
+        return (f'{";TYPE=" + self.email_type if self.email_type not in [None, "", "other"] else ""}:'
                 f'{self.email_address}')
 
 
@@ -372,7 +370,7 @@ class Organization(models.Model):
         on_delete=models.CASCADE
     )
     title = models.CharField(max_length=250, blank=True, null=True)
-    role = models.CharField(max_length=250, blank=False)
+    role = models.CharField(max_length=250, blank=True, null=True)
     logo = models.ImageField(
         upload_to=vcard_img_dir_path,
         blank=True,
@@ -452,14 +450,21 @@ class Url(models.Model):
 
 class Profile(models.Model):
     """
-    Contains information about a user that does not fit in the Vcard model.
-    Users specify this info about themselves.
+    Users can have many profiles and each profile links to one of the user's vcards.
     """
     # todo: add attachments and CV/resume related fields
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+    vcard = models.OneToOneField(
+        Vcard,
+        on_delete=models.CASCADE,
+    )
+
+    # eventually use this to differentiate different profiles for same user
+    # e.g. personal, professional, business, etc.
+    title = models.CharField(max_length=50, default='Personal')
 
     # X-HEADLINE
     headline = models.CharField(max_length=120, blank=True, null=True)
@@ -468,103 +473,38 @@ class Profile(models.Model):
     # X-DESCRIPTION
     description = models.CharField(blank=True, null=True)
 
+    connections = models.ManyToManyField(
+        'self',
+        through='Connection',
+        symmetrical=True
+    )
+
     def __str__(self):
-        return f'Profile: {self.user.username}'
+        return f'{self.user.username}\'s {self.title} Profile'
 
 
 class Connection(models.Model):
-    """
-    Every connection links to one vCard which is self.user's personal vcard of the connection
-    If self.profile is not None then it indicates the contact is linked
-
-    Notes:
-        - The same profile will be linked to multiple user's
-        - Each Contact links to one, unique Vcard
-        - The same Profile will link to multiple Vcards
-        - BUT, a user can only link a Profile to one Contact.
-          E.g. Contacts are unique on (user, profile) as enforced
-          by the unique_user_connection constraint.
-    """
-    # todo: because this isn't a many-to-many between users there's no symmetric relationship!
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    profile_from = models.ForeignKey(
+        Profile,
+        related_name='rel_from_set',
+        on_delete=models.CASCADE,
+    )
+    profile_to = models.ForeignKey(
+        Profile,
+        related_name='rel_to_set',
         on_delete=models.CASCADE
     )
     vcard = models.OneToOneField(
         Vcard,
-        on_delete=models.CASCADE
-    )
-    profile = models.ForeignKey(
-        Profile,
         on_delete=models.SET_NULL,
+        # in forms need to limit to vcard.user == profile.user
         blank=True,
-        null=True
-    )
-    created = models.DateTimeField(auto_now_add=True, editable=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['-created']),
-        ]
-        ordering = ['-created']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'profile'],
-                name='unique_user_connection',
-                nulls_distinct=True
-            )
-        ]
-
-    def email_set_full(self):
-        e_local = self.vcard.email_set.all().annotate(linked=Value(False))
-        if self.profile:
-            e_linked = self.profile.user.vcard.email_set.all().annotate(linked=Value(True))
-            return e_local.union(e_linked)
-        return e_local
-
-    def get_absolute_url(self):
-        return reverse('connection_detail', kwargs={'connection_id': self.id})
-
-    def __str__(self):
-        return f'Connection: {self.user.username} -> {self.vcard.FN}'
-
-
-# class ContactNote(models.Model):
-#     # todo: naming? This'll will get confusing with Vcard.note
-#     # todo: would be fun to have tags associated with these
-#     connection = models.ForeignKey(
-#         Connection,
-#         on_delete=models.CASCADE,
-#     )
-#     note = models.CharField(blank=False)
-#     created = models.DateTimeField(auto_now_add=True, editable=False)
-#
-#     class Meta:
-#         indexes = [
-#             models.Index(fields=['-created']),
-#         ]
-#         ordering = ['-created']
-#
-#     def __str__(self):
-#         return f'{self.note[:50]}{"..." + len(self.note-50) if len(self.note>51) else ""}'
-
-
-"""
-class Connection(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_from = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='rel_from_set',
-        on_delete=models.CASCADE,
-    )
-    user_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        related_name='rel_to_set',
-        on_delete=models.CASCADE
+        null=True,
     )
     created = models.DateTimeField(auto_now_add=True)
 
+    @property
     def get_absolute_url(self):
         return reverse('connection_detail', kwargs={'connection_id': self.id})
 
@@ -575,17 +515,4 @@ class Connection(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return f'Connection {self.user_from} -> {self.user_to}'
-
-
-# Add following field to User dynamically
-user_model = get_user_model()
-user_model.add_to_class(
-    'connections',
-    models.ManyToManyField(
-        'self',
-        through=Connection,
-        symmetrical=True,
-    ),
-)
-"""
+        return f'Connection {self.profile_from} -> {self.profile_to}'

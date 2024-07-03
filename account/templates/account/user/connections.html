@@ -6,22 +6,23 @@
 {% block content %}
 <div class="content-header">
   <h1>Connections</h1>
-  <a href="{% url "edit_connection" %}">Add Card</a>
+  <a href="#">Add Card</a>
 </div>
 <div id="connection-list">
   {% for connection in connections %}
   <div class="connection">
     <a href="{{ connection.get_absolute_url }}">
-      {% thumbnail connection.vcard.photo "100x100" crop="center" as im %}
-        <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.vcard.FN }} profile photo">
+      {% thumbnail connection.profile_to.photo "100x100" crop="center" as im %}
+        <img class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ connection.profile_to.vcard.FN }} profile photo">
       {% empty %}
-        <div class="profilePhoto container small">{{ connection.vcard.first_name|slice:"1" }}{{ connection.vcard.last_name|slice:"1" }}</div>
+        <div class="profilePhoto container small">{{ connection.profile_to.vcard.first_name|slice:"1" }}{{ connection.profile_to.vcard.last_name|slice:"1" }}</div>
       {% endthumbnail %}
     </a>
     <div class="info">
       <a href="{{ connection.get_absolute_url }}" class="title">
-        {{ connection.vcard.FN }}
+        {{ connection.profile_to.vcard.FN }}
       </a>
+      <p>{{ connection.profile_to.headline }}</p>
     </div>
   </div>
   <!-- todo something with empty -->

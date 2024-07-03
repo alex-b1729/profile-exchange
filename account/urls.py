@@ -17,7 +17,7 @@ urlpatterns = [
     path('download/', views.download_vcard, name='download_vcard'),
     path('connections/', views.connection_list, name='connection_list'),
     path('connections/<uuid:connection_id>/', views.connection_detail, name='connection_detail'),
-    path('connections/edit/', views.edit_connection, name='edit_connection'),
-    path('connections/edit/<uuid:connection_id>/', views.edit_connection, name='edit_connection'),
-    path('connections/download/<uuid:connection_id>/', views.download_vcard, name='download_connection_vcard')
+    # path('connections/edit/', views.edit_connection, name='edit_connection'),
+    # path('connections/edit/<uuid:connection_id>/', views.edit_connection, name='edit_connection'),
+    # path('connections/download/<uuid:connection_id>/', views.download_vcard, name='download_connection_vcard')
 ]

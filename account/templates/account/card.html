@@ -8,37 +8,25 @@
   <div class="content-header">
     <h1>Profile</h1>
     {% if entity == "self" %}<a href="{% url "edit" %}">Edit</a>{% endif %}
-    {% if entity == "connection" %}<a href="{% url "edit_connection" connection.id %}">Edit</a>{% endif %}
   </div>
 
-  {% with vcard_linked=connection.profile.user.vcard %}
   <div class="profile">
-    {% thumbnail vcard.photo "200x200" crop="center" as im %}
-    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ vcard.FN }} profile photo">
+    {% thumbnail profile.vcard.photo "200x200" crop="center" as im %}
+    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.vcard.FN }} profile photo">
     {% empty %}
-    <div class="profilePhoto container large">{{ vcard.first_name|slice:"1" }}{{ vcard.last_name|slice:"1" }}</div>
+    <div class="profilePhoto container large">{{ profile.vcard.first_name|slice:"1" }}{{ profile.vcard.last_name|slice:"1" }}</div>
     {% endthumbnail %}
 
     <div class="text-container">
       <p id="FN">
-        {{ vcard.FN }}
-        {% if entity == "connection" and connection.profile %} ✅{% endif %}
+        {{ profile.vcard.FN }}
       </p>
-      {% if entity == "connection" %}
-      {% if connection.profile %}<a href="#">Manage linked card</a>
-      {% else %}<a href="#">Link card</a>
-      {% endif %}
-      {% endif %}
-
-      {% with nickname=vcard.nickname %}
-      {% with nickname_linked=vcard_linked.nickname %}
-      {% if nickname or nickname_linked %}
+      {% with nickname=profile.vcard.nickname %}
+      {% if nickname %}
       <div id="NICKNAME">
         {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
-        {% if nickname_linked %}<p class="linked">"{{ nickname_linked }}"</p>{% endif %}
       </div>
       {% endif %}
-      {% endwith %}
       {% endwith %}
 
       {% with headline=profile.headline %}
@@ -63,11 +51,10 @@
     <h2>Contact Info</h2>
     <!-- todo: gotta download linked content -->
     {% if entity == "self" %}<a href="{% url "download_vcard" %}">Download</a>{% endif %}
-    {% if entity == "connection" %}<a href="{% url "download_connection_vcard" connection.id %}">Download</a>{% endif %}
-    <p><i>{{ user.vcard.get_kind_display }}</i></p>
+    <p><i>{{ profile.vcard.get_kind_display }}</i></p>
 
-    {% with phones=vcard.phone_set.all phones_linked=vcard_linked.phone_set.all %}
-    {% if phones or phones_linked %}
+    {% with phones=profile.vcard.phone_set.all %}
+    {% if phones %}
     <div class="vcardGroup">
       <h3>Phone</h3>
       <div id="TEL">
@@ -82,14 +69,14 @@
     {% endif %}
     {% endwith %}
     
-    {% with emails=connection.email_set_full %}
+    {% with emails=profile.vcard.email_set.all %}
     {% if emails %}
     <div class="vcardGroup">
       <h3>Email</h3>
       <div id="EMAIL">
         <ul>
           {% for email in emails %}
-          <li{% if email.linked %} class="linked"{% endif %}>{{ email.get_email_type_display }}: <a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
+          <li>{% if email.email_type is not None %}{{ email.get_email_type_display }}: {% endif %}<a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
           <!-- TODO: protect mailto links -->
           {% endfor %}
         </ul>
@@ -98,14 +85,14 @@
     {% endif %}
     {% endwith %}
 
-    {% with urls=vcard.url_set.all %}
+    {% with urls=profile.vcard.url_set.all %}
     {% if urls %}
     <div class="vcardGroup">
       <h3>URLs</h3>
       <div id="URL">
         <ul>
           {% for url in urls %}
-          <li>{{ url.get_url_type_display }}: <a href="{{ url.url }}" class="{{ url.url_type }}">{{ url.url }}</a></li>
+          <li>{{ url.get_url_type_display }}: <a href="{{ url.url }}" class="{{ url.url_type }}">{{ url.url }}</a>{% if url.label %} ({{ url.label }}){% endif %}</li>
           {% endfor %}
         </ul>
       </div>
@@ -113,7 +100,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with addresses=vcard.address_set.all %}
+    {% with addresses=profile.vcard.address_set.all %}
     {% if addresses %}
     <div class="vcardGroup">
       <h3>Addresses</h3>
@@ -137,7 +124,7 @@
     {% endwith %}
 
     <!-- todo: add org logo -->
-    {% with orgs=vcard.organization_set.all %}
+    {% with orgs=profile.vcard.organization_set.all %}
     {% if orgs %}
     <div class="vcardGroup">
       <h3>Organizations</h3>
@@ -156,22 +143,22 @@
     {% endwith %}
 
 
-    {% with bday=vcard.birthday %}
-    {% with anniv=vcard.anniversary %}
-    {% with sex=vcard.sex %}
-    {% with gender=vcard.gender %}
+    {% with bday=profile.vcard.birthday %}
+    {% with anniv=profile.vcard.anniversary %}
+    {% with sex=profile.vcard.sex %}
+    {% with gender=profile.vcard.gender %}
     {% if bday or anniv or sex or gender != "" %}
     <div class="vcardGroup">
       <h3>Personal</h3>
       <div class="text-container">
         <ul>
           {% if bday %}
-          {% with bdayy=vcard.birthday_year %}
+          {% with bdayy=profile.vcard.birthday_year %}
           <li id="BDAY">Birthday: {{ bday }}{% if bdayy %}, {{ bdayy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
           {% if anniv %}
-          {% with annivy=vcard.anniversary_year %}
+          {% with annivy=profile.vcard.anniversary_year %}
           <li id="ANNIVERARY">Anniversary: {{ anniv }}{% if annivy %}, {{ annivy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
@@ -187,7 +174,7 @@
     {% endwith %}
     {% endwith %}
 
-    {% with tags=vcard.tag_set.all %}
+    {% with tags=profile.vcard.tag_set.all %}
     {% if tags %}
     <div class="vcardGroup">
       <h3>Tags</h3>
@@ -202,7 +189,7 @@
     {% endif %}
     {% endwith %}
 
-    {% with note=vcard.note %}
+    {% with note=profile.vcard.note %}
     {% if note %}
     <div class="vcardGroup">
       <h3>Note</h3>
@@ -216,5 +203,4 @@
     {% endwith %}
 
   </div>
-  {% endwith %}
 {% endblock %}

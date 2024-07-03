@@ -39,15 +39,13 @@ from .forms import (
 
 @login_required
 def profile(request):
-    vcard = request.user.vcard
-    profile = request.user.profile
+    profile = request.user.profile_set.select_related('vcard').get(title='Personal')
     return render(
         request,
         'account/card.html',
         {
             'section': 'profile',
             'entity': 'self',
-            'vcard': vcard,
             'profile': profile
         }
     )
@@ -72,6 +70,7 @@ def account(request):
 
 
 def register(request):
+    """depreciated for registration wizard"""
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
@@ -104,83 +103,84 @@ class RegisterWizard(SessionWizardView):
         ln = name_form_data['last_name']
 
         new_user.save()
-        Profile.objects.create(user=new_user)
-        Vcard.objects.create(user=new_user, first_name=fn, last_name=ln)
+        profile_vcard = Vcard.objects.create(user=new_user, first_name=fn, last_name=ln)
+        Profile.objects.create(user=new_user, vcard=profile_vcard)
+
         return render(
             self.request,
             'account/register_done.html',
-            {'new_user': new_user},
+            {'first_name': fn},
         )
 
 
-def edit_connection(request, connection_id=None):
-    # todo: contact edit form?
-    connection = None
-    vcard = None
-    mode = None  # context for whether vcard is new or existing
-    if connection_id:
-        connection = get_object_or_404(Connection,
-                                       id=connection_id,
-                                       # below so you can't try to query connections you're not part of
-                                       user=request.user)
-        vcard = get_object_or_404(Vcard, id=connection.vcard.pk)
-        mode = 'edit'
-    else:
-        # connection = Connection()
-        vcard = Vcard()
-        mode = 'new'
-    if request.method == 'POST':
-        vcard_form = VcardEditForm(instance=vcard, data=request.POST, files=request.FILES)
-        address_formset = AddressFormSet(instance=vcard, data=request.POST)
-        phone_formset = PhoneFormSet(instance=vcard, data=request.POST)
-        email_formset = EmailFormSet(instance=vcard, data=request.POST)
-        org_formset = OrganizationFormSet(instance=vcard, data=request.POST, files=request.FILES)
-        tag_formset = TagFormSet(instance=vcard, data=request.POST)
-        url_formset = UrlFormSet(instance=vcard, data=request.POST)
-        if (
-            vcard_form.is_valid()
-            and address_formset.is_valid()
-            and phone_formset.is_valid()
-            and email_formset.is_valid()
-            and org_formset.is_valid()
-            and tag_formset.is_valid()
-            and url_formset.is_valid()
-        ):
-            new_vcard = vcard_form.save()
-            address_formset.save()
-            phone_formset.save()
-            email_formset.save()
-            org_formset.save()
-            tag_formset.save()
-            url_formset.save()
-            if not connection:
-                connection = Connection(user=request.user, vcard=new_vcard)
-                connection.save()
-            # todo: return view of saved vcard
-            # return HttpResponse('success!')
-            return redirect(connection)
-    else:
-        vcard_form = VcardEditForm(instance=vcard)
-        address_formset = AddressFormSet(instance=vcard)
-        phone_formset = PhoneFormSet(instance=vcard)
-        email_formset = EmailFormSet(instance=vcard)
-        org_formset = OrganizationFormSet(instance=vcard)
-        tag_formset = TagFormSet(instance=vcard)
-        url_formset = UrlFormSet(instance=vcard)
-    return render(
-        request,
-        'account/edit.html',  # todo: this or something else?
-        {
-            'mode': mode,
-            'vcard_form': vcard_form,
-            'address_formset': address_formset,
-            'phone_formset': phone_formset,
-            'email_formset': email_formset,
-            'org_formset': org_formset,
-            'tag_formset': tag_formset,
-            'url_formset': url_formset
-         }
-    )
+# def edit_connection(request, connection_id=None):
+#     # todo: contact edit form?
+#     connection = None
+#     vcard = None
+#     mode = None  # context for whether vcard is new or existing
+#     if connection_id:
+#         connection = get_object_or_404(Connection,
+#                                        id=connection_id,
+#                                        # below so you can't try to query connections you're not part of
+#                                        user=request.user)
+#         vcard = get_object_or_404(Vcard, id=connection.vcard.pk)
+#         mode = 'edit'
+#     else:
+#         # connection = Connection()
+#         vcard = Vcard()
+#         mode = 'new'
+#     if request.method == 'POST':
+#         vcard_form = VcardEditForm(instance=vcard, data=request.POST, files=request.FILES)
+#         address_formset = AddressFormSet(instance=vcard, data=request.POST)
+#         phone_formset = PhoneFormSet(instance=vcard, data=request.POST)
+#         email_formset = EmailFormSet(instance=vcard, data=request.POST)
+#         org_formset = OrganizationFormSet(instance=vcard, data=request.POST, files=request.FILES)
+#         tag_formset = TagFormSet(instance=vcard, data=request.POST)
+#         url_formset = UrlFormSet(instance=vcard, data=request.POST)
+#         if (
+#             vcard_form.is_valid()
+#             and address_formset.is_valid()
+#             and phone_formset.is_valid()
+#             and email_formset.is_valid()
+#             and org_formset.is_valid()
+#             and tag_formset.is_valid()
+#             and url_formset.is_valid()
+#         ):
+#             new_vcard = vcard_form.save()
+#             address_formset.save()
+#             phone_formset.save()
+#             email_formset.save()
+#             org_formset.save()
+#             tag_formset.save()
+#             url_formset.save()
+#             if not connection:
+#                 connection = Connection(user=request.user, vcard=new_vcard)
+#                 connection.save()
+#             # todo: return view of saved vcard
+#             # return HttpResponse('success!')
+#             return redirect(connection)
+#     else:
+#         vcard_form = VcardEditForm(instance=vcard)
+#         address_formset = AddressFormSet(instance=vcard)
+#         phone_formset = PhoneFormSet(instance=vcard)
+#         email_formset = EmailFormSet(instance=vcard)
+#         org_formset = OrganizationFormSet(instance=vcard)
+#         tag_formset = TagFormSet(instance=vcard)
+#         url_formset = UrlFormSet(instance=vcard)
+#     return render(
+#         request,
+#         'account/edit.html',  # todo: this or something else?
+#         {
+#             'mode': mode,
+#             'vcard_form': vcard_form,
+#             'address_formset': address_formset,
+#             'phone_formset': phone_formset,
+#             'email_formset': email_formset,
+#             'org_formset': org_formset,
+#             'tag_formset': tag_formset,
+#             'url_formset': url_formset
+#          }
+#     )
 
 
 class EditCardView(TemplateResponseMixin, View):
@@ -226,11 +226,10 @@ class EditCardView(TemplateResponseMixin, View):
         self.user = request.user
         # todo: should create a user profile if fails to find one?
         self.user_profile = get_object_or_404(
-            Profile, user=self.user
+            Profile, user=self.user,
+            title='Personal'  # Note: hard coded profile title for this version!
         )
-        self.user_vcard = get_object_or_404(
-            Vcard, user=self.user
-        )
+        self.user_vcard = self.user_profile.vcard
         # does below work as expected with multiple files?
         self.files = request.FILES
         return super().dispatch(request, *args, **kwargs)
@@ -297,9 +296,25 @@ class EditCardView(TemplateResponseMixin, View):
         )
 
 
+# @login_required
+# def card_list(request):
+#     # connections not linked to personal vcard
+#     connections = request.user.rel_from_set.filter(vcard=None)
+#     # all user vcards includes those linked to a connection
+#     vcards = request.user.vcard_set.all()
+#     return render(
+#         request,
+#         'account/user/connections.html',
+#         {'section': 'connections',
+#          'connections': connections}
+#     )
+
+
 @login_required
 def connection_list(request):
-    connections = request.user.connection_set.all()
+    # gotta use .rel_from_set instead of .connections or will only get the profiles
+    connections = (request.user.profile_set.get(title='Personal')
+                   .rel_from_set.all())  #.select_related() could improve performance
     return render(
         request,
         'account/user/connections.html',
@@ -307,53 +322,72 @@ def connection_list(request):
          'connections': connections}
     )
 
-@login_required
-def download_vcard(request, connection_id=None):
-    if connection_id:
-        connection = get_object_or_404(
-            Connection,
-            id=connection_id,
-            user=request.user
-        )
-        vcard = connection.vcard
-    else:
-        vcard = request.user.vcard
-    return vcard.vcf_http_reponse(request)
-
 
 @login_required
 def connection_detail(request, connection_id):
-    connection = get_object_or_404(Connection,
-                                   id=connection_id,
+    # connection = get_object_or_404(Connection,
+    #                                id=connection_id)
                                    # below so you can't try to query connections you're not part of
-                                   user=request.user)
-    local_vcard = connection.vcard
-    vcard_list = [local_vcard]
-    if connection.profile:
-        linked_vcard = connection.profile.user.vcard
-        vcard_list.append(linked_vcard)
-
-    addresses = Address.objects.filter(vcard__in=vcard_list)
-
-    # Or
-    address_qs = connection.vcard.address_set.all().annotate(linked=Value(False))
-    if connection.profile:
-        linked_qs = connection.profile.user.vcard.address_set.all().annotate(linked=Value(True))
-        address_qs = address_qs.union(linked_qs)
-
-    # usage
-    # for a in address_qs:
-    #     print(f'{a}{" - linked" if a.linked else ""}')
-
+                                   # profile_from=request.user.profile_set.get(title='Personal'))
+    connection = Connection.objects.get(id=connection_id)
     return render(
         request,
         'account/card.html',
         {
             'section': 'connections',
             'entity': 'connection',
-            'connection': connection,
-            # 'addresses': address_qs # or addresses
-            'vcard': connection.vcard,
-            'profile': connection.profile
+            'profile': connection.profile_to
         }
     )
+
+@login_required
+def download_vcard(request, connection_id=None):
+    if connection_id:
+        # connection = get_object_or_404(
+        #     Connection,
+        #     id=connection_id,
+        #     user=request.user
+        # )
+        # vcard = connection.vcard
+        return None
+    else:
+        vcard = request.user.profile_set.get(title='Personal').vcard
+    return vcard.vcf_http_reponse(request)
+
+
+# @login_required
+# def connection_detail(request, connection_id):
+#     connection = get_object_or_404(Connection,
+#                                    id=connection_id,
+#                                    # below so you can't try to query connections you're not part of
+#                                    user=request.user)
+#     local_vcard = connection.vcard
+#     vcard_list = [local_vcard]
+#     if connection.profile:
+#         linked_vcard = connection.profile.user.vcard
+#         vcard_list.append(linked_vcard)
+#
+#     addresses = Address.objects.filter(vcard__in=vcard_list)
+#
+#     # Or
+#     address_qs = connection.vcard.address_set.all().annotate(linked=Value(False))
+#     if connection.profile:
+#         linked_qs = connection.profile.user.vcard.address_set.all().annotate(linked=Value(True))
+#         address_qs = address_qs.union(linked_qs)
+#
+#     # usage
+#     # for a in address_qs:
+#     #     print(f'{a}{" - linked" if a.linked else ""}')
+#
+#     return render(
+#         request,
+#         'account/card.html',
+#         {
+#             'section': 'connections',
+#             'entity': 'connection',
+#             'connection': connection,
+#             # 'addresses': address_qs # or addresses
+#             'vcard': connection.vcard,
+#             'profile': connection.profile
+#         }
+#     )
