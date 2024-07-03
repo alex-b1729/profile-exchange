@@ -1,4 +1,5 @@
 import datetime as dt
+from django.db.models import Value
 from django.contrib import messages
 from django.http import HttpResponse
 from django.core.files.base import ContentFile
@@ -14,6 +15,12 @@ from .models import (
     Vcard,
     Profile,
     Connection,
+    Address,
+    Phone,
+    Email,
+    Organization,
+    Tag,
+    Url,
 )
 from .forms import (
     UserRegistrationForm,
@@ -320,6 +327,24 @@ def connection_detail(request, connection_id):
                                    id=connection_id,
                                    # below so you can't try to query connections you're not part of
                                    user=request.user)
+    local_vcard = connection.vcard
+    vcard_list = [local_vcard]
+    if connection.profile:
+        linked_vcard = connection.profile.user.vcard
+        vcard_list.append(linked_vcard)
+
+    addresses = Address.objects.filter(vcard__in=vcard_list)
+
+    # Or
+    address_qs = connection.vcard.address_set.all().annotate(linked=Value(False))
+    if connection.profile:
+        linked_qs = connection.profile.user.vcard.address_set.all().annotate(linked=Value(True))
+        address_qs = address_qs.union(linked_qs)
+
+    # usage
+    # for a in address_qs:
+    #     print(f'{a}{" - linked" if a.linked else ""}')
+
     return render(
         request,
         'account/card.html',
@@ -327,6 +352,7 @@ def connection_detail(request, connection_id):
             'section': 'connections',
             'entity': 'connection',
             'connection': connection,
+            # 'addresses': address_qs # or addresses
             'vcard': connection.vcard,
             'profile': connection.profile
         }

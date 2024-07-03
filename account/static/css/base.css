@@ -249,3 +249,10 @@ ol {
     margin-block-start: 0em;
     margin-block-end: 1em;
 }
+
+.linked::after {
+    content: " - linked";
+    font-size: 0.8rem;
+    font-style: italic;
+    color: Gray;
+}

@@ -5,6 +5,7 @@ import datetime as dt
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.db.models import Value
 from django.http import HttpResponse
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
@@ -484,6 +485,7 @@ class Connection(models.Model):
           E.g. Contacts are unique on (user, profile) as enforced
           by the unique_user_connection constraint.
     """
+    # todo: because this isn't a many-to-many between users there's no symmetric relationship!
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -513,6 +515,13 @@ class Connection(models.Model):
                 nulls_distinct=True
             )
         ]
+
+    def email_set_full(self):
+        e_local = self.vcard.email_set.all().annotate(linked=Value(False))
+        if self.profile:
+            e_linked = self.profile.user.vcard.email_set.all().annotate(linked=Value(True))
+            return e_local.union(e_linked)
+        return e_local
 
     def get_absolute_url(self):
         return reverse('connection_detail', kwargs={'connection_id': self.id})

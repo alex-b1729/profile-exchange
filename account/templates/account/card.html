@@ -11,6 +11,7 @@
     {% if entity == "connection" %}<a href="{% url "edit_connection" connection.id %}">Edit</a>{% endif %}
   </div>
 
+  {% with vcard_linked=connection.profile.user.vcard %}
   <div class="profile">
     {% thumbnail vcard.photo "200x200" crop="center" as im %}
     <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ vcard.FN }} profile photo">
@@ -19,12 +20,27 @@
     {% endthumbnail %}
 
     <div class="text-container">
-      <p id="FN">{{ vcard.FN }}</p>
+      <p id="FN">
+        {{ vcard.FN }}
+        {% if entity == "connection" and connection.profile %} ✅{% endif %}
+      </p>
+      {% if entity == "connection" %}
+      {% if connection.profile %}<a href="#">Manage linked card</a>
+      {% else %}<a href="#">Link card</a>
+      {% endif %}
+      {% endif %}
+
       {% with nickname=vcard.nickname %}
-      {% if nickname %}
-      <p id="NICKNAME">"{{ nickname }}"</p>
+      {% with nickname_linked=vcard_linked.nickname %}
+      {% if nickname or nickname_linked %}
+      <div id="NICKNAME">
+        {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
+        {% if nickname_linked %}<p class="linked">"{{ nickname_linked }}"</p>{% endif %}
+      </div>
       {% endif %}
       {% endwith %}
+      {% endwith %}
+
       {% with headline=profile.headline %}
       {% if headline %}
       <p id="headline">{{ headline }}</p>
@@ -45,12 +61,13 @@
 
   <div class="vcard">
     <h2>Contact Info</h2>
+    <!-- todo: gotta download linked content -->
     {% if entity == "self" %}<a href="{% url "download_vcard" %}">Download</a>{% endif %}
     {% if entity == "connection" %}<a href="{% url "download_connection_vcard" connection.id %}">Download</a>{% endif %}
     <p><i>{{ user.vcard.get_kind_display }}</i></p>
 
-    {% with phones=vcard.phone_set.all %}
-    {% if phones %}
+    {% with phones=vcard.phone_set.all phones_linked=vcard_linked.phone_set.all %}
+    {% if phones or phones_linked %}
     <div class="vcardGroup">
       <h3>Phone</h3>
       <div id="TEL">
@@ -65,14 +82,14 @@
     {% endif %}
     {% endwith %}
     
-    {% with emails=vcard.email_set.all %}
+    {% with emails=connection.email_set_full %}
     {% if emails %}
     <div class="vcardGroup">
       <h3>Email</h3>
       <div id="EMAIL">
         <ul>
           {% for email in emails %}
-          <li>{{ email.get_email_type_display }}: <a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
+          <li{% if email.linked %} class="linked"{% endif %}>{{ email.get_email_type_display }}: <a href="mailto:{{ email.email_address }}" class="{{ email.email_type }} INTERNET">{{ email.email_address }}</a></li>
           <!-- TODO: protect mailto links -->
           {% endfor %}
         </ul>
@@ -199,4 +216,5 @@
     {% endwith %}
 
   </div>
+  {% endwith %}
 {% endblock %}
