@@ -1,5 +1,5 @@
 import vobject
-from .. import models
+from django.apps import apps
 from djangoyearlessdate.helpers import YearlessDate
 
 # todo: parse groups, pref
@@ -172,7 +172,8 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
     url_models = parse_vcard_url(contents.get('url'))
     url_models.append(parse_vcard_url(contents.get('x-socialprofile')))
 
-    card = models.Card(
+    card_model = apps.get_model('account.Card')
+    card = card_model(
         kind=kind,
         prefix=prefix,
         first_name=first_name,
@@ -232,9 +233,10 @@ def parse_type(content: vobject.base.ContentLine, type_choices: dict) -> str:
     return found_type
 
 
-def parse_vcard_adr(content_list: list | None) -> list[models.Address]:
+def parse_vcard_adr(content_list: list | None) -> list:
     adr_list = []
     if content_list is not None:
+        address_model = apps.get_model('account.Address')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params
@@ -247,77 +249,82 @@ def parse_vcard_adr(content_list: list | None) -> list[models.Address]:
             zip = adr.code
             country = adr.country
             adr_list.append(
-                models.Address(address_type=adr_type,
-                               street1=street1,
-                               street2='',
-                               city=city,
-                               state=state,
-                               zip=zip,
-                               country=country)
+                address_model(address_type=adr_type,
+                              street1=street1,
+                              street2='',
+                              city=city,
+                              state=state,
+                              zip=zip,
+                              country=country)
             )
     return adr_list
 
 
-def parse_vcard_tel(content_list: list | None) -> list[models.Phone]:
+def parse_vcard_tel(content_list: list | None) -> list:
     tel_list = []
     if content_list is not None:
+        phone_model = apps.get_model('account.Phone')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params
             phone_type = parse_type(content, PHONE_TYPE_CHOICES)
             phone_number = content.value  # todo: gotta format / validate this
             tel_list.append(
-                models.Phone(phone_number=phone_number,
-                             phone_type=phone_type)
+                phone_model(phone_number=phone_number,
+                            phone_type=phone_type)
             )
     return tel_list
 
 
-def parse_vcard_email(content_list: list | None) -> list[models.Email]:
+def parse_vcard_email(content_list: list | None) -> list:
     email_list = []
     if content_list is not None:
+        email_model = apps.get_model('account.Email')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params
             email_type = parse_type(content, WH_TYPE_CHOICES)
             email_address = content.value
             email_list.append(
-                models.Email(email_type=email_type,
-                             email_address=email_address)
+                email_model(email_type=email_type,
+                            email_address=email_address)
             )
     return email_list
 
 
-def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> list[models.BaseOrgProperty]:
+def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> list:
     prop_list = []
     if content_list is not None:
+        base_org_model = apps.get_model('account.BaseOrgProperty')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params - not saved in db
             # email_type = parse_type(content, WH_TYPE_CHOICES)
             prop_val = content.value
             prop_list.append(
-                models.BaseOrgProperty(prop_type=prop_type,
-                                       value=prop_val)
+                base_org_model(prop_type=prop_type,
+                               value=prop_val)
             )
     return prop_list
 
 
-def parse_vcard_tag(content_list: list | None) -> list[models.Tag]:
+def parse_vcard_tag(content_list: list | None) -> list:
     tag_list = []
     if content_list is not None:
+        tag_model = apps.get_model('account.Tag')
         for content in content_list:
             content: vobject.base.ContentLine
             tag_value = content.value
             tag_list.append(
-                models.Tag(tag=tag_value)
+                tag_model(tag=tag_value)
             )
     return tag_list
 
 
-def parse_vcard_url(content_list: list | None) -> list[models.Url]:
+def parse_vcard_url(content_list: list | None) -> list:
     url_list = []
     if content_list is not None:
+        url_model = apps.get_model('account.Url')
         for content in content_list:
             content: vobject.base.ContentLine
             #  recognized type param
@@ -336,6 +343,6 @@ def parse_vcard_url(content_list: list | None) -> list[models.Url]:
 
             url = content.value
             url_list.append(
-                models.Url(url_type=url_type, url=url, label=label)
+                url_model(url_type=url_type, url=url, label=label)
             )
     return url_list

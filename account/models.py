@@ -3,7 +3,7 @@ import os.path
 import vobject
 import datetime as dt
 
-from utils import consts, vcard
+from .utils import consts, vcard
 
 from django.db import models
 from django.urls import reverse
@@ -205,19 +205,19 @@ class Card(models.Model):
 
     @property
     def TITLE_yield(self) -> iter:
-        ts = self.title_set.all()  # idk how related name works for proxy models
+        ts = Title.objects.get(user=self.user)
         for t in ts:
             yield t.TITLE_repr
 
     @property
     def ROLE_yield(self) -> iter:
-        rs = self.role_set.all()
+        rs = Role.objects.get(user=self.user)
         for r in rs:
             yield r.ROLE_repr
 
     @property
     def ORG_yield(self) -> iter:
-        orgs = self.org_set.all()
+        orgs = Org.objects.get(user=self.user)
         for org in orgs:
             yield org.ORG_repr
 
@@ -488,23 +488,23 @@ class OrgManager(models.Manager):
 
 class Title(BaseOrgProperty):
     objects = TitleManager()
+
     class Meta:
         proxy = True
-        related_name = 'title_set'
 
 
 class Role(BaseOrgProperty):
     objects = RoleManager()
+
     class Meta:
         proxy = True
-        related_name = 'role_set'
 
 
 class Org(BaseOrgProperty):
     objects = OrgManager()
+
     class Meta:
         proxy = True
-        related_name = 'org_set'
 
 
 class Tag(models.Model):
