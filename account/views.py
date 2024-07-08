@@ -12,25 +12,29 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin, View
 
 from .models import (
-    Vcard,
+    Card,
     Profile,
     Connection,
     Address,
     Phone,
     Email,
-    Organization,
+    Title,
+    Role,
+    Org,
     Tag,
     Url,
 )
 from .forms import (
     UserRegistrationForm,
-    VcardNameForm,
+    CardNameForm,
     UserEditEmailForm,
-    VcardEditForm,
+    CardEditForm,
     AddressFormSet,
     PhoneFormSet,
     EmailFormSet,
-    OrganizationFormSet,
+    TitleFormSet,
+    RoleFormSet,
+    OrgFormSet,
     TagFormSet,
     UrlFormSet,
     ProfileEditForm,
@@ -39,7 +43,7 @@ from .forms import (
 
 @login_required
 def profile(request):
-    profile = request.user.profile_set.select_related('vcard').get(title='Personal')
+    profile = request.user.profile_set.select_related('card').get(title='Personal')
     return render(
         request,
         'account/card.html',
@@ -97,14 +101,13 @@ class RegisterWizard(SessionWizardView):
 
     def done(self, form_list, **kwargs):
         new_user = form_list[0].save(commit=False)
-
         name_form_data = form_list[1].cleaned_data
         fn = name_form_data['first_name']
         ln = name_form_data['last_name']
-
         new_user.save()
-        profile_vcard = Vcard.objects.create(user=new_user, first_name=fn, last_name=ln)
-        Profile.objects.create(user=new_user, vcard=profile_vcard)
+
+        profile_card = Card.objects.create(user=new_user, first_name=fn, last_name=ln)
+        Profile.objects.create(user=new_user, card=profile_card)
 
         return render(
             self.request,
@@ -116,29 +119,29 @@ class RegisterWizard(SessionWizardView):
 # def edit_connection(request, connection_id=None):
 #     # todo: contact edit form?
 #     connection = None
-#     vcard = None
-#     mode = None  # context for whether vcard is new or existing
+#     card = None
+#     mode = None  # context for whether card is new or existing
 #     if connection_id:
 #         connection = get_object_or_404(Connection,
 #                                        id=connection_id,
 #                                        # below so you can't try to query connections you're not part of
 #                                        user=request.user)
-#         vcard = get_object_or_404(Vcard, id=connection.vcard.pk)
+#         card = get_object_or_404(Card, id=connection.card.pk)
 #         mode = 'edit'
 #     else:
 #         # connection = Connection()
-#         vcard = Vcard()
+#         card = Card()
 #         mode = 'new'
 #     if request.method == 'POST':
-#         vcard_form = VcardEditForm(instance=vcard, data=request.POST, files=request.FILES)
-#         address_formset = AddressFormSet(instance=vcard, data=request.POST)
-#         phone_formset = PhoneFormSet(instance=vcard, data=request.POST)
-#         email_formset = EmailFormSet(instance=vcard, data=request.POST)
-#         org_formset = OrganizationFormSet(instance=vcard, data=request.POST, files=request.FILES)
-#         tag_formset = TagFormSet(instance=vcard, data=request.POST)
-#         url_formset = UrlFormSet(instance=vcard, data=request.POST)
+#         card_form = CardEditForm(instance=card, data=request.POST, files=request.FILES)
+#         address_formset = AddressFormSet(instance=card, data=request.POST)
+#         phone_formset = PhoneFormSet(instance=card, data=request.POST)
+#         email_formset = EmailFormSet(instance=card, data=request.POST)
+#         org_formset = OrganizationFormSet(instance=card, data=request.POST, files=request.FILES)
+#         tag_formset = TagFormSet(instance=card, data=request.POST)
+#         url_formset = UrlFormSet(instance=card, data=request.POST)
 #         if (
-#             vcard_form.is_valid()
+#             card_form.is_valid()
 #             and address_formset.is_valid()
 #             and phone_formset.is_valid()
 #             and email_formset.is_valid()
@@ -146,7 +149,7 @@ class RegisterWizard(SessionWizardView):
 #             and tag_formset.is_valid()
 #             and url_formset.is_valid()
 #         ):
-#             new_vcard = vcard_form.save()
+#             new_card = Card.save()
 #             address_formset.save()
 #             phone_formset.save()
 #             email_formset.save()
@@ -154,25 +157,25 @@ class RegisterWizard(SessionWizardView):
 #             tag_formset.save()
 #             url_formset.save()
 #             if not connection:
-#                 connection = Connection(user=request.user, vcard=new_vcard)
+#                 connection = Connection(user=request.user, card=new_card)
 #                 connection.save()
-#             # todo: return view of saved vcard
+#             # todo: return view of saved card
 #             # return HttpResponse('success!')
 #             return redirect(connection)
 #     else:
-#         vcard_form = VcardEditForm(instance=vcard)
-#         address_formset = AddressFormSet(instance=vcard)
-#         phone_formset = PhoneFormSet(instance=vcard)
-#         email_formset = EmailFormSet(instance=vcard)
-#         org_formset = OrganizationFormSet(instance=vcard)
-#         tag_formset = TagFormSet(instance=vcard)
-#         url_formset = UrlFormSet(instance=vcard)
+#         card_form = CardEditForm(instance=card)
+#         address_formset = AddressFormSet(instance=card)
+#         phone_formset = PhoneFormSet(instance=card)
+#         email_formset = EmailFormSet(instance=card)
+#         org_formset = OrganizationFormSet(instance=card)
+#         tag_formset = TagFormSet(instance=card)
+#         url_formset = UrlFormSet(instance=card)
 #     return render(
 #         request,
 #         'account/edit.html',  # todo: this or something else?
 #         {
 #             'mode': mode,
-#             'vcard_form': vcard_form,
+#             'card_form': card_form,
 #             'address_formset': address_formset,
 #             'phone_formset': phone_formset,
 #             'email_formset': email_formset,
@@ -185,18 +188,18 @@ class RegisterWizard(SessionWizardView):
 
 class EditCardView(TemplateResponseMixin, View):
     """
-    Edits Vcard [and Profile]
+    Edits Card [and Profile]
     """
     template_name = 'account/edit.html'
 
     user = None
     user_profile = None
-    user_vcard = None
+    user_card = None
     files = None
 
-    def get_vcard_form(self, data=None, files=None):
-        return VcardEditForm(
-            instance=self.user_vcard, data=data, files=files
+    def get_card_form(self, data=None, files=None):
+        return CardEditForm(
+            instance=self.user_card, data=data, files=files
         )
 
     def get_profile_form(self, data=None):
@@ -205,22 +208,28 @@ class EditCardView(TemplateResponseMixin, View):
         )
 
     def get_address_formset(self, data=None):
-        return AddressFormSet(instance=self.user_vcard, data=data)
+        return AddressFormSet(instance=self.user_card, data=data)
 
     def get_phone_formset(self, data=None):
-        return PhoneFormSet(instance=self.user_vcard, data=data)
+        return PhoneFormSet(instance=self.user_card, data=data)
 
     def get_email_formset(self, data=None):
-        return EmailFormSet(instance=self.user_vcard, data=data)
+        return EmailFormSet(instance=self.user_card, data=data)
 
-    def get_org_formset(self, data=None, files=None):
-        return OrganizationFormSet(instance=self.user_vcard, data=data, files=files)
+    def get_title_formset(self, data=None):
+        return TitleFormSet(instance=self.user_card, data=data)
+
+    def get_role_formset(self, data=None):
+        return RoleFormSet(instance=self.user_card, data=data)
+
+    def get_org_formset(self, data=None):
+        return OrgFormSet(instance=self.user_card, data=data)
 
     def get_tag_formset(self, data=None):
-        return TagFormSet(instance=self.user_vcard, data=data)
+        return TagFormSet(instance=self.user_card, data=data)
 
     def get_url_formset(self, data=None):
-        return UrlFormSet(instance=self.user_vcard, data=data)
+        return UrlFormSet(instance=self.user_card, data=data)
 
     def dispatch(self, request, *args, **kwargs):
         self.user = request.user
@@ -229,67 +238,79 @@ class EditCardView(TemplateResponseMixin, View):
             Profile, user=self.user,
             title='Personal'  # Note: hard coded profile title for this version!
         )
-        self.user_vcard = self.user_profile.vcard
-        # does below work as expected with multiple files?
+        self.user_card = self.user_profile.card
+        # appears to work fine for multiple forms with files
         self.files = request.FILES
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        vcard_form = self.get_vcard_form()
+        card_form = self.get_card_form()
         profile_form = self.get_profile_form()
         address_formset = self.get_address_formset()
         phone_formset = self.get_phone_formset()
         email_formset = self.get_email_formset()
+        title_formset = self.get_title_formset()
+        role_formset = self.get_role_formset()
         org_formset = self.get_org_formset()
         tag_formset = self.get_tag_formset()
         url_formset = self.get_url_formset()
         return self.render_to_response(
             {'mode': 'self',
-             'vcard_form': vcard_form,
+             'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
              'phone_formset': phone_formset,
              'email_formset': email_formset,
+             'title_formset': title_formset,
+             'role_formset': role_formset,
              'org_formset': org_formset,
              'tag_formset': tag_formset,
              'url_formset': url_formset}
         )
 
     def post(self, request, *args, **kwargs):
-        vcard_form = self.get_vcard_form(data=request.POST, files=self.files)
+        card_form = self.get_card_form(data=request.POST, files=self.files)
         profile_form = self.get_profile_form(data=request.POST)
         address_formset = self.get_address_formset(data=request.POST)
         phone_formset = self.get_phone_formset(data=request.POST)
         email_formset = self.get_email_formset(data=request.POST)
-        org_formset = self.get_org_formset(data=request.POST, files=self.files)
+        title_formset = self.get_title_formset(data=request.POST)
+        role_formset = self.get_role_formset(data=request.POST)
+        org_formset = self.get_org_formset(data=request.POST)
         tag_formset = self.get_tag_formset(data=request.POST)
         url_formset = self.get_url_formset(data=request.POST)
         if (
-            vcard_form.is_valid()
+            card_form.is_valid()
             and profile_form.is_valid()
             and address_formset.is_valid()
             and phone_formset.is_valid()
             and email_formset.is_valid()
+            and title_formset.is_valid()
+            and role_formset.is_valid()
             and org_formset.is_valid()
             and tag_formset.is_valid()
             and url_formset.is_valid()
         ):
-            vcard_form.save()
+            card_form.save()
             profile_form.save()
             address_formset.save()
             phone_formset.save()
             email_formset.save()
+            title_formset.save()
+            role_formset.save()
             org_formset.save()
             tag_formset.save()
             url_formset.save()
             return redirect('profile')
         return self.render_to_response(
             {'mode': 'self',
-             'vcard_form': vcard_form,
+             'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
              'phone_formset': phone_formset,
              'email_formset': email_formset,
+             'title_formset': title_formset,
+             'role_formset': role_formset,
              'org_formset': org_formset,
              'tag_formset': tag_formset,
              'url_formset': url_formset}
@@ -298,10 +319,10 @@ class EditCardView(TemplateResponseMixin, View):
 
 # @login_required
 # def card_list(request):
-#     # connections not linked to personal vcard
-#     connections = request.user.rel_from_set.filter(vcard=None)
-#     # all user vcards includes those linked to a connection
-#     vcards = request.user.vcard_set.all()
+#     # connections not linked to personal card
+#     connections = request.user.rel_from_set.filter(card=None)
+#     # all user cards includes those linked to a connection
+#     cards = request.user.card_set.all()
 #     return render(
 #         request,
 #         'account/user/connections.html',
@@ -325,11 +346,10 @@ def connection_list(request):
 
 @login_required
 def connection_detail(request, connection_id):
-    # connection = get_object_or_404(Connection,
-    #                                id=connection_id)
+    connection = get_object_or_404(Connection,
+                                   id=connection_id,
                                    # below so you can't try to query connections you're not part of
-                                   # profile_from=request.user.profile_set.get(title='Personal'))
-    connection = Connection.objects.get(id=connection_id)
+                                   profile_from=request.user.profile_set.get(title='Personal'))
     return render(
         request,
         'account/card.html',
@@ -341,18 +361,18 @@ def connection_detail(request, connection_id):
     )
 
 @login_required
-def download_vcard(request, connection_id=None):
+def download_card(request, connection_id=None):
     if connection_id:
         # connection = get_object_or_404(
         #     Connection,
         #     id=connection_id,
         #     user=request.user
         # )
-        # vcard = connection.vcard
+        # card = connection.card
         return None
     else:
-        vcard = request.user.profile_set.get(title='Personal').vcard
-    return vcard.vcf_http_reponse(request)
+        card = request.user.profile_set.get(title='Personal').card
+    return card.vcf_http_reponse(request)
 
 
 # @login_required
@@ -361,18 +381,18 @@ def download_vcard(request, connection_id=None):
 #                                    id=connection_id,
 #                                    # below so you can't try to query connections you're not part of
 #                                    user=request.user)
-#     local_vcard = connection.vcard
-#     vcard_list = [local_vcard]
+#     local_card = connection.card
+#     card_list = [local_card]
 #     if connection.profile:
-#         linked_vcard = connection.profile.user.vcard
-#         vcard_list.append(linked_vcard)
+#         linked_card = connection.profile.user.card
+#         card_list.append(linked_card)
 #
-#     addresses = Address.objects.filter(vcard__in=vcard_list)
+#     addresses = Address.objects.filter(card__in=card_list)
 #
 #     # Or
-#     address_qs = connection.vcard.address_set.all().annotate(linked=Value(False))
+#     address_qs = connection.card.address_set.all().annotate(linked=Value(False))
 #     if connection.profile:
-#         linked_qs = connection.profile.user.vcard.address_set.all().annotate(linked=Value(True))
+#         linked_qs = connection.profile.user.card.address_set.all().annotate(linked=Value(True))
 #         address_qs = address_qs.union(linked_qs)
 #
 #     # usage
@@ -387,7 +407,7 @@ def download_vcard(request, connection_id=None):
 #             'entity': 'connection',
 #             'connection': connection,
 #             # 'addresses': address_qs # or addresses
-#             'vcard': connection.vcard,
+#             'card': connection.card,
 #             'profile': connection.profile
 #         }
 #     )

@@ -8,20 +8,21 @@
   <div class="content-header">
     <h1>Profile</h1>
     {% if entity == "self" %}<a href="{% url "edit" %}">Edit</a>{% endif %}
+    {% if entity == "connection" %}<a href="{% url "edit" %}">Add contact info</a>{% endif %}
   </div>
 
   <div class="profile">
-    {% thumbnail profile.vcard.photo "200x200" crop="center" as im %}
-    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.vcard.FN }} profile photo">
+    {% thumbnail profile.card.photo "200x200" crop="center" as im %}
+    <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
     {% empty %}
-    <div class="profilePhoto container large">{{ profile.vcard.first_name|slice:"1" }}{{ profile.vcard.last_name|slice:"1" }}</div>
+    <div class="profilePhoto container large">{{ profile.card.first_name|slice:"1" }}{{ profile.card.last_name|slice:"1" }}</div>
     {% endthumbnail %}
 
     <div class="text-container">
       <p id="FN">
-        {{ profile.vcard.FN }}
+        {{ profile.card.FN }}
       </p>
-      {% with nickname=profile.vcard.nickname %}
+      {% with nickname=profile.card.nickname %}
       {% if nickname %}
       <div id="NICKNAME">
         {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
@@ -47,15 +48,15 @@
     </div>
   </div>
 
-  <div class="vcard">
+  <div class="card">
     <h2>Contact Info</h2>
     <!-- todo: gotta download linked content -->
-    {% if entity == "self" %}<a href="{% url "download_vcard" %}">Download</a>{% endif %}
-    <p><i>{{ profile.vcard.get_kind_display }}</i></p>
+    {% if entity == "self" %}<a href="{% url "download_card" %}">Download</a>{% endif %}
+    <p><i>{{ profile.card.get_kind_display }}</i></p>
 
-    {% with phones=profile.vcard.phone_set.all %}
+    {% with phones=profile.card.phone_set.all %}
     {% if phones %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Phone</h3>
       <div id="TEL">
         <ul>
@@ -69,9 +70,9 @@
     {% endif %}
     {% endwith %}
     
-    {% with emails=profile.vcard.email_set.all %}
+    {% with emails=profile.card.email_set.all %}
     {% if emails %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Email</h3>
       <div id="EMAIL">
         <ul>
@@ -85,9 +86,9 @@
     {% endif %}
     {% endwith %}
 
-    {% with urls=profile.vcard.url_set.all %}
+    {% with urls=profile.card.url_set.all %}
     {% if urls %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>URLs</h3>
       <div id="URL">
         <ul>
@@ -100,9 +101,9 @@
     {% endif %}
     {% endwith %}
 
-    {% with addresses=profile.vcard.address_set.all %}
+    {% with addresses=profile.card.address_set.all %}
     {% if addresses %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Addresses</h3>
       <div id="ADR">
         <ul>
@@ -124,9 +125,9 @@
     {% endwith %}
 
     <!-- todo: add org logo -->
-    {% with orgs=profile.vcard.organization_set.all %}
+    {% with orgs=profile.card.organization_set.all %}
     {% if orgs %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Organizations</h3>
       <div id="ORG">
         <ul>
@@ -143,22 +144,22 @@
     {% endwith %}
 
 
-    {% with bday=profile.vcard.birthday %}
-    {% with anniv=profile.vcard.anniversary %}
-    {% with sex=profile.vcard.sex %}
-    {% with gender=profile.vcard.gender %}
+    {% with bday=profile.card.birthday %}
+    {% with anniv=profile.card.anniversary %}
+    {% with sex=profile.card.sex %}
+    {% with gender=profile.card.gender %}
     {% if bday or anniv or sex or gender != "" %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Personal</h3>
       <div class="text-container">
         <ul>
           {% if bday %}
-          {% with bdayy=profile.vcard.birthday_year %}
+          {% with bdayy=profile.card.birthday_year %}
           <li id="BDAY">Birthday: {{ bday }}{% if bdayy %}, {{ bdayy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
           {% if anniv %}
-          {% with annivy=profile.vcard.anniversary_year %}
+          {% with annivy=profile.card.anniversary_year %}
           <li id="ANNIVERARY">Anniversary: {{ anniv }}{% if annivy %}, {{ annivy }}{% endif %}</li>
           {% endwith %}
           {% endif %}
@@ -174,9 +175,9 @@
     {% endwith %}
     {% endwith %}
 
-    {% with tags=profile.vcard.tag_set.all %}
+    {% with tags=profile.card.tag_set.all %}
     {% if tags %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Tags</h3>
       <div id="#CATEGORIES">
         <ul>
@@ -189,9 +190,9 @@
     {% endif %}
     {% endwith %}
 
-    {% with note=profile.vcard.note %}
+    {% with note=profile.card.note %}
     {% if note %}
-    <div class="vcardGroup">
+    <div class="cardGroup">
       <h3>Note</h3>
       <div class="text-container">
         {% if note %}

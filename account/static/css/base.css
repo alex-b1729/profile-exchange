@@ -184,7 +184,7 @@ ol {
     font-size: 1.75rem;
 }
 
-.vcardGroup {
+.cardGroup {
     display: flex;
     /*align-items: center;*/
     gap: 28px;
@@ -195,18 +195,18 @@ ol {
     border-radius: 5px;
     background-color: #f4f4f4;
 }
-.vcardGroup ul, ol {
+.cardGroup ul, ol {
     padding-inline-start: 1em;
 }
-.vcardGroup li {
+.cardGroup li {
     margin-block-start: 1em;
 }
-.vcardGroup p {
+.cardGroup p {
     display: block;
     margin-block-start: 0em;
     margin-block-end: 0em;
 }
-.vcardGroup h3 {
+.cardGroup h3 {
     /*display: block;*/
     margin-block-start: 0em;
     margin-block-end: 1em;

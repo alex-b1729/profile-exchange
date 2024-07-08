@@ -4,11 +4,13 @@ from django.contrib.auth import get_user_model
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
 from .models import (
-    Vcard,
+    Card,
     Address,
     Phone,
     Email,
-    Organization,
+    Title,
+    Role,
+    Org,
     Tag,
     Url,
     Profile,
@@ -57,14 +59,14 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 
-class VcardNameForm(forms.Form):
-    first_name = forms.CharField(max_length=50)
-    last_name = forms.CharField(max_length=50)
+class CardNameForm(forms.Form):
+    first_name = forms.CharField(max_length=100)
+    last_name = forms.CharField(max_length=100)
 
     class Meta:
         widgets = {
             'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
-            'last_name': forms.EmailInput(attrs={'autocomplete': 'family-name'})
+            'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'})
         }
 
 
@@ -87,9 +89,9 @@ class UserEditEmailForm(forms.ModelForm):
         }
 
 
-class VcardEditForm(forms.ModelForm):
+class CardEditForm(forms.ModelForm):
     class Meta:
-        model = Vcard
+        model = Card
         fields = (
             'kind',
             'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'nickname',
@@ -104,11 +106,6 @@ class VcardEditForm(forms.ModelForm):
             'middle_name': forms.TextInput(attrs={'autocomplete': 'additional-name'}),
             'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'}),
             'suffix': forms.TextInput(attrs={'autocomplete': 'honorific-suffix'}),
-            'nick_name': forms.TextInput(attrs={'autocomplete': 'nickname'}),
-            'organization': forms.TextInput(attrs={'autocomplete': 'organization'}),
-            'title': forms.TextInput(attrs={'autocomplete': 'organization-title'}),
-            # 'birthday': YearlessDateField(), #attrs={'autocomplete': 'bday'}),
-            'gender': forms.TextInput(attrs={'autocomplete': 'sex'}),
         }
 
 
@@ -127,7 +124,7 @@ class AddressForm(forms.ModelForm):
 
 
 AddressFormSet = inlineformset_factory(
-    Vcard,
+    Card,
     Address,
     form=AddressForm,
     fields=['address_type', 'street1', 'street2', 'city', 'state', 'zip', 'country'],
@@ -147,7 +144,7 @@ class PhoneForm(forms.ModelForm):
 
 
 PhoneFormSet = inlineformset_factory(
-    Vcard,
+    Card,
     Phone,
     form=PhoneForm,
     fields=['phone_type', 'phone_number'],
@@ -167,7 +164,7 @@ class EmailForm(forms.ModelForm):
 
 
 EmailFormSet = inlineformset_factory(
-    Vcard,
+    Card,
     Email,
     form=EmailForm,
     fields=['email_type', 'email_address'],
@@ -176,18 +173,51 @@ EmailFormSet = inlineformset_factory(
     can_delete=True
 )
 
-
-class OrganizationForm(forms.ModelForm):
+class TitleForm(forms.ModelForm):
     class Meta:
-        model = Organization
-        fields = ['title', 'role', 'organization', 'logo']
+        model = Title
+        fields = ('value',)
 
 
-OrganizationFormSet = inlineformset_factory(
-    Vcard,
-    Organization,
-    form=OrganizationForm,
-    fields=['title', 'role', 'organization', 'logo'],
+TitleFormSet = inlineformset_factory(
+    Card,
+    Title,
+    form=TitleForm,
+    fields=('value',),
+    extra=1,
+    min_num=0,
+    can_delete=True
+)
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = Role
+        fields = ('value',)
+
+
+RoleFormSet = inlineformset_factory(
+    Card,
+    Role,
+    form=RoleForm,
+    fields=('value',),
+    extra=1,
+    min_num=0,
+    can_delete=True
+)
+
+
+class OrgForm(forms.ModelForm):
+    class Meta:
+        model = Org
+        fields = ('value',)
+
+
+OrgFormSet = inlineformset_factory(
+    Card,
+    Org,
+    form=OrgForm,
+    fields=('value',),
     extra=1,
     min_num=0,
     can_delete=True
@@ -201,7 +231,7 @@ class TagForm(forms.ModelForm):
 
 
 TagFormSet = inlineformset_factory(
-    Vcard,
+    Card,
     Tag,
     form=TagForm,
     fields=('tag',),
@@ -218,7 +248,7 @@ class UrlForm(forms.ModelForm):
 
 
 UrlFormSet = inlineformset_factory(
-    Vcard,
+    Card,
     Url,
     form=UrlForm,
     fields=['url_type', 'url', 'label'],

@@ -15,18 +15,18 @@
   </div>
 
   <div class="profile">
-      {% with vform=vcard_form %}
+      {% with cform=card_form %}
       <div class="profilePhoto">
         <!-- todo: this ain't pretty -->
-        {{ vform.photo }}
+        {{ cform.photo }}
       </div>
       <div class="text-container">
-        <p>{{ vform.prefix.label_tag }} {{ vform.prefix }} {{ vform.prefix.errors }}</p>
-        <p>{{ vform.first_name.label_tag }} {{ vform.first_name }} {{ vform.first_name.errors }}</p>
-        <p>{{ vform.middle_name.label_tag }} {{ vform.middle_name }} {{ vform.middle_name.errors }}</p>
-        <p>{{ vform.last_name.label_tag }} {{ vform.last_name }} {{ vform.last_name.errors }}</p>
-        <p>{{ vform.suffix.label_tag }} {{ vform.suffix }} {{ vform.suffix.errors }}</p>
-        <p>{{ vform.nickname.label_tag }} {{ vform.nickname }} {{ vform.nickname.errors }}</p>
+        <p>{{ cform.prefix.label_tag }} {{ cform.prefix }} {{ cform.prefix.errors }}</p>
+        <p>{{ cform.first_name.label_tag }} {{ cform.first_name }} {{ cform.first_name.errors }}</p>
+        <p>{{ cform.middle_name.label_tag }} {{ cform.middle_name }} {{ cform.middle_name.errors }}</p>
+        <p>{{ cform.last_name.label_tag }} {{ cform.last_name }} {{ cform.last_name.errors }}</p>
+        <p>{{ cform.suffix.label_tag }} {{ cform.suffix }} {{ cform.suffix.errors }}</p>
+        <p>{{ cform.nickname.label_tag }} {{ cform.nickname }} {{ cform.nickname.errors }}</p>
 
         {% with pform=profile_form %}
         {% if pform %}
@@ -38,11 +38,11 @@
       </div>
     </div>
 
-    <div class="vcard">
+    <div class="card">
       <h2>Contact Info</h2>
-      <p>{{ vform.kind.label_tag }} {{ vform.kind }} {{ vform.kind.errors }}</p>
+      <p>{{ cform.kind.label_tag }} {{ cform.kind }} {{ cform.kind.errors }}</p>
       
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>Phone</h3>
         <div id="phone-form-container">
           {{ phone_formset.management_form }}
@@ -56,7 +56,7 @@
       </div>
 
       <!-- todo: remove the delete button on new forms using if form.instance.pk render form.DELETE -->
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>Email</h3>
         <div id="email-form-container">
           {{ email_formset.management_form }}
@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>URLs</h3>
         <div id="url-form-container">
           {{ url_formset.management_form }}
@@ -82,7 +82,7 @@
         </div>
       </div>
 
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>Addresses</h3>
         <div id="address-form-container">
           {{ address_formset.management_form }}
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>Organization</h3>
         <div id="organization-form-container">
           {{ org_formset.management_form }}
@@ -106,21 +106,41 @@
           {% endfor %}
           <button id="add-organization-form" type="button">Add Organization</button>
         </div>
-      </div>
 
-      <div class="vcardGroup">
-        <h3>Personal</h3>
-        <div class="text-container">
-          <p>{{ vform.birthday.label_tag }}{{ vform.birthday }} {{ vform.birthday.errors }}</p>
-          <p>{{ vform.birthday_year.label_tag }} {{ vform.birthday_year }} {{ vform.birthday_year.errors }}</p>
-          <p>{{ vform.anniversary.label_tag }} {{ vform.anniversary }} {{ vform.anniversary.errors }}</p>
-          <p>{{ vform.anniversary_year.label_tag }} {{ vform.anniversary_year }} {{ vform.anniversary_year.errors }}</p>
-          <p>Biological sex: {{ vform.sex }} {{ vform.sex.errors }}</p>
-          <p>Gender: {{ vform.gender }} {{ vform.gender.errors }}</p>
+        <div id="title-form-container">
+          {{ title_formset.management_form }}
+          {% for form in title_formset %}
+          <div class="title-from">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-title-form" type="button">Add Title</button>
+        </div>
+
+        <div id="role-form-container">
+          {{ role_formset.management_form }}
+          {% for form in role_formset %}
+          <div class="role-form">
+            {{ form.as_div }}
+          </div>
+          {% endfor %}
+          <button id="add-role-form" type="button">Add Role</button>
         </div>
       </div>
 
-      <div class="vcardGroup">
+      <div class="cardGroup">
+        <h3>Personal</h3>
+        <div class="text-container">
+          <p>{{ cform.birthday.label_tag }}{{ cform.birthday }} {{ cform.birthday.errors }}</p>
+          <p>{{ cform.birthday_year.label_tag }} {{ cform.birthday_year }} {{ cform.birthday_year.errors }}</p>
+          <p>{{ cform.anniversary.label_tag }} {{ cform.anniversary }} {{ cform.anniversary.errors }}</p>
+          <p>{{ cform.anniversary_year.label_tag }} {{ cform.anniversary_year }} {{ cform.anniversary_year.errors }}</p>
+          <p>Biological sex: {{ cform.sex }} {{ cform.sex.errors }}</p>
+          <p>Gender: {{ cform.gender }} {{ cform.gender.errors }}</p>
+        </div>
+      </div>
+
+      <div class="cardGroup">
         <h3>Tags</h3>
         <div id="tag-form-container">
           {{ tag_formset.management_form }}
@@ -133,11 +153,11 @@
         </div>
       </div>
 
-      <div class="vcardGroup">
+      <div class="cardGroup">
         <h3>Note</h3>
-        {{ vform.note }} {{ vform.note.errors }}
+        {{ cform.note }} {{ cform.note.errors }}
       </div>
-      {% endwith %} <!-- end vform -->
+      {% endwith %} <!-- end cform -->
 
   </div>
   </form>
