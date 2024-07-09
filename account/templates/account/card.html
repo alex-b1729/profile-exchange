@@ -125,20 +125,42 @@
     {% endwith %}
 
     <!-- todo: add org logo -->
-    {% with orgs=profile.card.organization_set.all %}
-    {% if orgs %}
+    {% with titles=profile.card.title_set.all roles=profile.card.role_set.all orgs=profile.card.org_set.all %}
+    {% if titles or roles or orgs %}
     <div class="cardGroup">
-      <h3>Organizations</h3>
-      <div id="ORG">
+      {# <h3>Organizations</h3> #}
+      {% if titles %}
+      <div id="TITLE">
+        <h3>Titles</h3>
         <ul>
-          {% for org in orgs %}
-          <li>
-            <p><span id="TITLE">{{ org.title }}</span> * <span id="ORG">{{ org.organization }}</span>
-            <p><span id="ROLE">{{ org.role }}</span></p>
-          </li>
+          {% for title in titles %}
+          <li>{{ title.title }}</li>
           {% endfor %}
         </ul>
       </div>
+      {% endif %}
+
+      {% if roles %}
+      <div id="ROLE">
+        <h3>Roles</h3>
+        <ul>
+          {% for role in roles %}
+          <li>{{ role.role }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if orgs %}
+      <div id="ORG">
+        <h3>Organizations</h3>
+        <ul>
+          {% for org in orgs %}
+          <li>{{ org.organization }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
     </div>
     {% endif %}
     {% endwith %}

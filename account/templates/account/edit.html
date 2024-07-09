@@ -101,9 +101,7 @@
           {{ title_formset.management_form }}
           {% for form in title_formset %}
           <div class="title-form">
-            <div>Title</div>
-            <div>{{ form.value }} {{ form.value.errors }}</div>
-            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
+            <div>{{ form.as_div }}</div>
           </div>
           {% endfor %}
           <button id="add-title-form" type="button">Add Title</button>
@@ -113,9 +111,7 @@
           {{ org_formset.management_form }}
           {% for form in org_formset %}
           <div class="org-form">
-            <div>Organization</div>
-            <div>{{ form.value }} {{ form.value.errors }}</div>
-            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
+            {{ form.as_div }}
           </div>
           {% endfor %}
           <button id="add-org-form" type="button">Add Organization</button>
@@ -125,9 +121,7 @@
           {{ role_formset.management_form }}
           {% for form in role_formset %}
           <div class="role-form">
-            <div>Role</div>
-            <div>{{ form.value }} {{ form.value.errors }}</div>
-            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
+            {{ form.as_div }}
           </div>
           {% endfor %}
           <button id="add-role-form" type="button">Add Role</button>

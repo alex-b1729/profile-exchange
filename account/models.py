@@ -215,18 +215,18 @@ class Card(models.Model):
 
     @property
     def TITLE_repr(self) -> iter:
-        ts = Title.objects.filter(card=self)
+        ts = self.title_set.all()
         return [t.TITLE_repr for t in ts]
 
     @property
     def ROLE_repr(self) -> iter:
-        rs = Role.objects.filter(card=self)
+        rs = self.role_set.all()
         return [r.ROLE_repr for r in rs]
 
     @property
     def ORG_repr(self) -> iter:
-        orgs = Org.objects.filter(card=self)
-        return [org.ORG_repr for org in orgs]
+        orgs = self.org_set.all()
+        return [{'value': [str(org) for org in orgs]}]
 
     @property
     def NOTE_repr(self) -> dict[str]:
@@ -263,9 +263,14 @@ class Card(models.Model):
             prop_list = getattr(self, attr)
             if prop_list:
                 prop = v.add(prop_name)
+                if prop_name == 'ORG':
+                    print(prop)
+                    print(prop_list)
                 for prop_kv in prop_list:
                     for k, val in prop_kv.items():
                         setattr(prop, k, val)
+                        if prop_name == 'ORG':
+                            print(prop)
         return v.serialize()
 
     def vcf_http_reponse(self, request):
@@ -397,82 +402,50 @@ class Email(models.Model):
 # https://datatracker.ietf.org/doc/html/rfc6350#section-6.4.3
 
 
-class BaseOrgProperty(models.Model):
+class Title(models.Model):
     card = models.ForeignKey(
         Card,
         on_delete=models.CASCADE
     )
     # group = models.CharField(max_length=20, blank=True)  # for compatibility with group prefix
-    prop_type = models.CharField(max_length=1, choices=vcard.ORG_PROPERTIES, blank=False)
-    value = models.CharField()
-
-    class Meta:
-        verbose_name = 'BaseOrgProperty'
-        verbose_name_plural = 'BaseOrgProperties'
-
-    def __getattr__(self, name):
-        """
-        make values of proxy models available by self.MODEL_repr
-        """
-        try:
-            if name in [f'{v}_repr' for v in vcard.ORG_PROPERTIES.values()]:
-                return {'value': self.value}
-            else:
-                raise AttributeError(name)
-                # super().__getattr__(name)
-        except Exception as e:
-            raise e
+    title = models.CharField(max_length=100)
 
     def __str__(self):
-        return f'{self.prop_type}: {self.value}'
+        return str(self.title)
+
+    @property
+    def TITLE_repr(self):
+        return {'value': self.title}
 
 
-class TitleManager(models.Manager):
-    def get_queryset(self):
-        return super(TitleManager, self).get_queryset().filter(prop_type=vcard.TITLE)
+class Role(models.Model):
+    card = models.ForeignKey(
+        Card,
+        on_delete=models.CASCADE
+    )
+    # group = models.CharField(max_length=20, blank=True)  # for compatibility with group prefix
+    role = models.CharField(max_length=100)
 
-    def create(self, **kwargs):
-        kwargs.update({'prop_type': vcard.TITLE})
-        return super(TitleManager, self).create(**kwargs)
-
-
-class RoleManager(models.Manager):
-    def get_queryset(self):
-        return super(RoleManager, self).get_queryset().filter(prop_type=vcard.ROLE)
-
-    def create(self, **kwargs):
-        kwargs.update({'prop_type': vcard.ROLE})
-        return super(RoleManager, self).create(**kwargs)
+    def __str__(self):
+        return str(self.role)
+    @property
+    def ROLE_repr(self):
+        return {'value': self.role}
 
 
-class OrgManager(models.Manager):
-    def get_queryset(self):
-        return super(OrgManager, self).get_queryset().filter(prop_type=vcard.ORG)
+class Org(models.Model):
+    card = models.ForeignKey(
+        Card,
+        on_delete=models.CASCADE
+    )
+    # group = models.CharField(max_length=20, blank=True)  # for compatibility with group prefix
+    organization = models.CharField(max_length=100)
 
-    def create(self, **kwargs):
-        kwargs.update({'prop_type': vcard.ORG})
-        return super(OrgManager, self).create(**kwargs)
-
-
-class Title(BaseOrgProperty):
-    objects = TitleManager()
-
-    class Meta:
-        proxy = True
-
-
-class Role(BaseOrgProperty):
-    objects = RoleManager()
-
-    class Meta:
-        proxy = True
-
-
-class Org(BaseOrgProperty):
-    objects = OrgManager()
-
-    class Meta:
-        proxy = True
+    def __str__(self):
+        return str(self.organization)
+    @property
+    def ORG_repr(self):
+        return {'value': self.organization}
 
 
 class Tag(models.Model):

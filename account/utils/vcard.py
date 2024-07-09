@@ -54,14 +54,14 @@ GENDER_TYPE_CHOICES = {
     UNKNOWN_GENDER: 'Unknown'
 }
 
-TITLE = 't'
-ROLE = 'r'
-ORG = 'o'
-ORG_PROPERTIES = {
-    TITLE: 'TITLE',
-    ROLE: 'ROLE',
-    ORG: 'ORG',
-}
+# TITLE = 't'
+# ROLE = 'r'
+# ORG = 'o'
+# ORG_PROPERTIES = {
+#     TITLE: 'TITLE',
+#     ROLE: 'ROLE',
+#     ORG: 'ORG',
+# }
 
 X_APPLE_OMIT_YEAR = '1604'
 
@@ -167,9 +167,9 @@ def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     adr_models = parse_vcard_adr(contents.get('adr'))
     phone_models = parse_vcard_tel(contents.get('tel'))
     email_models = parse_vcard_email(contents.get('email'))
-    title_models = parse_vcard_org_properties(contents.get('title'), 't')
-    role_models = parse_vcard_org_properties(contents.get('role'), 'r')
-    org_models = parse_vcard_org_properties(contents.get('org'), 'o')
+    title_models = parse_vcard_org_properties(contents.get('title'), 'Title')
+    role_models = parse_vcard_org_properties(contents.get('role'), 'Role')
+    org_models = parse_vcard_org_properties(contents.get('org'), 'Org')
     tag_models = parse_vcard_tag(contents.get('categories'))
     url_models = parse_vcard_url(contents.get('url'))
     url_models += parse_vcard_url(contents.get('x-socialprofile'))
@@ -367,21 +367,17 @@ def parse_vcard_email(content_list: list | None) -> list:
 
 
 def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> list:
-    assert prop_type in ORG_PROPERTIES.keys()
+    assert prop_type in ['Title', 'Role', 'Org']
     prop_list = []
     if content_list is not None:
-        base_org_model = apps.get_model('account.BaseOrgProperty')
+        mod = apps.get_model(f'account.{prop_type}')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params - not saved in db
-            # email_type = parse_type(content, WH_TYPE_CHOICES)
             prop_val = content.value
             if isinstance(prop_val, list):  # eg org with ; delimiter
                 prop_val = ', '.join(prop_val)
-            prop_list.append(
-                base_org_model(prop_type=prop_type,
-                               value=prop_val)
-            )
+            prop_list.append(mod(value=prop_val))
     return prop_list
 
 

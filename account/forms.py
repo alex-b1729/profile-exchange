@@ -173,17 +173,18 @@ EmailFormSet = inlineformset_factory(
     can_delete=True
 )
 
+
 class TitleForm(forms.ModelForm):
     class Meta:
         model = Title
-        fields = ('value',)
+        fields = ('title',)
 
 
 TitleFormSet = inlineformset_factory(
     Card,
     Title,
     form=TitleForm,
-    fields=('value',),
+    fields=('title',),
     extra=1,
     min_num=0,
     can_delete=True
@@ -193,14 +194,14 @@ TitleFormSet = inlineformset_factory(
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
-        fields = ('value',)
+        fields = ('role',)
 
 
 RoleFormSet = inlineformset_factory(
     Card,
     Role,
     form=RoleForm,
-    fields=('value',),
+    fields=('role',),
     extra=1,
     min_num=0,
     can_delete=True
@@ -210,14 +211,14 @@ RoleFormSet = inlineformset_factory(
 class OrgForm(forms.ModelForm):
     class Meta:
         model = Org
-        fields = ('value',)
+        fields = ('organization',)
 
 
 OrgFormSet = inlineformset_factory(
     Card,
     Org,
     form=OrgForm,
-    fields=('value',),
+    fields=('organization',),
     extra=1,
     min_num=0,
     can_delete=True

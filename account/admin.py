@@ -5,7 +5,6 @@ from .models import (
     Address,
     Phone,
     Email,
-    BaseOrgProperty,
     Title,
     Org,
     Role,
@@ -26,7 +25,6 @@ admin.site.register(Card)
 admin.site.register(Address)
 admin.site.register(Phone)
 admin.site.register(Email)
-admin.site.register(BaseOrgProperty)
 admin.site.register(Title)
 admin.site.register(Org)
 admin.site.register(Role)
