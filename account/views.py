@@ -43,7 +43,9 @@ from .forms import (
 
 @login_required
 def profile(request):
-    profile = request.user.profile_set.select_related('card').get(title='Personal')
+    profile = get_object_or_404(Profile, user=request.user, title='Personal')
+    # below bugs when user is admin
+    # profile = request.user.profile_set.select_related('card').get(title='Personal')
     return render(
         request,
         'account/card.html',

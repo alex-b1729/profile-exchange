@@ -376,6 +376,8 @@ def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> lis
             # type params - not saved in db
             # email_type = parse_type(content, WH_TYPE_CHOICES)
             prop_val = content.value
+            if isinstance(prop_val, list):  # eg org with ; delimiter
+                prop_val = ', '.join(prop_val)
             prop_list.append(
                 base_org_model(prop_type=prop_type,
                                value=prop_val)

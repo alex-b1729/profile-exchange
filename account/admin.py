@@ -6,6 +6,9 @@ from .models import (
     Phone,
     Email,
     BaseOrgProperty,
+    Title,
+    Org,
+    Role,
     Tag,
     Url,
     Profile,
@@ -24,6 +27,9 @@ admin.site.register(Address)
 admin.site.register(Phone)
 admin.site.register(Email)
 admin.site.register(BaseOrgProperty)
+admin.site.register(Title)
+admin.site.register(Org)
+admin.site.register(Role)
 admin.site.register(Tag)
 admin.site.register(Url)
 admin.site.register(Profile)

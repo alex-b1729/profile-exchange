@@ -5,7 +5,7 @@ from account.models import *
 with open('/Users/abrefeld/Downloads/ExportTest_no_img.vcf', 'r') as f:
     v_str = f.read()
 
-vobjs = vobject.readComponents(v_str)
+vlist = [vobj for vobj in vobject.readComponents(v_str)]
 vmods = vcard.vcf_to_model_dicts(v_str)
 u = get_user_model().objects.get(username='godel420')
-vcard.save_model_dict_to_db(u, vmods)
+# vcard.save_model_dict_to_db(u, vmods)

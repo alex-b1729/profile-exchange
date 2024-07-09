@@ -406,6 +406,10 @@ class BaseOrgProperty(models.Model):
     prop_type = models.CharField(max_length=1, choices=vcard.ORG_PROPERTIES, blank=False)
     value = models.CharField()
 
+    class Meta:
+        verbose_name = 'BaseOrgProperty'
+        verbose_name_plural = 'BaseOrgProperties'
+
     def __getattr__(self, name):
         """
         make values of proxy models available by self.MODEL_repr
@@ -415,11 +419,12 @@ class BaseOrgProperty(models.Model):
                 return {'value': self.value}
             else:
                 raise AttributeError(name)
+                # super().__getattr__(name)
         except Exception as e:
             raise e
 
     def __str__(self):
-        return f'{vcard.ORG_PROPERTIES[self.prop_type]}: {self.value}'
+        return f'{self.prop_type}: {self.value}'
 
 
 class TitleManager(models.Manager):
