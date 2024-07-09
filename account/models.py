@@ -257,6 +257,7 @@ class Card(models.Model):
         """
         returns str in vCard format from Card
         """
+        # todo: caching this data when a vcard view is loaded?
         v = vobject.vCard()
         for prop_name, attr in self.PROPERTY_TO_ATTR.items():
             prop_list = getattr(self, attr)

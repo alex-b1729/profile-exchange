@@ -76,7 +76,7 @@ def generate_gender(sex, gender) -> str:
     return f'{sex if sex!="" else ""}{";" + gender if gender!="" else ""}'
 
 
-def vcf_to_models(vcf: str) -> list[dict[str, list]]:
+def vcf_to_model_dicts(vcf: str) -> list[dict[str, list]]:
     try:
         v_iter = vobject.readComponents(vcf)
     except Exception as e:
@@ -86,7 +86,7 @@ def vcf_to_models(vcf: str) -> list[dict[str, list]]:
     for v in v_iter:
         v: vobject.base.Component
         try:
-            vcard_model_list.append(component_to_model(v))
+            vcard_model_list.append(component_to_model_dict(v))
         except Exception as e:
             raise e
 
@@ -104,7 +104,7 @@ def get_all_or_default(contents: dict, value: str, sep: str = '\n', default: str
     return r if r is not None else default
 
 
-def component_to_model(v: vobject.base.Component) -> dict[str, list]:
+def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     assert v.name == 'VCARD'
     contents = v.contents
 
@@ -206,6 +206,24 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
     }
 
 
+def save_model_dict_to_db(user, model_dicts: dict, commit=True):
+    for mod_dict in model_dicts:
+        try:
+            print(mod_dict['card'])
+            new_card = mod_dict['card']
+            new_card.user = user
+            new_card.save()
+
+            for mod_name, mod_list in mod_dict.items():
+                if mod_name.endswith('_models'):
+                    mod_name = mod_name[:-7]
+                    for mod in mod_list:
+                        mod.card = new_card
+                        mod.save()
+        except Exception as e:
+            raise e
+
+
 def parse_vcard_date(content_list: list | None) -> tuple[int | None, int | None, int | None]:
     # todo: regex this shit
     year = None
@@ -216,7 +234,7 @@ def parse_vcard_date(content_list: list | None) -> tuple[int | None, int | None,
             d_content = content_list[0]  # parsing 1st only
             d = d_content.value
 
-            ommit_year = X_APPLE_OMIT_YEAR in d_content.params
+            ommit_year = 'X_APPLE_OMIT_YEAR' in d_content.params
 
             delim_str = ''
             if '-' in d:
