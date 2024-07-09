@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load static %}
+
+{% block title %}Contact Book{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Import Cards</h1>
+</div>
+
+<p>Import contacts from a .vcf file on your computer</p>
+
+<form method="POST" enctype="multipart/form-data">
+    {{ form.as_div }}
+    {% csrf_token %}
+    <p><input type="submit" value="Import"></p>
+</form>
+
+{% endblock %}

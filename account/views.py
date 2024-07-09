@@ -1,13 +1,14 @@
 import datetime as dt
+from account.utils import vcard
 from django.db.models import Value
 from django.contrib import messages
-from django.http import HttpResponse
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.views.generic.detail import DetailView
 from formtools.wizard.views import SessionWizardView
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin, View
 
@@ -38,6 +39,7 @@ from .forms import (
     TagFormSet,
     UrlFormSet,
     ProfileEditForm,
+    ImportCardForm,
 )
 
 
@@ -377,6 +379,37 @@ def download_card(request, connection_id=None):
     else:
         card = request.user.profile_set.get(title='Personal').card
     return card.vcf_http_reponse(request)
+
+
+@login_required
+def import_cards(request):
+    if request.method == 'POST':
+        form = ImportCardForm(request.POST, request.FILES)
+        if form.is_valid():
+            # todo: this ain't memory safe
+            vmods = vcard.vcf_to_model_dicts(request.FILES['file'].read().decode("utf-8") )
+            vcard.save_model_dict_to_db(request.user, vmods)
+            return render(
+                request,
+                'account/user/contactbook.html',
+                {'section': 'contactbook'}
+            )
+    else:
+        form = ImportCardForm()
+    return render(
+        request,
+        'account/user/import_cards.html',
+        {'section': 'contactbook',
+         'form': form}
+    )
+
+@login_required
+def contact_book(request):
+    return render(
+        request,
+        'account/user/contactbook.html',
+        {'section': 'contactbook'}
+    )
 
 
 # @login_required

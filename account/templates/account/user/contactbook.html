@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load static %}
+
+{% block title %}Contact Book{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Contact Book</h1>
+    <a href="{% url "import_cards" %}">Import contacts</a>
+</div>
+
+{% with cards=request.user.card_set.all %}
+{% if cards %}
+<ul>
+    {% for card in cards %}
+    <li>{% if card.profile.user == request.user %}Your {{ card.profile.title }} profile card: {% endif %}{{ card.FN }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% endblock %}

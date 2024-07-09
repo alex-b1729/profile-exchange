@@ -263,3 +263,7 @@ class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('headline', 'location', 'description')
+
+
+class ImportCardForm(forms.Form):
+    file = forms.FileField()

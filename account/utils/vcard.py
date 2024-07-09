@@ -206,17 +206,15 @@ def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     }
 
 
-def save_model_dict_to_db(user, model_dicts: dict):
+def save_model_dict_to_db(user, model_dicts: list[dict]):
     for mod_dict in model_dicts:
         try:
-            print(mod_dict['card'])
             new_card = mod_dict['card']
             new_card.user = user
             new_card.save()
 
             for mod_name, mod_list in mod_dict.items():
                 if mod_name.endswith('_models'):
-                    mod_name = mod_name[:-7]
                     for mod in mod_list:
                         mod.card = new_card
                         mod.save()
