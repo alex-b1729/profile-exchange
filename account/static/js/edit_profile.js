@@ -14,9 +14,17 @@ let addAddressButton = document.querySelector("#add-address-form");
 addAddressButton.addEventListener('click', addForm);
 addAddressButton.content = 'address';
 
-let addOrgButton = document.querySelector("#add-organization-form");
+let addTitleButton = document.querySelector("#add-title-form");
+addTitleButton.addEventListener('click', addForm);
+addTitleButton.content = 'title';
+
+let addOrgButton = document.querySelector("#add-org-form");
 addOrgButton.addEventListener('click', addForm);
-addOrgButton.content = 'organization';
+addOrgButton.content = 'org';
+
+let addRoleButton = document.querySelector("#add-role-form");
+addRoleButton.addEventListener('click', addForm);
+addRoleButton.content = 'role';
 
 let addTagButton = document.querySelector("#add-tag-form");
 addTagButton.addEventListener('click', addForm);

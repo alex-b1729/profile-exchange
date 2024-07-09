@@ -104,11 +104,13 @@ class RegisterWizard(SessionWizardView):
         name_form_data = form_list[1].cleaned_data
         fn = name_form_data['first_name']
         ln = name_form_data['last_name']
+
+        new_card = Card(user=new_user, first_name=fn, last_name=ln)
+        new_profile = Profile(user=new_user, card=new_card)
+
         new_user.save()
-
-        profile_card = Card.objects.create(user=new_user, first_name=fn, last_name=ln)
-        Profile.objects.create(user=new_user, card=profile_card)
-
+        new_card.save()
+        new_profile.save()
         return render(
             self.request,
             'account/register_done.html',

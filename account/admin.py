@@ -8,8 +8,8 @@ from .models import (
     BaseOrgProperty,
     Tag,
     Url,
-    # Profile,
-    # Connection,
+    Profile,
+    Connection,
 )
 
 
@@ -26,6 +26,6 @@ admin.site.register(Email)
 admin.site.register(BaseOrgProperty)
 admin.site.register(Tag)
 admin.site.register(Url)
-# admin.site.register(Profile)
-# admin.site.register(Connection)
+admin.site.register(Profile)
+admin.site.register(Connection)
 # admin.site.register(ContactNote)

@@ -36,18 +36,18 @@ class Card(models.Model):
         'BDAY': 'BDAY_repr',
         'ANNIVERSARY': 'ANNIVERSARY_repr',
         'GENDER': 'GENDER_repr',
-        'ADR': 'ADR_yield',
-        'TEL': 'TEL_yield',
-        'EMAIL': 'EMAIL_yield',
-        'TITLE': 'TITLE_yield',
-        'ROLE': 'ROLE_yield',
+        'ADR': 'ADR_repr',
+        'TEL': 'TEL_repr',
+        'EMAIL': 'EMAIL_repr',
+        'TITLE': 'TITLE_repr',
+        'ROLE': 'ROLE_repr',
         # 'LOGO': 'LOGO_yield',
-        'ORG': 'ORG_yield',
+        'ORG': 'ORG_repr',
         # 'MEMBER': 'MEMBER_yield',
         # 'RELATED': 'RELATED_yield',
         'NOTE': 'NOTE_repr',
-        'CATEGORY': 'CATEGORY_yield',
-        'URL': 'URL_yield',
+        'CATEGORY': 'TAG_repr',
+        'URL': 'URL_repr',
         'REV': 'REV_repr'
     }
     # note: cascading delete means that linked contact info disappears if other side leaves
@@ -107,7 +107,7 @@ class Card(models.Model):
     # https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.7
     sex = models.CharField(max_length=1,
                            choices=vcard.GENDER_TYPE_CHOICES,
-                           default=None,
+                           default='',
                            blank=True)
     gender = models.CharField(max_length=50, blank=True)
 
@@ -125,7 +125,16 @@ class Card(models.Model):
 
     @property
     def KIND_repr(self) -> list[dict[str]]:
-        return [{'value': self.kind}]
+        return [{'value': vcard.KIND_CHOICES[self.kind]}]
+
+    @property
+    def FN(self) -> str:
+        val = (f'{self.prefix + " " if self.prefix != "" else ""}'
+               f'{self.first_name + " " if self.first_name != "" else ""}'
+               f'{self.middle_name + " " if self.middle_name != "" else ""}'
+               f'{self.last_name}'
+               f'{", " + self.suffix if self.suffix != "" else ""}')
+        return val
 
     @property
     def FN_repr(self) -> list[dict[str]]:
@@ -134,12 +143,7 @@ class Card(models.Model):
         cardinality: 1* - I coerce to 1 for now
         https://datatracker.ietf.org/doc/html/rfc6350#section-6.2.1
         """
-        val = (f'{self.prefix + " " if self.prefix != "" else ""}'
-               f'{self.first_name + " " if self.first_name != "" else ""}'
-               f'{self.middle_name + " " if self.middle_name != "" else ""}'
-               f'{self.last_name}'
-               f'{", " + self.suffix if self.suffix != "" else ""}')
-        return [{'value': val}]
+        return [{'value': self.FN}]
 
     @property
     def N_repr(self) -> list[dict[str]]:
@@ -164,84 +168,87 @@ class Card(models.Model):
 
     @property
     def BDAY_repr(self) -> list[dict[str]]:
+        ret_l = []
         if self.birthday is not None:
             d = {}
             d['value'] = vcard.generate_vcard_date(self.birthday, self.birthday_year)
             if self.birthday_year is None:
                 d['X-APPLE-OMIT-YEAR'] = '1604'
-            return [d]
+            ret_l.append(d)
+        return ret_l
 
     @property
     def ANNIVERSARY_repr(self) -> list[dict[str]]:
+        ret_l = []
         if self.anniversary is not None:
             d = {}
             d['value'] = vcard.generate_vcard_date(self.anniversary, self.anniversary_year)
             if self.anniversary_year is None:
                 d['X-APPLE-OMIT-YEAR'] = vcard.X_APPLE_OMIT_YEAR
-            return [d]
+            ret_l.append(d)
+        return ret_l
 
     @property
     def GENDER_repr(self) -> list[dict[str]]:
+        ret_l = []
         if self.sex != '' or self.gender != '':
-           return [{'value': vcard.generate_gender(self.sex, self.gender)}]
+            ret_l.append({'value': vcard.generate_gender(self.sex, self.gender)})
+        return ret_l
 
     @property
-    def ADR_yield(self) -> iter:
+    def ADR_repr(self) -> iter:
         adrs = self.address_set.all()
-        for adr in adrs:
-            yield adr.ADR_repr
+        return [adr.ADR_repr for adr in adrs]
 
     @property
-    def TEL_yield(self) -> iter:
+    def TEL_repr(self) -> iter:
         tels = self.phone_set.all()
-        for tel in tels:
-            yield tel.TEL_repr
+        return [tel.TEL_repr for tel in tels]
 
     @property
-    def EMAIL_yield(self) -> iter:
+    def EMAIL_repr(self) -> iter:
         emails = self.email_set.all()
-        for e in emails:
-            yield e.EMAIL_repr
+        return [email.EMAIL_repr for email in emails]
 
     @property
-    def TITLE_yield(self) -> iter:
-        ts = Title.objects.get(user=self.user)
-        for t in ts:
-            yield t.TITLE_repr
+    def TITLE_repr(self) -> iter:
+        ts = Title.objects.filter(card=self)
+        return [t.TITLE_repr for t in ts]
 
     @property
-    def ROLE_yield(self) -> iter:
-        rs = Role.objects.get(user=self.user)
-        for r in rs:
-            yield r.ROLE_repr
+    def ROLE_repr(self) -> iter:
+        rs = Role.objects.filter(card=self)
+        return [r.ROLE_repr for r in rs]
 
     @property
-    def ORG_yield(self) -> iter:
-        orgs = Org.objects.get(user=self.user)
-        for org in orgs:
-            yield org.ORG_repr
+    def ORG_repr(self) -> iter:
+        orgs = Org.objects.filter(card=self)
+        return [org.ORG_repr for org in orgs]
 
     @property
     def NOTE_repr(self) -> dict[str]:
+        ret_l = []
         if self.note != '':
-           yield {'value': self.note}
+           ret_l.append({'value': self.note})
+        return ret_l
 
     @property
-    def TAG_yield(self) -> iter:
+    def TAG_repr(self) -> list:
         ts = self.tag_set.all()
         if ts:
-            yield {'value': [t.tag for t in ts]}
+            return [{'value': [t.tag for t in ts]}]
+        else:
+            return []
 
     @property
-    def URL_yield(self) -> iter:
+    def URL_repr(self):
         us = self.url_set.all()
-        for u in us:
-            yield u.URL_repr
+        return [u.URL_repr for u in us]
 
     @property
     def REV_repr(self):
         # todo: should this be time of vCard export or last time a user updated a value of the model?
-        yield dt.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        yield {'value': dt.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
 
     def to_vcard(self) -> str:
         """
@@ -249,10 +256,12 @@ class Card(models.Model):
         """
         v = vobject.vCard()
         for prop_name, attr in self.PROPERTY_TO_ATTR.items():
-            prop = v.add(prop_name)
-            for prop_kv in getattr(self, attr):
-                for k, v in prop_kv.items():
-                    setattr(prop, k, v)
+            prop_list = getattr(self, attr)
+            if prop_list:
+                prop = v.add(prop_name)
+                for prop_kv in prop_list:
+                    for k, val in prop_kv.items():
+                        setattr(prop, k, val)
         return v.serialize()
 
     # @property
@@ -394,7 +403,7 @@ class Phone(models.Model):
         """
         # todo: gotta format the number correctly
         d = {}
-        d['value'] = self.phone_number
+        d['value'] = str(self.phone_number)
         if self.phone_type not in ['', 'other']:
             d['type_param'] = vcard.PHONE_TYPE_CHOICES[self.phone_type]
         return d

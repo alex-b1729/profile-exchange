@@ -96,32 +96,38 @@
       </div>
 
       <div class="cardGroup">
-        <h3>Organization</h3>
-        <div id="organization-form-container">
-          {{ org_formset.management_form }}
-          {% for form in org_formset %}
-          <div class="organization-form">
-            {{ form.as_div }}
-          </div>
-          {% endfor %}
-          <button id="add-organization-form" type="button">Add Organization</button>
-        </div>
-
+        <h3>Organizational</h3>
         <div id="title-form-container">
           {{ title_formset.management_form }}
           {% for form in title_formset %}
-          <div class="title-from">
-            {{ form.as_div }}
+          <div class="title-form">
+            <div>Title</div>
+            <div>{{ form.value }} {{ form.value.errors }}</div>
+            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
           </div>
           {% endfor %}
           <button id="add-title-form" type="button">Add Title</button>
+        </div>
+
+        <div id="org-form-container">
+          {{ org_formset.management_form }}
+          {% for form in org_formset %}
+          <div class="org-form">
+            <div>Organization</div>
+            <div>{{ form.value }} {{ form.value.errors }}</div>
+            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
+          </div>
+          {% endfor %}
+          <button id="add-org-form" type="button">Add Organization</button>
         </div>
 
         <div id="role-form-container">
           {{ role_formset.management_form }}
           {% for form in role_formset %}
           <div class="role-form">
-            {{ form.as_div }}
+            <div>Role</div>
+            <div>{{ form.value }} {{ form.value.errors }}</div>
+            {% if form.instance.pk %}<div>{{ form.DELETE.label_tag }} {{ form.DELETE }}</div>{% endif %}
           </div>
           {% endfor %}
           <button id="add-role-form" type="button">Add Role</button>
