@@ -1,8 +1,10 @@
 import vobject
+import datetime as dt
 from django.apps import apps
 from djangoyearlessdate.helpers import YearlessDate
 
 # todo: parse groups, pref
+# todo: parse unrecognized content to BaseContentLine
 
 CELL = 'c'
 WORK = 'w'
@@ -97,8 +99,8 @@ def get_first_or_default(contents: dict, value: str, default=''):
 
 def get_all_or_default(contents: dict, value: str, sep: str = '\n', default: str = '') -> str:
     r = None
-    if contents is not None:
-        r = sep.join([v.value() for v in contents.get(value)])
+    if contents is not None and contents.get(value):
+        r = sep.join([v.value for v in contents.get(value)])
     return r if r is not None else default
 
 
@@ -109,7 +111,7 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
     kind = get_first_or_default(contents, 'kind', INDIVIDUAL_KIND)
 
     # todo: parse fn for non individual kind
-    names = contents.get('n')[0]
+    names = contents.get('n')
     if len(names) > 0:
         if len(names) == 1:
             n: vobject.vcard.Name = names[0].value
@@ -146,16 +148,16 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
     birthday_year = None
     if bday is not None and bmonth is not None:
         birthday = YearlessDate(day=bday, month=bmonth)
-        if byear is not None:
-            birthday_year = byear
+    if byear is not None:
+        birthday_year = byear
 
     ayear, amonth, aday = parse_vcard_date(contents.get('anniversary'))
     anniversary = None
     anniversary_year = None
     if aday is not None and amonth is not None:
         anniversary = YearlessDate(day=aday, month=amonth)
-        if ayear is not None:
-            anniversary_year = ayear
+    if ayear is not None:
+        anniversary_year = ayear
 
 
     # gender = ...  # todo: gender
@@ -165,12 +167,12 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
     adr_models = parse_vcard_adr(contents.get('adr'))
     phone_models = parse_vcard_tel(contents.get('tel'))
     email_models = parse_vcard_email(contents.get('email'))
-    title_models = parse_vcard_org_properties(contents.get('title'))
-    role_models = parse_vcard_org_properties(contents.get('role'))
-    org_models = parse_vcard_org_properties(contents.get('org'))
+    title_models = parse_vcard_org_properties(contents.get('title'), 't')
+    role_models = parse_vcard_org_properties(contents.get('role'), 'r')
+    org_models = parse_vcard_org_properties(contents.get('org'), 'o')
     tag_models = parse_vcard_tag(contents.get('categories'))
     url_models = parse_vcard_url(contents.get('url'))
-    url_models.append(parse_vcard_url(contents.get('x-socialprofile')))
+    url_models += parse_vcard_url(contents.get('x-socialprofile'))
 
     card_model = apps.get_model('account.Card')
     card = card_model(
@@ -205,17 +207,71 @@ def component_to_model(v: vobject.base.Component) -> dict[str, list]:
 
 
 def parse_vcard_date(content_list: list | None) -> tuple[int | None, int | None, int | None]:
+    # todo: regex this shit
     year = None
     month = None
     day = None
     if content_list is not None:
-        # todo: parse any repr of date
-        d = content_list[0]  # parsing 1st only
-        day_list = d.value.split('-')
-        yearless = 'X-APPLE-OMIT-YEAR' in [s.upper() for s in d.params.keys()]
-        year = int(day_list[0]) if not yearless else None
-        month = int(day_list[1])
-        day = int(day_list[2])
+        try:
+            d_content = content_list[0]  # parsing 1st only
+            d = d_content.value
+
+            ommit_year = X_APPLE_OMIT_YEAR in d_content.params
+
+            delim_str = ''
+            if '-' in d:
+                delim_str = '-'
+            elif '/' in d:
+                delim_str = '/'
+            delimited = delim_str != ''
+            delim_count = 0
+            if delimited: delim_count = d.count(delim_str)
+
+            if delimited:
+                is_numeric = ''.join(d.split(delim_str)).isnumeric()
+            else:
+                is_numeric = d.isnumeric()
+
+            if is_numeric:
+                if delim_count == 0:
+                    if len(d) in [6, 8]:
+                        # YYYYMMDD or YYMMDD
+                        # assume 1st 2 or 4 digits are year
+                        if len(d) == 6:
+                            year = int(d[:2])
+                            if year <= dt.datetime.today().year % 100:  # 2000s
+                                year += (dt.datetime.today().year // 100) * 100
+                            else:
+                                year += (dt.datetime.today().year // 100 - 1) * 100
+                        month = int(d[4:6])
+                        day = int(d[6:])
+                    elif len(d) == 4:
+                        # YYYY
+                        year = int(d)
+                elif delim_count == 1:
+                    if d.find(delim_str) == 4:
+                        # YYYY-MM format
+                        year = int(d[:4])
+                        month = int(d[4:6])
+                    elif d.find(delim_str) == 2:
+                        # MM-YYYY
+                        year = int(d[2:6])
+                        month = int(d[:2])
+                elif delim_count == 2:
+                    if len(d) == 10 and d.find(delim_str) == 4 and d.find(delim_str, 5) == 7:
+                        # YYYY-MM-DD
+                        ymd = d.split(delim_str)
+                        year = int(ymd[0])
+                        month = int(ymd[1])
+                        day = int(ymd[2])
+                    elif len(d) == 6 and d.find('-') == 0 and d.find('-', 1) == 1:
+                        # --MMDD
+                        month = int(d[2:4])
+                        day = int(d[4:6])
+        except:
+            pass
+
+        if ommit_year: year = None
     return year, month, day
 
 
@@ -293,6 +349,7 @@ def parse_vcard_email(content_list: list | None) -> list:
 
 
 def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> list:
+    assert prop_type in ORG_PROPERTIES.keys()
     prop_list = []
     if content_list is not None:
         base_org_model = apps.get_model('account.BaseOrgProperty')
@@ -309,16 +366,23 @@ def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> lis
 
 
 def parse_vcard_tag(content_list: list | None) -> list:
-    tag_list = []
+    tag_str_list = []
+    tag_model_list = []
     if content_list is not None:
         tag_model = apps.get_model('account.Tag')
         for content in content_list:
             content: vobject.base.ContentLine
             tag_value = content.value
-            tag_list.append(
-                tag_model(tag=tag_value)
+            if isinstance(tag_value, list):
+                for t in tag_value:
+                    tag_str_list.append(t)
+            else:
+                tag_str_list.append(tag_value)
+        for t in tag_str_list:
+            tag_model_list.append(
+                tag_model(tag=t)
             )
-    return tag_list
+    return tag_model_list
 
 
 def parse_vcard_url(content_list: list | None) -> list:

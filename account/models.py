@@ -120,8 +120,11 @@ class Card(models.Model):
         ordering = ['last_name', 'first_name']
 
     def __str__(self):
-        return (f'vCard: ({self.user.username}) '
-                f'{self.first_name} {self.last_name}')
+        u_str = '__UNDEFINED__'
+        if hasattr(self, 'user'):
+            u_str = self.user.username
+        return (f'({u_str}) {self.first_name} {self.last_name}')
+
 
     @property
     def KIND_repr(self) -> list[dict[str]]:
@@ -263,56 +266,6 @@ class Card(models.Model):
                     for k, val in prop_kv.items():
                         setattr(prop, k, val)
         return v.serialize()
-
-    # @property
-    # def vcf(self):
-    #     """
-    #     return formatted vcard
-    #     I'm choosing to add newline chars at end of each property.
-    #     """
-    #     # todo: implement line folding over 75 chars as outlined in
-    #     # https://datatracker.ietf.org/doc/html/rfc6350#section-3.2
-    #     s = f'BEGIN:{self.BEGIN}\n'
-    #     s += f'VERSION:{self.VERSION}\n'
-    #     s += f'KIND:{self.kind}\n'
-    #     s += f'FN:{self.FN}\n'
-    #     s += f'N:{self.N}\n'
-    #     if self.nickname!='':
-    #         s += f"{'NICKNAME:' + self.nickname if self.nickname!='' else ''}\n"
-    #
-    #     # todo: photo encoding
-    #
-    #     # TODO: date w/o year won't be interpreted by Apple contacts
-    #     if self.birthday is not None:
-    #         year = str(self.birthday_year) if self.birthday_year is not None else '--'
-    #         bday = f'{self.birthday.month:02}{self.birthday.day:02}'
-    #         s += f'BDAY:{year}{bday}\n'
-    #
-    #     if self.anniversary is not None:
-    #         year = str(self.anniversary_year) if self.anniversary_year is not None else '--'
-    #         anniv = f'{self.anniversary.month:02}{self.anniversary.day:02}'
-    #         s += f'BDAY:{year}{anniv}\n'
-    #
-    #     if self.sex is not None or self.gender!='':
-    #         s += (f'GENDER:{self.sex if self.sex is not None else ""}'
-    #               f'{";" + self.gender if self.gender!="" else ""}\n')
-    #
-    #     s += ''.join([f'ADR{adr.ADR}\n' for adr in self.address_set.all()])
-    #     s += ''.join([f'TEL{tel.TEL}\n' for tel in self.phone_set.all()])
-    #     s += ''.join([f'EMAIL{email.EMAIL}\n' for email in self.email_set.all()])
-    #     s += ''.join([org.formatted_organizational_properties for org in self.organization_set.all()])
-    #     s += ''.join([f'URL{url.URL}\n' for url in self.url_set.all()])
-    #
-    #     s += f'NOTE:{self.note}\n' if self.note!='' else ''
-    #
-    #     categories = [cat.CATEGORIES for cat in self.tag_set.all()]
-    #     if categories != []:
-    #         s += f'CATEGORIES:{",".join(categories)}\n'
-    #
-    #     s += f'REV:{self.REV}\n'
-    #     s += f'END:{self.END}'
-    #
-    #     return s
 
     def vcf_http_reponse(self, request):
         # todo: downloading will involve the linked vcard as well
