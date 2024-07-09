@@ -167,9 +167,9 @@ def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     adr_models = parse_vcard_adr(contents.get('adr'))
     phone_models = parse_vcard_tel(contents.get('tel'))
     email_models = parse_vcard_email(contents.get('email'))
-    title_models = parse_vcard_org_properties(contents.get('title'), 'Title')
-    role_models = parse_vcard_org_properties(contents.get('role'), 'Role')
-    org_models = parse_vcard_org_properties(contents.get('org'), 'Org')
+    title_models = parse_vcard_title(contents.get('title'))
+    role_models = parse_vcard_role(contents.get('role'))
+    org_models = parse_vcard_org(contents.get('org'))
     tag_models = parse_vcard_tag(contents.get('categories'))
     url_models = parse_vcard_url(contents.get('url'))
     url_models += parse_vcard_url(contents.get('x-socialprofile'))
@@ -206,7 +206,7 @@ def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     }
 
 
-def save_model_dict_to_db(user, model_dicts: dict, commit=True):
+def save_model_dict_to_db(user, model_dicts: dict):
     for mod_dict in model_dicts:
         try:
             print(mod_dict['card'])
@@ -366,18 +366,45 @@ def parse_vcard_email(content_list: list | None) -> list:
     return email_list
 
 
-def parse_vcard_org_properties(content_list: list | None, prop_type: str) -> list:
-    assert prop_type in ['Title', 'Role', 'Org']
+def parse_vcard_title(content_list: list | None) -> list:
     prop_list = []
     if content_list is not None:
-        mod = apps.get_model(f'account.{prop_type}')
+        mod = apps.get_model(f'account.Title')
         for content in content_list:
             content: vobject.base.ContentLine
             # type params - not saved in db
             prop_val = content.value
             if isinstance(prop_val, list):  # eg org with ; delimiter
                 prop_val = ', '.join(prop_val)
-            prop_list.append(mod(value=prop_val))
+            prop_list.append(mod(title=prop_val))
+    return prop_list
+
+
+def parse_vcard_role(content_list: list | None) -> list:
+    prop_list = []
+    if content_list is not None:
+        mod = apps.get_model(f'account.Role')
+        for content in content_list:
+            content: vobject.base.ContentLine
+            # type params - not saved in db
+            prop_val = content.value
+            if isinstance(prop_val, list):  # eg org with ; delimiter
+                prop_val = ', '.join(prop_val)
+            prop_list.append(mod(role=prop_val))
+    return prop_list
+
+
+def parse_vcard_org(content_list: list | None) -> list:
+    prop_list = []
+    if content_list is not None:
+        mod = apps.get_model(f'account.Org')
+        for content in content_list:
+            content: vobject.base.ContentLine
+            # type params - not saved in db
+            prop_val = content.value
+            if isinstance(prop_val, list):  # eg org with ; delimiter
+                prop_val = ', '.join(prop_val)
+            prop_list.append(mod(organization=prop_val))
     return prop_list
 
 
