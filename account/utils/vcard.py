@@ -5,6 +5,7 @@ from djangoyearlessdate.helpers import YearlessDate
 
 # todo: parse groups, pref
 # todo: parse unrecognized content to BaseContentLine
+# todo: if input doesn't conform to model fields there are errors. Like phone number field
 
 CELL = 'c'
 WORK = 'w'

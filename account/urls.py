@@ -8,6 +8,7 @@ from . import views
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', views.profile, name='profile'),
+    path('share/', views.share_card, name='share'),
     # path('register/', views.register, name='register'),
     path('register/',
          views.RegisterWizard.as_view([UserRegistrationForm, CardNameForm]),

@@ -6,9 +6,10 @@ from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.views.generic.detail import DetailView
 from formtools.wizard.views import SessionWizardView
+from django.views.decorators.http import require_POST
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin, View
 
@@ -46,6 +47,8 @@ from .forms import (
 @login_required
 def profile(request):
     profile = get_object_or_404(Profile, user=request.user, title='Personal')
+    # query all the vcard data here for easier display
+    vc = profile.card.to_vobject()
     # below bugs when user is admin
     # profile = request.user.profile_set.select_related('card').get(title='Personal')
     return render(
@@ -54,7 +57,8 @@ def profile(request):
         {
             'section': 'profile',
             'entity': 'self',
-            'profile': profile
+            'profile': profile,
+            'vc': vc,
         }
     )
 
@@ -194,7 +198,7 @@ class RegisterWizard(SessionWizardView):
 
 class EditCardView(TemplateResponseMixin, View):
     """
-    Edits Card [and Profile]
+    Edits Card and optionally Profile
     """
     template_name = 'account/edit.html'
 
@@ -379,6 +383,17 @@ def download_card(request, connection_id=None):
     else:
         card = request.user.profile_set.get(title='Personal').card
     return card.vcf_http_reponse(request)
+
+
+@login_required
+# @require_POST  # post if i'm changing the server state
+def share_card(request):
+    link = 'a link!'
+    return render(
+        request,
+        'account/partials/share_profile.html',
+        {'link': link}
+    )
 
 
 @login_required

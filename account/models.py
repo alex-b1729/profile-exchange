@@ -253,30 +253,45 @@ class Card(models.Model):
         # todo: should this be time of vCard export or last time a user updated a value of the model?
         yield {'value': dt.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
 
-    def to_vcard(self) -> str:
+    def to_vobject(self) -> vobject.vCard:
         """
-        returns str in vCard format from Card
+        returns vcard object
         """
-        # todo: caching this data when a vcard view is loaded?
         v = vobject.vCard()
         for prop_name, attr in self.PROPERTY_TO_ATTR.items():
             prop_list = getattr(self, attr)
             if prop_list:
-                prop = v.add(prop_name)
-                if prop_name == 'ORG':
-                    print(prop)
-                    print(prop_list)
+                # here the prop_kv loop overwrites the prop value each time
+                # prop = v.add(prop_name)
                 for prop_kv in prop_list:
+                    prop = v.add(prop_name)
                     for k, val in prop_kv.items():
                         setattr(prop, k, val)
-                        if prop_name == 'ORG':
-                            print(prop)
-        return v.serialize()
+        return v
+
+    @property
+    def vcf(self) -> str:
+        return self.to_vobject().serialize()
+
+    # def to_vcard(self) -> str:
+    #     """
+    #     returns str in vCard format from Card
+    #     """
+    #     # todo: caching this data when a vcard view is loaded?
+    #     v = vobject.vCard()
+    #     for prop_name, attr in self.PROPERTY_TO_ATTR.items():
+    #         prop_list = getattr(self, attr)
+    #         if prop_list:
+    #             prop = v.add(prop_name)
+    #             for prop_kv in prop_list:
+    #                 for k, val in prop_kv.items():
+    #                     setattr(prop, k, val)
+    #     return v.serialize()
 
     def vcf_http_reponse(self, request):
         # todo: downloading will involve the linked vcard as well
         return HttpResponse(
-            ContentFile(self.to_vcard()),
+            ContentFile(self.vcf),
             headers={
                 'Content-Type': 'text/plain',
                 'Content-Disposition': f'attachment; filename="{self.FN}.vcf"'
