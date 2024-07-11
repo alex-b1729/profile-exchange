@@ -6,7 +6,9 @@
 
 {% block content %}
 
+{% if entity == 'self' %}
 {# from bootstrap https://htmx.org/examples/modal-bootstrap/ #}
+{# share profile modal #}
 <div id="modals-here"
     class="modal modal-blur fade"
     style="display: none"
@@ -16,17 +18,20 @@
         <div class="modal-content"></div>
     </div>
 </div>
+{% endif %}
 
 <div class="content-header">
   <h1>Profile</h1>
+  {% if entity == "self" %}
   <button
-    hx-get="{% url 'share' %}"
+    hx-get="{% url 'share' profile.share_uuid %}"
     hx-target="#modals-here"
     hx-trigger="click"
     data-bs-toggle="modal"
     data-bs-target="#modals-here"
     class="btn primary">Open Modal</button>
-  {% if entity == "self" %}<a href="{% url "edit" %}">Edit</a>{% endif %}
+  <a href="{% url "edit" %}">Edit</a>
+  {% endif %}
   {% if entity == "connection" %}<a href="{% url "edit" %}">Add contact info</a>{% endif %}
 </div>
 

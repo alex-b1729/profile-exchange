@@ -544,6 +544,7 @@ class Profile(models.Model):
     """
     Users can have many profiles and each profile links to one of the user's Cards.
     """
+    share_uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     # todo: add attachments and CV/resume related fields
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

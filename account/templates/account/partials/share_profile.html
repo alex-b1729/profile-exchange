@@ -2,14 +2,22 @@
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title">Modal title</h5>
+      <h5 class="modal-title">Share your profile</h5>
     </div>
     <div class="modal-body">
-      <p>Modal body text goes here.</p>
-      <p>{{ link }}</p>
+      {# <button type="button" class="btn btn-primary" onclick="copyToClip(document.getElementById('shareLink').innerHTML)">Copy link</button> #}
+      <button type="button" class="btn btn-primary" onclick="copyTextToClipboard()">Copy Text</button>
+      <p id="shareableLink">
+        {{ link }}
+      </p>
+
+      <p>
+        {{ svg|safe }}
+      </p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
   </div>
 </div>
+<script src="{% static "js/copy_to_clip.js" %}"></script>

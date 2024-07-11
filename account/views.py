@@ -1,9 +1,12 @@
+import qrcode
 import datetime as dt
+import qrcode.image.svg
 from account.utils import vcard
 from django.db.models import Value
 from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.views.generic.detail import DetailView
 from formtools.wizard.views import SessionWizardView
 from django.views.decorators.http import require_POST
@@ -387,12 +390,26 @@ def download_card(request, connection_id=None):
 
 @login_required
 # @require_POST  # post if i'm changing the server state
-def share_card(request):
-    link = 'a link!'
+def share_card(request, share_uuid):
+    p = get_object_or_404(
+        Profile,
+        user=request.user,
+        share_uuid=share_uuid
+    )
+    link = 'https://www.contacts.con/ashareablelink' #p.get_absolute_url()
+    vcard = p.card.vcf
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        image_factory=qrcode.image.svg.SvgPathImage
+    )
+    qr.add_data(vcard)
+    qr_svg = qr.make_image()
+    # qr_svg = qrcode.make(vcard, image_factory=qrcode.image.svg.SvgPathImage)
     return render(
         request,
         'account/partials/share_profile.html',
-        {'link': link}
+        {'link': link,
+         'svg': qr_svg.to_string(encoding='unicode')}
     )
 
 
