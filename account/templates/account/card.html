@@ -35,7 +35,7 @@
 </div>
 {% endif %}
 
-<div class="content-header">
+<div class="container content-header">
   <h1>Profile</h1>
   {% if entity == "self" %}
   <button
@@ -50,52 +50,58 @@
   {% if entity == "connection" %}<a href="{% url "edit" %}">Add contact info</a>{% endif %}
 </div>
 
-<div class="profile">
-  {% thumbnail profile.card.photo "200x200" crop="center" as im %}
-  <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
-  {% empty %}
-  <div class="profilePhoto container large">
-    {% with name=vc.n %}
-    {% if name %}
-    {{ name.value.given|slice:"1" }}{{ name.value.family|slice:"1" }}
-    {% else %}
-    {{ vc.fn.value|slice:"1" }}
-    {% endif %}
-    {% endwith %}
-  </div>
-  {% endthumbnail %}
-
-  <div class="text-container">
-    <p id="FN">
-      {{ vc.fn.value }}
-    </p>
-    {% with nickname=vc.nickname.value %}
-    {% if nickname %}
-    <div id="NICKNAME">
-      {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
+<div class="container profile">
+  <div class="row">
+    <div class="col">
+      {% thumbnail profile.card.photo "200x200" crop="center" as im %}
+      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+      {% empty %}
+      <div class="profilePhoto container large">
+        {% with name=vc.n %}
+        {% if name %}
+        {{ name.value.given|slice:"1" }}{{ name.value.family|slice:"1" }}
+        {% else %}
+        {{ vc.fn.value|slice:"1" }}
+        {% endif %}
+        {% endwith %}
+      </div>
+      {% endthumbnail %}
     </div>
-    {% endif %}
-    {% endwith %}
 
-    {% with headline=profile.headline %}
-    {% if headline %}
-    <p id="headline">{{ headline }}</p>
-    {% endif %}
-    {% endwith %}
-    {% with location=profile.location %}
-    {% if location %}
-    <p id="location">{{ location }}</p>
-    {% endif %}
-    {% endwith %}
-    {% with description=profile.description %}
-    {% if description %}
-    <p id="description">{{ description }}</p>
-    {% endif %}
-    {% endwith %}
+    <div class="col">
+      <div class="text-container">
+        <p id="FN">
+          {{ vc.fn.value }}
+        </p>
+        {% with nickname=vc.nickname.value %}
+        {% if nickname %}
+        <div id="NICKNAME">
+          {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% with headline=profile.headline %}
+        {% if headline %}
+        <p id="headline">{{ headline }}</p>
+        {% endif %}
+        {% endwith %}
+        {% with location=profile.location %}
+        {% if location %}
+        <p id="location">{{ location }}</p>
+        {% endif %}
+        {% endwith %}
+        {% with description=profile.description %}
+        {% if description %}
+        <p id="description">{{ description }}</p>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="card">
+<div class="container card">
   <h2>Contact Info</h2>
   <!-- todo: gotta download linked content -->
   {% if entity == "self" %}<a href="{% url "download_card" %}">Download</a>{% endif %}
