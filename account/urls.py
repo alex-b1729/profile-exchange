@@ -8,7 +8,9 @@ from . import views
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', views.profile, name='profile'),
-    path('share/<uuid:share_uuid>/', views.share_card, name='share'),
+    path('share/', views.share_card, name='share'),
+    path('share/<uuid:share_uuid>/', views.view_shared_profile, name='shared_profile'),
+    path('share/<uuid:share_uuid>/connect/', views.connect, name='connect'),
     # path('register/', views.register, name='register'),
     path('register/',
          views.RegisterWizard.as_view([UserRegistrationForm, CardNameForm]),

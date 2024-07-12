@@ -20,11 +20,26 @@
 </div>
 {% endif %}
 
+{% if entity == "shared" %}
+<div>
+  {% if request.user.is_authenticated %}
+  {% with suuid=p.share_uuid %}
+  <form action="{{ request.build_absolute_uri }}connect/" method="post">
+    <button type="submit">Connect</button>
+    {% csrf_token %}
+  </form>
+  {% endwith %}
+  {% else %}
+  <p></p><a href="{% url 'login' %}?next={{ profile.get_shareable_url }}">Log-in</a> or <a href="{% url 'register' %}">create an account</a> to connect and stay-up-to-date with NAME</p>
+  {% endif %}
+</div>
+{% endif %}
+
 <div class="content-header">
   <h1>Profile</h1>
   {% if entity == "self" %}
   <button
-    hx-get="{% url 'share' profile.share_uuid %}"
+    hx-get="{% url 'share' %}"
     hx-target="#modals-here"
     hx-trigger="click"
     data-bs-toggle="modal"

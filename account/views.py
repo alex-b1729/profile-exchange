@@ -4,6 +4,7 @@ import qrcode.image.svg
 from account.utils import vcard
 from django.db.models import Value
 from django.contrib import messages
+from django.contrib.sites.models import Site
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -363,15 +364,15 @@ def connection_detail(request, connection_id):
                                    id=connection_id,
                                    # below so you can't try to query connections you're not part of
                                    profile_from=request.user.profile_set.get(title='Personal'))
-    return render(
-        request,
-        'account/card.html',
-        {
-            'section': 'connections',
-            'entity': 'connection',
-            'profile': connection.profile_to
-        }
-    )
+    # return render(
+    #     request,
+    #     'account/card.html',
+    #     {
+    #         'section': 'connections',
+    #         'entity': 'connection',
+    #         'profile': connection.profile_to
+    #     }
+    # )
 
 @login_required
 def download_card(request, connection_id=None):
@@ -390,27 +391,79 @@ def download_card(request, connection_id=None):
 
 @login_required
 # @require_POST  # post if i'm changing the server state
-def share_card(request, share_uuid):
+def share_card(request):
     p = get_object_or_404(
         Profile,
         user=request.user,
-        share_uuid=share_uuid
+        title='Personal'
     )
-    link = 'https://www.contacts.con/ashareablelink' #p.get_absolute_url()
-    vcard = p.card.vcf
+    rel_link = p.get_shareable_url()
+    abs_link = f'https://{Site.objects.get_current().domain}{rel_link}'
+    vcf = p.card.vcf
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         image_factory=qrcode.image.svg.SvgPathImage
     )
-    qr.add_data(vcard)
+    qr.add_data(vcf)
     qr_svg = qr.make_image()
     # qr_svg = qrcode.make(vcard, image_factory=qrcode.image.svg.SvgPathImage)
     return render(
         request,
         'account/partials/share_profile.html',
-        {'link': link,
+        {'link': abs_link,
          'svg': qr_svg.to_string(encoding='unicode')}
     )
+
+
+def view_shared_profile(request, share_uuid):
+    p = get_object_or_404(
+        Profile,
+        share_uuid=share_uuid
+    )
+    # redirect to connection if they're already connections
+    if request.user.is_authenticated:
+        try:
+            p_from = request.user.profile_set.get(title='Personal')
+            p_to = p_from.connections.get(share_uuid=share_uuid)
+            conn = Connection.objects.filter(profile_from=p_from, profile_to=p_to)[0]
+            if conn:
+                return redirect('connection_detail', connection_id=conn.id)
+        except Profile.DoesNotExist or Connection.DoesNotExist:
+            pass
+    return render(
+        request,
+        'account/card.html',
+        {
+            'section': '',
+            'entity': 'shared',
+            'profile': p,
+            'vc': p.card.to_vobject()
+        }
+    )
+
+
+@login_required
+@require_POST
+def connect(request, share_uuid): #, share_title_from='Personal'):
+    try:
+        p_from = get_object_or_404(
+            Profile,
+            user=request.user,
+            title='Personal'
+        )
+        p_to = get_object_or_404(
+            Profile,
+            share_uuid=share_uuid
+        )
+        p_from.connections.add(p_to)
+        new_connection = Connection.objects.get(
+            profile_from=p_from,
+            profile_to=p_to
+        )
+        return redirect('connection_detail', connection_id=new_connection.id)
+    except Exception as e:
+        raise e
+        # return JsonResponse({'status': 'ko'})
 
 
 @login_required
@@ -435,6 +488,7 @@ def import_cards(request):
          'form': form}
     )
 
+
 @login_required
 def contact_book(request):
     return render(
@@ -444,39 +498,20 @@ def contact_book(request):
     )
 
 
-# @login_required
-# def connection_detail(request, connection_id):
-#     connection = get_object_or_404(Connection,
-#                                    id=connection_id,
-#                                    # below so you can't try to query connections you're not part of
-#                                    user=request.user)
-#     local_card = connection.card
-#     card_list = [local_card]
-#     if connection.profile:
-#         linked_card = connection.profile.user.card
-#         card_list.append(linked_card)
-#
-#     addresses = Address.objects.filter(card__in=card_list)
-#
-#     # Or
-#     address_qs = connection.card.address_set.all().annotate(linked=Value(False))
-#     if connection.profile:
-#         linked_qs = connection.profile.user.card.address_set.all().annotate(linked=Value(True))
-#         address_qs = address_qs.union(linked_qs)
-#
-#     # usage
-#     # for a in address_qs:
-#     #     print(f'{a}{" - linked" if a.linked else ""}')
-#
-#     return render(
-#         request,
-#         'account/card.html',
-#         {
-#             'section': 'connections',
-#             'entity': 'connection',
-#             'connection': connection,
-#             # 'addresses': address_qs # or addresses
-#             'card': connection.card,
-#             'profile': connection.profile
-#         }
-#     )
+@login_required
+def connection_detail(request, connection_id):
+    connection = get_object_or_404(Connection,
+                                   id=connection_id,
+                                   # below so you can't try to query connections you're not part of
+                                   profile_from=request.user.profile_set.get(title='Personal'))
+    p_to = connection.profile_to
+    return render(
+        request,
+        'account/card.html',
+        {
+            'section': 'connections',
+            'entity': 'connection',
+            'profile': p_to,
+            'vc': p_to.card.to_vobject()
+        }
+    )

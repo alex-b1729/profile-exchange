@@ -226,7 +226,10 @@ class Card(models.Model):
     @property
     def ORG_repr(self) -> iter:
         orgs = self.org_set.all()
-        return [{'value': [str(org) for org in orgs]}]
+        if orgs:
+            return [{'value': [str(org) for org in orgs]}]
+        else:
+            return []
 
     @property
     def NOTE_repr(self) -> dict[str]:
@@ -574,6 +577,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
+
+    def get_shareable_url(self):
+        return reverse('shared_profile', kwargs={'share_uuid': self.share_uuid})
 
 
 class Connection(models.Model):
