@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin, View
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import (
     Card,
@@ -269,7 +270,7 @@ class EditCardView(TemplateResponseMixin, View):
         tag_formset = self.get_tag_formset()
         url_formset = self.get_url_formset()
         return self.render_to_response(
-            {'mode': 'self',
+            {'mode': 'edit',
              'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
@@ -317,7 +318,7 @@ class EditCardView(TemplateResponseMixin, View):
             url_formset.save()
             return redirect('profile')
         return self.render_to_response(
-            {'mode': 'self',
+            {'mode': 'edit',
              'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
@@ -329,20 +330,6 @@ class EditCardView(TemplateResponseMixin, View):
              'tag_formset': tag_formset,
              'url_formset': url_formset}
         )
-
-
-# @login_required
-# def card_list(request):
-#     # connections not linked to personal card
-#     connections = request.user.rel_from_set.filter(card=None)
-#     # all user cards includes those linked to a connection
-#     cards = request.user.card_set.all()
-#     return render(
-#         request,
-#         'account/user/connections.html',
-#         {'section': 'connections',
-#          'connections': connections}
-#     )
 
 
 @login_required
@@ -491,10 +478,22 @@ def import_cards(request):
 
 @login_required
 def contact_book(request):
+    obj_list = Card.objects.filter(user=request.user)
+    paginator = Paginator(obj_list, 3)
+    page = request.GET.get('page')
+    try:
+        cards = paginator.page(page)
+    except PageNotAnInteger:
+        cards = paginator.page(1)
+    except EmptyPage:
+        cards = paginator.page(paginator.num_pages)
     return render(
         request,
         'account/user/contactbook.html',
-        {'section': 'contactbook'}
+        {
+            'section': 'contactbook',
+            'cards': cards,
+        }
     )
 
 
@@ -513,5 +512,24 @@ def connection_detail(request, connection_id):
             'entity': 'connection',
             'profile': p_to,
             'vc': p_to.card.to_vobject()
+        }
+    )
+
+
+@login_required
+def card_detail(request, card_id):
+    card = get_object_or_404(
+        Card,
+        id=card_id,
+        user=request.user
+    )
+    return  render(
+        request,
+        'account/card.html',
+        {
+            'section': 'contactbook',
+            'entity': 'connection',
+            'profile': None,
+            'vc': card.to_vobject()
         }
     )

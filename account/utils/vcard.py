@@ -110,6 +110,12 @@ def component_to_model_dict(v: vobject.base.Component) -> dict[str, list]:
     contents = v.contents
 
     kind = get_first_or_default(contents, 'kind', INDIVIDUAL_KIND)
+    if kind.lower() in [i.lower() for i in KIND_CHOICES.values()]:
+        kind = kind.lower()[0]
+
+    if kind not in KIND_CHOICES.keys():
+        # coerce to individual
+        kind = INDIVIDUAL_KIND
 
     # todo: parse fn for non individual kind
     names = contents.get('n')

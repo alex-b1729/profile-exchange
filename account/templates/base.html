@@ -32,13 +32,13 @@
             <a class="nav-link{% if section == 'profile' %} active{% endif %}" href="{% url "profile" %}">Profile</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if section == 'connections' %} active{% endif %}" href="{% url "connection_list" %}">Connections</a>
+            <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="{% url "connection_list" %}">Connections</a>
           </li>
           <li class="nav-item">
             <a class="nav-link{% if section == 'contactbook' %} active{% endif %}" href="{% url "contact_book" %}">ContactBook</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if section == 'messaging' %} active{% endif %}" href="#">Messaging</a>
+            <a class="nav-link disabled{% if section == 'messaging' %} active{% endif %}" href="#">Messaging</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">

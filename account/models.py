@@ -520,7 +520,7 @@ class Url(models.Model):
         type_list = [str(s) for s in [vcard.WH_TYPE_CHOICES[self.url_type], self.label] if s not in ['', 'none']]
         if len(type_list) != 0:
             d['type_param'] = type_list
-        yield d
+        return d
 
 
 # todo: implement security properties 6.8, KEY

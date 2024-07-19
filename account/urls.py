@@ -22,6 +22,7 @@ urlpatterns = [
     path('connections/<uuid:connection_id>/', views.connection_detail, name='connection_detail'),
     path('contactbook/', views.contact_book, name='contact_book'),
     path('contactbook/import', views.import_cards, name='import_cards'),
+    path('contactbook/<int:card_id>', views.card_detail, name='card_detail'),
     # path('connections/edit/', views.edit_connection, name='edit_connection'),
     # path('connections/edit/<uuid:connection_id>/', views.edit_connection, name='edit_connection'),
     # path('connections/download/<uuid:connection_id>/', views.download_card, name='download_connection_card')
