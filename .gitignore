@@ -252,3 +252,4 @@ cython_debug/
 resources/*.jpg
 resources/*.jpeg
 resources/*.png
+static/images/
