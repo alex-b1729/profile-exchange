@@ -45,9 +45,9 @@
     data-bs-toggle="modal"
     data-bs-target="#modals-here"
     class="btn primary">Share Card</button>
-  <a href="{% url "edit" %}">Edit</a>
+  <a href="{% url 'edit' %}">Edit</a>
   {% endif %}
-  {% if entity == "connection" %}<a href="{% url "edit" %}">Edit</a>{% endif %}
+  {% if entity == "connection" %}<a href="{% url 'edit' %}">Edit</a>{% endif %}
 </div>
 
 <div class="container profile">
@@ -104,79 +104,78 @@
 <div class="container card">
   <h2>Contact Info</h2>
   <!-- todo: gotta download linked content -->
-  {% if entity == "self" %}<a href="{% url "download_card" %}">Download</a>{% endif %}
+  {% if entity == "self" %}<a href="{% url 'download_card' %}">Download</a>{% endif %}
   <p><i>{{ vc.kind.value }}</i></p>
 
   {% with phones=vc.tel_list %}
   {% if phones %}
-  <div class="cardGroup">
-    <h3>Phone</h3>
-    <div id="TEL">
-      <ul>
-        {% for phone in phones %}
-        <!-- todo: does phone.phone_type return the key or value? -->
-        <li class="{{ phone.type_paramlist|join:" " }}">{{ phone.type_param }}: {{ phone.value }}</li>
-        {% endfor %}
-      </ul>
+  <div class="card">
+    <div class="card-header">
+      Phone{{ phones|pluralize }}
     </div>
+    <ul id="TEL", class="list-group list-group-flush">
+      {% for phone in phones %}
+      <!-- todo: does phone.phone_type return the key or value? -->
+      <li class="{{ phone.type_paramlist|join:' ' }} list-group-item">{{ phone.type_param }}: {{ phone.value }}</li>
+      {% endfor %}
+    </ul>
   </div>
   {% endif %}
   {% endwith %}
 
   {% with emails=vc.email_list %}
   {% if emails %}
-  <div class="cardGroup">
-    <h3>Email</h3>
-    <div id="EMAIL">
-      <ul>
-        {% for email in emails %}
-        <li>
-          <a href="mailto:{{ email.value }}" class="{{ email.type_paramlist|join:" " }}">{{ email.value }}</a>
-          {{ email.type_paramlist|join:", " }}
-        </li>
-        <!-- TODO: protect mailto links -->
-        {% endfor %}
-      </ul>
+  <div class="card">
+    <div class="card-header">
+      Email{{ emails|pluralize }}
     </div>
+    <ul id="EMAIL" class="list-group list-group-flush">
+      {% for email in emails %}
+      <li class="list-group-item">
+        <a href="mailto:{{ email.value }}" class="{{ email.type_paramlist|join:' ' }}">{{ email.value }}</a>
+        {{ email.type_paramlist|join:", " }}
+      </li>
+      <!-- TODO: protect mailto links -->
+      {% endfor %}
+    </ul>
   </div>
   {% endif %}
   {% endwith %}
 
   {% with urls=vc.url_list %}
   {% if urls %}
-  <div class="cardGroup">
-    <h3>URLs</h3>
-    <div id="URL">
-      <ul>
-        {% for url in urls %}
-        <li>
-          <a href="{{ url.value }}" class="{{ url.type_paramlist|join:" " }}">{{ url.value }}</a>
-          {{ url.type_paramlist|join:", " }}
-        </li>
-        {% endfor %}
-      </ul>
+  <div class="card">
+    <div class="card-header">
+      Links
     </div>
+    <ul id="URL" class="list-group list-group-flush">
+      {% for url in urls %}
+      <li class="list-group-item">
+        <a href="{{ url.value }}" class="{{ url.type_paramlist|join:' ' }}">{{ url.value }}</a>
+        {{ url.type_paramlist|join:', ' }}
+      </li>
+      {% endfor %}
+    </ul>
   </div>
   {% endif %}
   {% endwith %}
 
   {% with addresses=vc.adr_list %}
   {% if addresses %}
-  <div class="cardGroup">
-    <h3>Addresses</h3>
-    <div id="ADR">
-      <ul>
-        {% for address in addresses %}
-        <li>
-          <div class="{{ address.type_paramlist|join:", " }}">
-            <p>{{ address.value.street }}</p>
-            <p>{{ address.value.city }}, {{ address.value.region }} {{ address.value.code }}</p>
-            <p>{{ address.value.country }}</p>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
+  <div class="card">
+    <div class="card-header">
+      Address{{ addresses|pluralize:"es" }}
     </div>
+    <ul id="ADR" class="list-group list-group-flush">
+      {% for address in addresses %}
+      <li class="list-group-item {{ address.type_paramlist|join:' ' }}">
+        <p class="fw-bold">{{ address.type_paramlist|join:', ' }}</p>
+        {{ address.value.street }}<br>
+        {{ address.value.city }}, {{ address.value.region }} {{ address.value.code }}<br>
+        {{ address.value.country }}<br>
+      </li>
+      {% endfor %}
+    </ul>
   </div>
   {% endif %}
   {% endwith %}
@@ -184,85 +183,87 @@
   <!-- todo: add org logo -->
   {% with titles=vc.title_list roles=vc.role_list orgs=vc.org_list %}
   {% if titles or roles or orgs %}
-  <div class="cardGroup">
-    {# <h3>Organizations</h3> #}
-    {% if titles %}
-    <div id="TITLE">
-      <h3>Titles</h3>
-      <ul>
-        {% for title in titles %}
-        <li>{{ title.value }}</li>
-        {% endfor %}
-      </ul>
+  <div class="card">
+    <div class="card-header">
+      Organizational
     </div>
-    {% endif %}
-
-    {% if roles %}
-    <div id="ROLE">
-      <h3>Roles</h3>
-      <ul>
-        {% for role in roles %}
-        <li>{{ role.value }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-
-    {% if orgs %}
-    <div id="ORG">
-      <h3>Organizations</h3>
-      <ul>
+    <div class="card-body">
+      {% if orgs %}
+      <h5 class="card-title">Organization{{ orgs|pluralize }}</h5>
+      <ul class="card-text">
         {% for org in orgs %}
         {% for o in org.value %}
         <li>{{ o }}</li>
         {% endfor %}
         {% endfor %}
       </ul>
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
-  {% endwith %}
+      {% endif %}
 
-
-  {% with bday=vc.bday_list %}
-  {% with anniv=vc.anniversary_list %}
-  {% with sex=vc.sex_list %}
-  {% with gender=vc.gender_list %}
-  {% if bday or anniv or sex or gender %}
-  <div class="cardGroup">
-    <h3>Personal</h3>
-    <div class="text-container">
-      <ul>
-        {% if bday %}
-        {% for b in bday %}
-        <li id="BDAY">Birthday: {{ b.value }}</li>
+      {% if titles %}
+      <h5 class="card-title">Title{{ titles|pluralize }}</h5>
+      <ul class="card-text">
+        {% for title in titles %}
+        <li>{{ title.value }}</li>
         {% endfor %}
-        {% endif %}
-        {% if anniv %}
-        {% for a in anniv %}
-        <li id="ANNIVERARY">Anniversary: {{ a.value }}</li>
-        {% endfor %}
-        {% endif %}
-        {% if sex or gender %}
-        <li id="gender">{{ sex.value }} {{ gender.value }}</li>
-        {% endif %}
       </ul>
+      {% endif %}
+
+      {% if roles %}
+      <h5 class="card-title">Role{{ roles|pluralize }}</h5>
+      <ul class="card-text">
+        {% for role in roles %}
+        <li>{{ role.value }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
     </div>
   </div>
   {% endif %}
   {% endwith %}
-  {% endwith %}
-  {% endwith %}
+
+
+  {% with bday=vc.bday_list anniv=vc.anniversary_list sex=vc.sex_list gender=vc.gender_list %}
+  {% if bday or anniv or sex or gender %}
+  <div class="card">
+    <div class="card-header">
+      Personal
+    </div>
+    <div class="card-body">
+      {% if bday %}
+      {% for b in bday %}
+      <p id="BDAY" class="card-text">
+        <span class="fw-bold">Birthday: </span>
+        {{ b.value }}
+      </p>
+      {% endfor %}
+      {% endif %}
+
+      {% if anniv %}
+      {% for a in anniv %}
+      <p id="ANNIVERARY" class="card-text">
+        <span class="fw-bold">Anniversary: </span>
+        {{ a.value }}
+      </p>
+      {% endfor %}
+      {% endif %}
+
+      {% if sex or gender %}
+      <p id="gender" class="card-text">{{ sex.value }} {{ gender.value }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
   {% endwith %}
 
-  {% with tags=vc.category_list %}
+  {% with tags=vc.categories_list %}
   {% if tags %}
-  <div class="cardGroup">
-    <h3>Tags</h3>
-    <div id="CATEGORIES">
+  <div class="card">
+    <div class="card-header">
+      Tags
+    </div>
+    <div id="CATEGORIES" class="card-body">
       {% for taglist in tags %}
-      <p>{% for tag in taglist.value %}<a href="#" class="{{ tag }}">#{{ tag }}</a> {% endfor %}</p>
+      <p class="card-text">{% for tag in taglist.value %}<a href="#" class="{{ tag }}">#{{ tag }}</a> {% endfor %}</p>
       {% endfor %}
     </div>
   </div>
@@ -271,13 +272,15 @@
 
   {% with notes=vc.note_list %}
   {% if notes %}
-  <div class="cardGroup">
-    <h3>Notes</h3>
-    {% for note in notes %}
-    <div class="text-container">
-      <p>{{ note.value }}</p>
+  <div class="card">
+    <div class="card-header">
+      Notes
     </div>
-    {% endfor %}
+    <div class="card-body">
+      {% for note in notes %}
+      <p class="card-text">{{ note.value }}</p>
+      {% endfor %}
+    </div>
   </div>
   {% endif %}
   {% endwith %}
