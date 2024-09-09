@@ -260,12 +260,10 @@
   {% if tags %}
   <div class="cardGroup">
     <h3>Tags</h3>
-    <div id="#CATEGORIES">
-      <ul>
-        {% for tag in tags.value %}
-        <li><a href="#" class="{{ tag }}">{{ tag }}</a></li>
-        {% endfor %}
-      </ul>
+    <div id="CATEGORIES">
+      {% for taglist in tags %}
+      <p>{% for tag in taglist.value %}<a href="#" class="{{ tag }}">#{{ tag }}</a> {% endfor %}</p>
+      {% endfor %}
     </div>
   </div>
   {% endif %}
