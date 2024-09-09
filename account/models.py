@@ -46,7 +46,7 @@ class Card(models.Model):
         # 'MEMBER': 'MEMBER_yield',
         # 'RELATED': 'RELATED_yield',
         'NOTE': 'NOTE_repr',
-        'CATEGORY': 'TAG_repr',
+        'CATEGORIES': 'TAG_repr',
         'URL': 'URL_repr',
         'REV': 'REV_repr'
     }
