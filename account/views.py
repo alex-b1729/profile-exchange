@@ -46,6 +46,7 @@ from .forms import (
     UrlFormSet,
     ProfileEditForm,
     ImportCardForm,
+    ProfileImgEditForm,
 )
 
 
@@ -214,7 +215,7 @@ class EditCardView(TemplateResponseMixin, View):
 
     def get_card_form(self, data=None, files=None):
         return CardEditForm(
-            instance=self.user_card, data=data, files=files
+            instance=self.user_card, data=data
         )
 
     def get_profile_form(self, data=None):
@@ -271,6 +272,7 @@ class EditCardView(TemplateResponseMixin, View):
         url_formset = self.get_url_formset()
         return self.render_to_response(
             {'mode': 'edit',
+             'profile_pic': self.user_card.photo,
              'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
@@ -319,6 +321,7 @@ class EditCardView(TemplateResponseMixin, View):
             return redirect('profile')
         return self.render_to_response(
             {'mode': 'edit',
+             'profile_pic': self.user_card.photo,
              'card_form': card_form,
              'profile_form': profile_form,
              'address_formset': address_formset,
@@ -330,6 +333,31 @@ class EditCardView(TemplateResponseMixin, View):
              'tag_formset': tag_formset,
              'url_formset': url_formset}
         )
+
+
+def update_profile_img(request):
+    user = request.user
+    user_profile = get_object_or_404(
+        Profile, user=user,
+        title='Personal'  # Note: hard coded profile title for this version!
+    )
+    user_card = user_profile.card
+    if request.method == 'POST':
+        form = ProfileImgEditForm(
+            instance=user_card,
+            data=request.POST,
+            files=request.FILES
+        )
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileImgEditForm(instance=user_card)
+    return render(
+        request,
+        'account/partials/update_profile_img.html',
+        {'form': form}
+    )
 
 
 @login_required

@@ -16,6 +16,7 @@ urlpatterns = [
          views.RegisterWizard.as_view([UserRegistrationForm, CardNameForm]),
          name='register'),
     path('edit/', views.EditCardView.as_view(), name='edit'),
+    path('edit/profileimg', views.update_profile_img, name='update_profile_img'),
     path('account/', views.account, name='account'),
     path('download/', views.download_card, name='download_card'),
     path('connections/', views.connection_list, name='connection_list'),
