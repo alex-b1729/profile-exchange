@@ -138,6 +138,12 @@ class CardEditForm(forms.ModelForm):
         }
 
 
+class ProfileImgEditForm(forms.ModelForm):
+    class Meta:
+        model = Card
+        fields = ('photo',)
+
+
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
