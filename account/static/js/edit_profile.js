@@ -47,6 +47,7 @@ function addForm(e) {
     formNum++;
     newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${content}_set-${formNum}-`);
 
-    container.insertBefore(newForm, addButton);
+//    container.insertBefore(newForm, addButton);
+    container.appendChild(newForm);
     totalForms.setAttribute('value', `${formNum + 1}`);
 }
