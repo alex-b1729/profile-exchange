@@ -4,10 +4,12 @@
     <form method="post" action="{% url 'update_profile_img' %}" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="modal-header">
-        <h5 class="modal-title">Update profile photo</h5>
+        <h5 class="modal-title">Update your profile photo</h5>
       </div>
       <div class="modal-body">
-        {{ form.as_div }}
+        <p>
+          <input class="form-control" type="file" name="photo" accept="image/*" id="{{ form.photo.id_for_label }}">
+        </p>
       </div>
       <div class="modal-footer">
         <input type="submit" value="Update" class="btn btn-primary"/>
