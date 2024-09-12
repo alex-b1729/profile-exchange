@@ -31,22 +31,71 @@
 {% endif %}
 
 {% if entity == "shared" %}
-<div>
+<div class="container mb-3">
   {% if request.user.is_authenticated %}
   {% with suuid=p.share_uuid %}
   <form action="{{ request.build_absolute_uri }}connect/" method="post">
-    <button type="submit">Connect</button>
+    <button class="btn btn-outline-primary" type="submit">Connect</button>
     {% csrf_token %}
   </form>
   {% endwith %}
   {% else %}
-  <p></p><a href="{% url 'login' %}?next={{ profile.get_shareable_url }}">Log-in</a> or <a href="{% url 'register' %}">create an account</a> to connect and stay-up-to-date with NAME</p>
+  <p>
+    <a href="{% url 'login' %}?next={{ profile.get_shareable_url }}">Log-in</a>
+    or <a href="{% url 'register' %}">create an account</a> to connect with
+    {{ vc.n.value.given|default:vc.fn}}.
+  </p>
   {% endif %}
 </div>
 {% endif %}
 
-<div class="container content-header">
-  <h1>Profile</h1>
+<div class="container p-3 mb-3 d-md-flex border-bottom">
+  <div class="me-5 mb-3 d-flex flex-column">
+    <!-- todo profile photo edit -->
+    {% thumbnail profile.card.photo "200x200" crop="center" as im %}
+    <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+    <p>
+      <button
+        hx-get="{% url 'update_profile_img' %}"
+        hx-target="#update-img-model"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#update-img-model"
+        class="border border-secondary rounded-pill text-muted">Update Photo</button>
+    </p>
+    {% empty %}
+    <p>no image...</p>
+    {% endthumbnail %}
+  </div>
+  <div class="justify-content-left flex-wrap">
+    <h2 id="FN" class="card-title">{{ vc.fn.value }}</h2>
+    {% with nickname=vc.nickname.value %}
+    {% if nickname %}
+    <p id="NICKNAME" class="card-text text-muted">"{{ nickname }}"</p>
+    {% endif %}
+    {% endwith %}
+    {% with headline=profile.headline %}
+    {% if headline %}
+    <p id="headline" class="card-text">{{ headline }}</p>
+    {% endif %}
+    {% endwith %}
+    {% with location=profile.location %}
+    {% if location %}
+    <p id="location" class="card-text">{{ location }}</p>
+    {% endif %}
+    {% endwith %}
+    {% with description=profile.description %}
+    {% if description %}
+    <p class="d-flex flex-wrap">
+      {{ description }}
+    </p>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+{% if entity == "self" or entity == "connection" %}
+<div class="container mb-3 d-inline-flex">
   {% if entity == "self" %}
   <button
     hx-get="{% url 'share' %}"
@@ -54,79 +103,33 @@
     hx-trigger="click"
     data-bs-toggle="modal"
     data-bs-target="#modals-here"
-    class="btn primary">Share Card</button>
-  <a href="{% url 'edit' %}">Edit</a>
+    class="btn btn-dark me-3">Share</button>
+  <a class="btn btn-dark me-3" href="{% url 'download_card' %}">Download</a>
   {% endif %}
-  {% if entity == "connection" %}<a href="{% url 'edit' %}">Edit</a>{% endif %}
+  <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a>
 </div>
+{% endif %}
 
-<div class="container profile">
-  <div class="row">
-    <div class="col">
-      {% thumbnail profile.card.photo "200x200" crop="center" as im %}
-      <img id="PHOTO" class="profilePhoto" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
-      {% empty %}
-      <div class="profilePhoto container large">
-        {% with name=vc.n %}
-        {% if name %}
-        {{ name.value.given|slice:"1" }}{{ name.value.family|slice:"1" }}
-        {% else %}
-        {{ vc.fn.value|slice:"1" }}
-        {% endif %}
-        {% endwith %}
-      </div>
-      {% endthumbnail %}
-    </div>
-
-    <div class="col">
-      <div class="text-container">
-        <p id="FN">
-          {{ vc.fn.value }}
-        </p>
-        {% with nickname=vc.nickname.value %}
-        {% if nickname %}
-        <div id="NICKNAME">
-          {% if nickname %}<p>"{{ nickname }}"</p>{% endif %}
-        </div>
-        {% endif %}
-        {% endwith %}
-
-        {% with headline=profile.headline %}
-        {% if headline %}
-        <p id="headline">{{ headline }}</p>
-        {% endif %}
-        {% endwith %}
-        {% with location=profile.location %}
-        {% if location %}
-        <p id="location">{{ location }}</p>
-        {% endif %}
-        {% endwith %}
-        {% with description=profile.description %}
-        {% if description %}
-        <p id="description">{{ description }}</p>
-        {% endif %}
-        {% endwith %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container card">
-  <h2>Contact Info</h2>
-  <!-- todo: gotta download linked content -->
-  {% if entity == "self" %}<a href="{% url 'download_card' %}">Download</a>{% endif %}
+<div class="container mb-3">
+  {% with kind=vc.kind.value %}
+  {% if kind != "Individual" %}
   <p><i>{{ vc.kind.value }}</i></p>
+  {% endif %}
+  {% endwith %}
 
   {% with phones=vc.tel_list %}
   {% if phones %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
-      Phone{{ phones|pluralize }}
+      Phone
     </div>
-    <ul id="TEL", class="list-group list-group-flush">
+    <ul id="TEL" class="list-group list-group-flush">
       {% for phone in phones %}
       <!-- todo: does phone.phone_type return the key or value? -->
-      <li class="{{ phone.type_paramlist|join:' ' }} list-group-item">{{ phone.type_param }}: {{ phone.value }}</li>
+      <li class="{{ phone.type_paramlist|join:' ' }} list-group-item">
+        <span class="text-muted">{{ phone.type_paramlist|join:', ' }}</span>
+        {{ phone.value }}
+      </li>
       {% endfor %}
     </ul>
   </div>
@@ -135,15 +138,23 @@
 
   {% with emails=vc.email_list %}
   {% if emails %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
-      Email{{ emails|pluralize }}
+      Email
     </div>
     <ul id="EMAIL" class="list-group list-group-flush">
       {% for email in emails %}
       <li class="list-group-item">
+        {% with emailtypes=email.type_paramlist %}
+        {% if emailtypes %}
+        <span class="text-muted">
+          {% for et in emailtypes %}
+          {% if et != 'INTERNET' %}{{ et }} {% endif %}
+          {% endfor %}
+        </span>
+        {% endif %}
+        {% endwith %}
         <a href="mailto:{{ email.value }}" class="{{ email.type_paramlist|join:' ' }}">{{ email.value }}</a>
-        {{ email.type_paramlist|join:", " }}
       </li>
       <!-- TODO: protect mailto links -->
       {% endfor %}
@@ -154,15 +165,23 @@
 
   {% with urls=vc.url_list %}
   {% if urls %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       Links
     </div>
     <ul id="URL" class="list-group list-group-flush">
       {% for url in urls %}
       <li class="list-group-item">
-        <a href="{{ url.value }}" class="{{ url.type_paramlist|join:' ' }}">{{ url.value }}</a>
-        {{ url.type_paramlist|join:', ' }}
+        {% with urltype=url.type_paramlist %}
+        {% if urltype %}
+        <span class="text-muted">
+          {{ urltype|join:', ' }}
+        </span>
+        {% endif %}
+        {% endwith %}
+        <a href="{{ url.value }}" class="{{ url.type_paramlist|join:' ' }}" target="_blank">
+          {{ url.value }}
+        </a>
       </li>
       {% endfor %}
     </ul>
@@ -172,17 +191,23 @@
 
   {% with addresses=vc.adr_list %}
   {% if addresses %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
-      Address{{ addresses|pluralize:"es" }}
+      Mailing
     </div>
     <ul id="ADR" class="list-group list-group-flush">
       {% for address in addresses %}
       <li class="list-group-item {{ address.type_paramlist|join:' ' }}">
-        <p class="fw-bold">{{ address.type_paramlist|join:', ' }}</p>
-        {{ address.value.street }}<br>
-        {{ address.value.city }}, {{ address.value.region }} {{ address.value.code }}<br>
-        {{ address.value.country }}<br>
+        <div class="d-md-flex">
+          <div class="me-3">
+            <p class="text-muted">{{ address.type_paramlist|join:', ' }}</p>
+          </div>
+          <div class="justify-content-left flex-wrap">
+            {{ address.value.street }}<br>
+            {{ address.value.city }}, {{ address.value.region }} {{ address.value.code }}<br>
+            {% if address.value.country %}{{ address.value.country }}{% endif %}
+          </div>
+        </div>
       </li>
       {% endfor %}
     </ul>
@@ -193,13 +218,13 @@
   <!-- todo: add org logo -->
   {% with titles=vc.title_list roles=vc.role_list orgs=vc.org_list %}
   {% if titles or roles or orgs %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       Organizational
     </div>
     <div class="card-body">
       {% if orgs %}
-      <h5 class="card-title">Organization{{ orgs|pluralize }}</h5>
+      <h5 class="card-title">Organizations</h5>
       <ul class="card-text">
         {% for org in orgs %}
         {% for o in org.value %}
@@ -210,7 +235,7 @@
       {% endif %}
 
       {% if titles %}
-      <h5 class="card-title">Title{{ titles|pluralize }}</h5>
+      <h5 class="card-title">Titles</h5>
       <ul class="card-text">
         {% for title in titles %}
         <li>{{ title.value }}</li>
@@ -219,7 +244,7 @@
       {% endif %}
 
       {% if roles %}
-      <h5 class="card-title">Role{{ roles|pluralize }}</h5>
+      <h5 class="card-title">Roles</h5>
       <ul class="card-text">
         {% for role in roles %}
         <li>{{ role.value }}</li>
@@ -232,9 +257,9 @@
   {% endwith %}
 
 
-  {% with bday=vc.bday_list anniv=vc.anniversary_list sex=vc.sex_list gender=vc.gender_list %}
+  {% with bday=vc.bday_list anniv=vc.anniversary_list %}
   {% if bday or anniv or sex or gender %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       Personal
     </div>
@@ -256,10 +281,6 @@
       </p>
       {% endfor %}
       {% endif %}
-
-      {% if sex or gender %}
-      <p id="gender" class="card-text">{{ sex.value }} {{ gender.value }}</p>
-      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -267,7 +288,7 @@
 
   {% with tags=vc.categories_list %}
   {% if tags %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       Tags
     </div>
@@ -282,7 +303,7 @@
 
   {% with notes=vc.note_list %}
   {% if notes %}
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       Notes
     </div>
