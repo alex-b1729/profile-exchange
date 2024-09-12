@@ -517,7 +517,11 @@ class Url(models.Model):
         # todo: when to export as X-SOCIALPROFILE vs URL?
         d = {}
         d['value'] = self.url
-        type_list = [str(s) for s in [vcard.WH_TYPE_CHOICES[self.url_type], self.label] if s not in ['', 'none']]
+        type_list = []
+        if self.url_type != '':
+            type_list.append(str(vcard.WH_TYPE_CHOICES[self.url_type]))
+        if self.label != '':
+            type_list.append(str(self.label))
         if len(type_list) != 0:
             d['type_param'] = type_list
         return d
