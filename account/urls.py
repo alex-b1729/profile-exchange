@@ -6,6 +6,7 @@ from account.forms import UserRegistrationForm,CardNameForm
 from . import views
 
 urlpatterns = [
+    path('login/', auth_views.LoginView.as_view(template_name='account/login.html'), name='login'),
     path('', include('django.contrib.auth.urls')),
     path('', views.profile, name='profile'),
     path('share/', views.share_card, name='share'),
