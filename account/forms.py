@@ -95,17 +95,46 @@ class CardEditForm(forms.ModelForm):
         fields = (
             'kind',
             'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'nickname',
-            'photo',
             'birthday', 'birthday_year', 'anniversary', 'anniversary_year',
-            'sex', 'gender',
             'note'
         )
         widgets = {
-            'prefix': forms.TextInput(attrs={'autocomplete': 'honorific-prefix'}),
-            'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
-            'middle_name': forms.TextInput(attrs={'autocomplete': 'additional-name'}),
-            'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'}),
-            'suffix': forms.TextInput(attrs={'autocomplete': 'honorific-suffix'}),
+            'prefix': forms.TextInput(attrs={
+                'autocomplete': 'honorific-prefix',
+                'placeholder': 'Prefix',
+                'size': 6,
+                'class': 'form-control'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'autocomplete': 'given-name',
+                'placeholder': 'First',
+                'size': 12,
+                'class': 'form-control'
+            }),
+            'middle_name': forms.TextInput(attrs={
+                'autocomplete': 'additional-name',
+                'placeholder': 'Middle',
+                'size': 12,
+                'class': 'form-control'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'autocomplete': 'family-name',
+                'placeholder': 'Last',
+                'size': 12,
+                'class': 'form-control'
+            }),
+            'suffix': forms.TextInput(attrs={
+                'autocomplete': 'honorific-suffix',
+                'placeholder': 'Suffix',
+                'size': 6,
+                'class': 'form-control'
+            }),
+            'nickname': forms.TextInput(attrs={
+                'placeholder': 'Nickname',
+                'size': 15,
+                'class': 'form-control'
+            }),
+            'note': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
 
@@ -262,7 +291,19 @@ UrlFormSet = inlineformset_factory(
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('headline', 'location', 'description')
+        fields = ['headline', 'location', 'description']
+        widgets = {
+            'headline': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 5,
+                'class': 'form-control'
+            }),
+        }
 
 
 class ImportCardForm(forms.Form):
