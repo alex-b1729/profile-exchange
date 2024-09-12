@@ -12,14 +12,13 @@
     <div class="card shadow" style="width: 18rem;">
       <form method="post">
         <div class="card-body text-center">
-          <p>{{ form.username.label }} {{ form.username.errors }}</p>
+          <div>{{ form.username.label }} {{ form.username.errors }}</div>
           <p>{{ form.username }}</p>
-          <p>{{ form.password.label }} {{ form.password.errors }}</p>
+          <div>{{ form.password.label }} {{ form.password.errors }}</div>
           <p>{{ form.password }}</p>
-          <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
           {% csrf_token %}
         </div>
-        <div class="card-footer d-flex flex-wrap">
+        <div class="card-footer d-flex flex-column">
           {% if form.non_field_errors %}
           <ul>
             {% for e in form.non_field_errors %}
@@ -27,10 +26,11 @@
             {% endfor %}
           </ul>
           {% endif %}
-          <p>
+          <p class="mb-1">
             <input class="btn btn-primary" type="submit" value="Log in">
           </p>
-          <p>Don't have an account? <a href="{% url 'register' %}">Sign up.</a></p>
+          <p class="mb-1 fw-light"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+          <p class="fw-light">Don't have an account? <a href="{% url 'register' %}">Sign up.</a></p>
         </div>
       </form>
     </div>
