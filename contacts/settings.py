@@ -142,6 +142,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # uses name attribute of path() in account/urls.py
 LOGIN_REDIRECT_URL = 'profile'
 LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
 LOGOUT_URL = 'logout'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
