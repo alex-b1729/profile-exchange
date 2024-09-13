@@ -105,36 +105,30 @@ class CardEditForm(forms.ModelForm):
         widgets = {
             'prefix': forms.TextInput(attrs={
                 'autocomplete': 'honorific-prefix',
-                'placeholder': 'Prefix',
                 'size': 6,
                 'class': 'form-control'
             }),
             'first_name': forms.TextInput(attrs={
                 'autocomplete': 'given-name',
-                'placeholder': 'First',
                 'size': 12,
                 'class': 'form-control'
             }),
             'middle_name': forms.TextInput(attrs={
                 'autocomplete': 'additional-name',
-                'placeholder': 'Middle',
                 'size': 12,
                 'class': 'form-control'
             }),
             'last_name': forms.TextInput(attrs={
                 'autocomplete': 'family-name',
-                'placeholder': 'Last',
                 'size': 12,
                 'class': 'form-control'
             }),
             'suffix': forms.TextInput(attrs={
                 'autocomplete': 'honorific-suffix',
-                'placeholder': 'Suffix',
                 'size': 6,
                 'class': 'form-control'
             }),
             'nickname': forms.TextInput(attrs={
-                'placeholder': 'Nickname',
                 'size': 15,
                 'class': 'form-control'
             }),
@@ -304,12 +298,14 @@ class ProfileEditForm(forms.ModelForm):
         fields = ['headline', 'location', 'description']
         widgets = {
             'headline': forms.TextInput(attrs={
+                'placeholder': 'You in a sentence...',
                 'class': 'form-control'
             }),
             'location': forms.TextInput(attrs={
                 'class': 'form-control'
             }),
             'description': forms.Textarea(attrs={
+                'placeholder': 'You in a paragraph...',
                 'rows': 5,
                 'class': 'form-control'
             }),
