@@ -53,7 +53,18 @@
   <div class="me-5 mb-3 d-flex flex-column">
     <!-- todo profile photo edit -->
     {% thumbnail profile.card.photo "200x200" crop="center" as im %}
-    <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+    <div class="position-relative">
+      <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+      <span class="position-absolute top-100 start-0 translate-middle">
+        <button type="button" class="btn btn-secondary">
+          Edit
+<!--          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">-->
+<!--            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>-->
+<!--          </svg>-->
+        </button>
+      </span>
+    </div>
+
     {% empty %}
     <p>no image...</p>
     {% endthumbnail %}
