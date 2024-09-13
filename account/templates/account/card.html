@@ -52,9 +52,14 @@
 <div class="container p-3 mb-3 d-md-flex border-bottom">
   <div class="me-5 mb-3 d-flex flex-column">
     <!-- todo profile photo edit -->
-    {% thumbnail profile.card.photo "200x200" crop="center" as im %}
     <div class="position-relative">
+      {% thumbnail profile.card.photo "200x200" crop="center" as im %}
       <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+      {% empty %}
+      <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="gray" />
+      </svg>
+      {% endthumbnail %}
       <span class="position-absolute top-0 start-0 dropdown">
         <button type="button" class="btn btn-light border border-dark pt-0 pb-1" data-bs-toggle="dropdown" aria-expanded="false">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
@@ -80,10 +85,6 @@
         </ul>
       </span>
     </div>
-
-    {% empty %}
-    <p>no image...</p>
-    {% endthumbnail %}
   </div>
 
   <div class="justify-content-left flex-wrap">
