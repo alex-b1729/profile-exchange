@@ -55,33 +55,37 @@
     {% thumbnail profile.card.photo "200x200" crop="center" as im %}
     <div class="position-relative">
       <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
-      <span class="position-absolute top-100 start-0 translate-middle">
-        <button type="button" class="btn btn-secondary">
-          Edit
-<!--          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">-->
-<!--            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>-->
-<!--          </svg>-->
+      <span class="position-absolute top-0 start-0 dropdown">
+        <button type="button" class="btn btn-light border border-dark pt-0 pb-1" data-bs-toggle="dropdown" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+          </svg>
         </button>
+        <ul class="dropdown-menu">
+          <li>
+            <button
+              hx-get="{% url 'update_profile_img' %}"
+              hx-target="#update-img-model"
+              hx-trigger="click"
+              data-bs-toggle="modal"
+              data-bs-target="#update-img-model"
+              class="dropdown-item">Update</button>
+          </li>
+          <li>
+            <form method="post" onsubmit="return confirm('Are you sure you wish to delete?');">
+              <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
+              {% csrf_token %}
+            </form>
+          </li>
+        </ul>
       </span>
     </div>
 
     {% empty %}
     <p>no image...</p>
     {% endthumbnail %}
-    <p>
-      <button
-        hx-get="{% url 'update_profile_img' %}"
-        hx-target="#update-img-model"
-        hx-trigger="click"
-        data-bs-toggle="modal"
-        data-bs-target="#update-img-model"
-        class="border border-secondary rounded-pill text-muted">Update Photo</button>
-    </p>
-    <form method="post" onsubmit="return confirm('Are you sure you wish to delete?');">
-      <button class="btn btn-outline-primary" type="submit" value="deleted">Delete</button>
-      {% csrf_token %}
-    </form>
   </div>
+
   <div class="justify-content-left flex-wrap">
     <div id="FN" class="fs-2 fw-bold mb-0">{{ vc.fn.value }}</div>
 
