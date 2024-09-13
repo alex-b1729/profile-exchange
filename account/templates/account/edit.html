@@ -23,27 +23,38 @@
     {% endthumbnail %}
   </div>
   <div class="justify-content-left flex-wrap">
-    <div class="p-2 mb-3 border border-secondary-subtle rounded">
-      <div>Name</div>
-      <div class="row align-items-left">
-        <div class="col-auto mb-1">{{ cform.prefix }}</div>
-        <div class="col-auto d-flex mb-1">
-          <div class="">{{ cform.first_name }}</div>
-          <div class="px-3">{{ cform.middle_name }}</div>
-          <div class="">{{ cform.last_name }}</div>
-        </div>
-        <div class="col-auto mb-1">{{ cform.suffix }}</div>
+    <div class="row align-items-left g-1 mb-3">
+      <div class="col-auto">{{ cform.prefix.label }}{{ cform.prefix }}</div>
+      <div class="col-auto d-flex">
+        <div>{{ cform.first_name.label }}{{ cform.first_name }}</div>
+        <div class="px-1">{{ cform.middle_name.label }}{{ cform.middle_name }}</div>
+        <div>{{ cform.last_name.label }}{{ cform.last_name }}</div>
       </div>
+      <div class="col-auto mb-1">{{ cform.suffix.label }}{{ cform.suffix }}</div>
+    </div>
+
+    <div class="mb-3">
+      {{ pform.headline.label }}
+      {{ pform.headline }}
+    </div>
+
+    <div class="row align-items-left mb-3">
       <div class="row">
-        <div class="col-auto">{{ cform.nickname }}</div>
+        <div class="col-auto">
+          {{ cform.nickname.label }}
+          {{ cform.nickname }}
+        </div>
+        <div class="col-auto">
+          {{ pform.location.label }}
+          {{ pform.location }}
+        </div>
       </div>
     </div>
-    <p>{{ pform.headline.label }}{{ pform.headline }}</p>
-    <p>{{ pform.location.label }}{{ pform.location }}</p>
-    <p class="d-flex flex-wrap">
+
+    <div class="d-flex flex-wrap mb-3">
       {{ pform.description.label }}
       {{ pform.description }}
-    </p>
+    </div>
   </div>
 </div>
 {% endwith %} {# end pform #}
