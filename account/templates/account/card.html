@@ -72,25 +72,35 @@
     </form>
   </div>
   <div class="justify-content-left flex-wrap">
-    <h2 id="FN" class="card-title">{{ vc.fn.value }}</h2>
-    {% with nickname=vc.nickname.value %}
-    {% if nickname %}
-    <p id="NICKNAME" class="card-text text-muted">"{{ nickname }}"</p>
-    {% endif %}
-    {% endwith %}
+    <div id="FN" class="fs-2 fw-bold mb-0">{{ vc.fn.value }}</div>
+
     {% with headline=profile.headline %}
     {% if headline %}
-    <p id="headline" class="card-text">{{ headline }}</p>
+    <p id="headline" class="card-text mb-2">{{ headline }}</p>
     {% endif %}
     {% endwith %}
-    {% with location=profile.location %}
-    {% if location %}
-    <p id="location" class="card-text">{{ location }}</p>
+
+    {% with nick=vc.nickname.value loc=profile.location %}
+    {% if nick or loc %}
+    <div class="d-flex justify-content-start mb-4">
+      {% if nick %}
+      <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
+      {% endif %}
+
+      {% if nick and loc %}
+      <div class="fs-6 text-muted mx-2"> &#x2022; </div>
+      {% endif %}
+
+      {% if loc %}
+      <div id="location" class="fs-6 text-muted">{{ loc }}</div>
+      {% endif %}
+    </div>
     {% endif %}
     {% endwith %}
+
     {% with description=profile.description %}
     {% if description %}
-    <p class="d-flex flex-wrap">
+    <p class="d-flex flex-wrap border-top pt-3">
       {{ description }}
     </p>
     {% endif %}
