@@ -51,9 +51,9 @@
 
 <div class="container p-3 mb-3 d-md-flex border-bottom">
   <div class="me-5 mb-3 d-flex flex-column">
-    <!-- todo profile photo edit -->
     <div class="position-relative">
-      {% thumbnail profile.card.photo "200x200" crop="center" as im %}
+      {% with profimg=profile.card.photo %}
+      {% thumbnail profimg "200x200" crop="center" as im %}
       <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
       {% empty %}
       <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -74,16 +74,26 @@
               hx-trigger="click"
               data-bs-toggle="modal"
               data-bs-target="#update-img-model"
-              class="dropdown-item">Update</button>
+              class="dropdown-item">
+              {% if profimg %}
+              Update
+              {% else %}
+              Upload Image
+              {% endif %}
+            </button>
           </li>
+          {% if profimg %}
           <li>
-            <form method="post" onsubmit="return confirm('Are you sure you wish to delete?');">
+            <form method="post" onsubmit="return confirm('Are you sure you wish to delete your profile picture?');">
+              <input type="hidden" name="delete-profile-img" value="true" id="delete-profile-img" />
               <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
               {% csrf_token %}
             </form>
           </li>
+          {% endif %}
         </ul>
       </span>
+      {% endwith %}
     </div>
   </div>
 
