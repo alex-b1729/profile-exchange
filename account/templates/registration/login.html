@@ -1,39 +1,30 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends "center_card.html" %}
 
 {% block title %}Log in - Contacts{% endblock %}
 
-{% block content %}
-<div class="d-flex justify-content-center">
-  <div class="align-self-center">
-    <div class="d-flex justify-content-center mb-3">
-      <img src="{% static 'images/favicon.webp' %}" alt="Contacts Logo" width="48" height="48" class="">
+{% block card %}
+<div class="card-body text-center">
+  <form method="post">
+    <div>{{ form.username.label }} {{ form.username.errors }}</div>
+    <p>{{ form.username }}</p>
+    <div>{{ form.password.label }} {{ form.password.errors }}</div>
+    <p>{{ form.password }}</p>
+    <div class="card-text">
+      <input class="btn btn-primary" type="submit" value="Log in">
     </div>
-    <div class="card shadow" style="width: 18rem;">
-      <form method="post">
-        <div class="card-body text-center">
-          <div>{{ form.username.label }} {{ form.username.errors }}</div>
-          <p>{{ form.username }}</p>
-          <div>{{ form.password.label }} {{ form.password.errors }}</div>
-          <p>{{ form.password }}</p>
-          <div class="card-text">
-            <input class="btn btn-primary" type="submit" value="Log in">
-          </div>
-          {% csrf_token %}
-        </div>
-        <div class="card-footer d-flex flex-column">
-          {% if form.non_field_errors %}
-          <ul>
-            {% for e in form.non_field_errors %}
-            <li class="text-danger">{{ e }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-          <p class="mb-1 fw-light"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
-          <p class="fw-light">Don't have an account? <a href="{% url 'register' %}">Sign up.</a></p>
-        </div>
-      </form>
-    </div>
-  </div>
+    {% csrf_token %}
+  </form>
+</div>
+
+<div class="card-footer d-flex flex-column">
+  {% if form.non_field_errors %}
+  <ul>
+    {% for e in form.non_field_errors %}
+    <li class="text-danger">{{ e }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <p class="mb-1 fw-light"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+  <p class="fw-light">Don't have an account? <a href="{% url 'register' %}">Sign up.</a></p>
 </div>
 {% endblock %}
