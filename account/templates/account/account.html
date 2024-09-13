@@ -4,18 +4,41 @@
 {% block title %}Your Account{% endblock %}
 
 {% block content %}
-  <div class="content-header">
-    <h1>Your Account</h1>
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">Your Account</h5>
   </div>
-  <p>Username: {{ user.username }}</p>
-  <p>Joined: {{ user.date_joined|date:"M d, Y" }}</p>
-  <p id="current-email">Primary email: {{ user.email }} <button id="edit-email-button" type="button">Update</button></p>
-  <div id="edit-email-form" hidden>
-    <form method="post" id="form-container">
-      <p>Primary email: {{ user_form.email }} <input type="submit" value="Save"></p>
-      {% csrf_token %}
-    </form>
+  <div class="card-body">
+    <p class="card-text mb-3">
+      <span class="fw-bold">Username: </span>
+      {{ user.username }}
+    </p>
+    <p class="card-text mb-3">
+      <span class="fw-bold">Joined: </span>
+      {{ user.date_joined|date:"F d, Y" }}
+    </p>
+    <p id="current-email" class="card-text mb-3">
+      <span class="fw-bold">Primary email: </span>
+      {{ user.email }}
+      <button id="edit-email-button" class="badge btn btn-secondary" type="button">Update</button>
+    </p>
+    <div id="edit-email-form" class="card-text mb-3" hidden>
+      <form method="post" id="form-container">
+        <div class="row">
+          <div class="fw-bold col-auto">Primary email: </div>
+          <div class="col-auto">{{ user_form.email }}</div>
+          {% csrf_token %}
+          <div class="col-auto">
+            <input type="submit" class="btn btn-primary" value="Save">
+          </div>
+        </div>
+      </form>
+    </div>
+    <p class="card-text mb-3">
+      <a class="badge btn btn-secondary" href="{% url 'password_change' %}">Change Password</a>
+    </p>
   </div>
-  <a href="{% url "password_change" %}">Change Password</a>
-  <script src="{% static "js/edit_primary_email.js" %}"></script>
+</div>
+
+<script src="{% static 'js/edit_primary_email.js' %}"></script>
 {% endblock %}

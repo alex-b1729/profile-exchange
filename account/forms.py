@@ -85,7 +85,11 @@ class UserEditEmailForm(forms.ModelForm):
         model = get_user_model()
         fields = ('email',)
         widgets = {
-            'email': forms.EmailInput(attrs={'autocomplete': 'email'}),
+            'email': forms.EmailInput(attrs={
+                'autocomplete': 'email',
+                'size': 30,
+                'class': 'form-control'
+            }),
         }
 
 
