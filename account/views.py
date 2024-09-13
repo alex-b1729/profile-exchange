@@ -57,6 +57,8 @@ def profile(request):
     vc = profile.card.to_vobject()
     # below bugs when user is admin
     # profile = request.user.profile_set.select_related('card').get(title='Personal')
+    if request.method == 'POST':
+        print('got a post req')
     return render(
         request,
         'account/card.html',

@@ -54,6 +54,9 @@
     <!-- todo profile photo edit -->
     {% thumbnail profile.card.photo "200x200" crop="center" as im %}
     <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+    {% empty %}
+    <p>no image...</p>
+    {% endthumbnail %}
     <p>
       <button
         hx-get="{% url 'update_profile_img' %}"
@@ -63,9 +66,10 @@
         data-bs-target="#update-img-model"
         class="border border-secondary rounded-pill text-muted">Update Photo</button>
     </p>
-    {% empty %}
-    <p>no image...</p>
-    {% endthumbnail %}
+    <form method="post" onsubmit="return confirm('Are you sure you wish to delete?');">
+      <button class="btn btn-outline-primary" type="submit" value="deleted">Delete</button>
+      {% csrf_token %}
+    </form>
   </div>
   <div class="justify-content-left flex-wrap">
     <h2 id="FN" class="card-title">{{ vc.fn.value }}</h2>
