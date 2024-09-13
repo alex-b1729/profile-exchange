@@ -1,11 +1,17 @@
-{% extends "base.html" %}
+{% extends "center_card.html" %}
 
 {% block title %}Welcome{% endblock %}
 
-{% block content %}
-  <h1>Welcome {{ first_name }}!</h1>
+{% block card %}
+<div class="card-header">
+  <h5 class="card-title">
+    Welcome {{ first_name }}
+  </h5>
+</div>
+<div class="card-body">
   <p>
     Your account has been successfully created.
     <a href="{% url "login" %}">Log in</a> to set up your profile.
   </p>
+</div>
 {% endblock %}

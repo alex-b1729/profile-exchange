@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 from django.contrib.auth import get_user_model
+from django.contrib.auth import password_validation
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
 from .models import (
@@ -25,11 +26,14 @@ class LoginForm(forms.Form):
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(
         label='Password',
-        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
     )
     password2 = forms.CharField(
         label='Repeat password',
-        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+        help_text=password_validation.password_validators_help_text_html(),
     )
 
     class Meta:
