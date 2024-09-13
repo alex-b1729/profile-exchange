@@ -16,6 +16,9 @@
           <p>{{ form.username }}</p>
           <div>{{ form.password.label }} {{ form.password.errors }}</div>
           <p>{{ form.password }}</p>
+          <div class="card-text">
+            <input class="btn btn-primary" type="submit" value="Log in">
+          </div>
           {% csrf_token %}
         </div>
         <div class="card-footer d-flex flex-column">
@@ -26,9 +29,6 @@
             {% endfor %}
           </ul>
           {% endif %}
-          <p class="mb-1">
-            <input class="btn btn-primary" type="submit" value="Log in">
-          </p>
           <p class="mb-1 fw-light"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
           <p class="fw-light">Don't have an account? <a href="{% url 'register' %}">Sign up.</a></p>
         </div>
