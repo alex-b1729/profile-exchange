@@ -5,7 +5,7 @@
 {% block card %}
 <div class="card-body text-center">
   <form method="post">
-    <div>{{ form.username.label }} {{ form.username.errors }}</div>
+    <div>Username or Email {{ form.username.errors }}</div>
     <p>{{ form.username }}</p>
     <div>{{ form.password.label }} {{ form.password.errors }}</div>
     <p>{{ form.password }}</p>
