@@ -36,7 +36,7 @@
         {% if request.user.is_authenticated %}
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link{% if section == 'profile' %} active{% endif %}" href="{% url 'profile' %}">Profile</a>
+            <a class="nav-link{% if section == 'profiles' %} active{% endif %}" href="{% url 'profile_list' %}">Profiles</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="{% url 'connection_list' %}">Connections</a>

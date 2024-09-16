@@ -8,7 +8,9 @@ from . import views
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     # todo: profile urls should be /profile/{profile_name}/
-    path('', views.profile, name='profile'),
+    # path('', views.profile, name='profile'),
+    path('', views.profile_list, name='profile_list'),
+    path('<slug:slug>', views.profile, name='profile'),
     path('share/', views.share_card, name='share'),
     path('share/<uuid:share_uuid>/', views.view_shared_profile, name='shared_profile'),
     path('share/<uuid:share_uuid>/connect/', views.connect, name='connect'),

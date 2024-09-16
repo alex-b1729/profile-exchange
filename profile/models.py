@@ -562,9 +562,9 @@ class Profile(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # eventually use this to differentiate different profiles for same user
     # e.g. personal, professional, business, etc.
     title = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=100)
     # local user's description
     description = models.CharField(blank=True, null=True)
 
@@ -580,6 +580,14 @@ class Profile(models.Model):
         through='Connection',
         symmetrical=True
     )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Profile, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('profile', kwargs={'slug': self.slug})
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'

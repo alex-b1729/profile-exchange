@@ -51,8 +51,8 @@ from .forms import (
 
 
 @login_required
-def profile(request):
-    profile = get_object_or_404(Profile, user=request.user, title='Personal')
+def profile(request, slug):
+    profile = get_object_or_404(Profile, user=request.user, slug=slug)
     # query all the vcard data here for easier display
     vc = profile.card.to_vobject()
     # below bugs when user is admin
@@ -60,17 +60,34 @@ def profile(request):
     if request.method == 'POST':
         if 'delete-profile-img' in request.POST:
             profile.card.photo.delete(save=True)
-            return redirect('profile')
+            return redirect('profile', slug=slug)
     return render(
         request,
         'profile/card.html',
         {
-            'section': 'profile',
+            'section': 'profiles',
             'entity': 'self',
             'profile': profile,
             'vc': vc,
         }
     )
+
+
+@login_required
+def profile_list(request):
+    profiles = request.user.profile_set.all()
+    if request.method == 'POST':
+        # todo: edit/add profiles
+        pass
+    return render(
+        request,
+        'profile/profile_list.html',
+        {
+            'section': 'profiles',
+            'profiles': profiles
+         }
+    )
+
 
 @login_required
 def account(request):
@@ -91,27 +108,27 @@ def account(request):
     )
 
 
-def register(request):
-    """depreciated for registration wizard"""
-    if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
-        if user_form.is_valid():
-            new_user = user_form.save(commit=False)
-            new_user.set_password(user_form.cleaned_data['password'])
-            new_user.save()
-            Profile.objects.create(user=new_user)
-            return render(
-                request,
-                'profile/register_done.html',
-                {'new_user': new_user},
-            )
-    else:
-        user_form = UserRegistrationForm()
-    return render(
-        request,
-        'profile/register.html',
-        {'user_form': user_form}
-    )
+# def register(request):
+#     """depreciated for registration wizard"""
+#     if request.method == 'POST':
+#         user_form = UserRegistrationForm(request.POST)
+#         if user_form.is_valid():
+#             new_user = user_form.save(commit=False)
+#             new_user.set_password(user_form.cleaned_data['password'])
+#             new_user.save()
+#             Profile.objects.create(user=new_user)
+#             return render(
+#                 request,
+#                 'profile/register_done.html',
+#                 {'new_user': new_user},
+#             )
+#     else:
+#         user_form = UserRegistrationForm()
+#     return render(
+#         request,
+#         'profile/register.html',
+#         {'user_form': user_form}
+#     )
 
 
 class RegisterWizard(SessionWizardView):
@@ -124,7 +141,12 @@ class RegisterWizard(SessionWizardView):
         ln = name_form_data['last_name']
 
         new_card = Card(user=new_user, first_name=fn, last_name=ln)
-        new_profile = Profile(user=new_user, card=new_card)
+        new_profile = Profile(
+            user=new_user,
+            card=new_card,
+            title='Personal',
+            slug='personal',
+        )
 
         new_user.save()
         new_card.save()
