@@ -8,15 +8,17 @@ from django.contrib.sites.models import Site
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.views.generic.detail import DetailView
 from formtools.wizard.views import SessionWizardView
-from django.views.decorators.http import require_POST
 # from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic.base import TemplateResponseMixin, View
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from django.views.defaults import page_not_found
+from django.views.generic.detail import DetailView
+from django.views.decorators.http import require_POST
+from django.views.generic.base import TemplateResponseMixin, View
 
 from .models import (
     Card,
@@ -235,6 +237,7 @@ class EditCardView(TemplateResponseMixin, View):
     template_name = 'profile/edit.html'
 
     user = None
+    slug = None
     user_profile = None
     user_card = None
     files = None
@@ -274,11 +277,15 @@ class EditCardView(TemplateResponseMixin, View):
         return UrlFormSet(instance=self.user_card, data=data)
 
     def dispatch(self, request, *args, **kwargs):
+        if 'slug' in kwargs:
+            self.slug = kwargs['slug']
+        else:
+            page_not_found()
         self.user = request.user
-        # todo: should create a user profile if fails to find one?
         self.user_profile = get_object_or_404(
-            Profile, user=self.user,
-            title='Personal'  # Note: hard coded profile title for this version!
+            Profile,
+            user=self.user,
+            slug=kwargs['slug'],
         )
         self.user_card = self.user_profile.card
         # appears to work fine for multiple forms with files
@@ -344,7 +351,7 @@ class EditCardView(TemplateResponseMixin, View):
             org_formset.save()
             tag_formset.save()
             url_formset.save()
-            return redirect('profile')
+            return redirect('profile', slug=self.slug)
         return self.render_to_response(
             {'mode': 'edit',
              'profile_pic': self.user_card.photo,
@@ -361,11 +368,12 @@ class EditCardView(TemplateResponseMixin, View):
         )
 
 
-def update_profile_img(request):
+def update_profile_img(request, slug):
     user = request.user
     user_profile = get_object_or_404(
-        Profile, user=user,
-        title='Personal'  # Note: hard coded profile title for this version!
+        Profile,
+        user=user,
+        slug=slug,
     )
     user_card = user_profile.card
     if request.method == 'POST':
@@ -376,13 +384,16 @@ def update_profile_img(request):
         )
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            return redirect('profile', slug=slug)
     else:
         form = ProfileImgEditForm(instance=user_card)
     return render(
         request,
         'profile/partials/update_profile_img.html',
-        {'form': form}
+        {
+            'form': form,
+            'slug': slug,
+        }
     )
 
 

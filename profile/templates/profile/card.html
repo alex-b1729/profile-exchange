@@ -70,7 +70,7 @@
         <ul class="dropdown-menu">
           <li>
             <button
-              hx-get="{% url 'update_profile_img' %}"
+              hx-get="{{ profile.get_absolute_url }}edit/profileimg/"
               hx-target="#update-img-model"
               hx-trigger="click"
               data-bs-toggle="modal"
@@ -148,7 +148,8 @@
     class="btn btn-dark me-3">Share</button>
   <a class="btn btn-dark me-3" href="{% url 'download_card' %}">Download</a>
   {% endif %}
-  <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a>
+  {# <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a> #}
+  <a class="btn btn-dark me-3" href="{{ profile.get_absolute_url }}edit/">Edit</a>
 </div>
 {% endif %}
 
