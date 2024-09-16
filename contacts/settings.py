@@ -35,7 +35,7 @@ SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
-    "account.apps.AccountConfig",
+    "profile.apps.ProfileConfig",
     "phonenumber_field",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -139,7 +139,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# uses name attribute of path() in account/urls.py
+# uses name attribute of path() in profile/urls.py
 LOGIN_REDIRECT_URL = 'profile'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
@@ -152,7 +152,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'account.authentication.EmailAuthBackend',
+    'profile.authentication.EmailAuthBackend',
 ]
 
 # ABSOLUTE_URL_OVERRIDES = {

@@ -1,7 +1,7 @@
 import qrcode
 import datetime as dt
 import qrcode.image.svg
-from account.utils import vcard
+from profile.utils import vcard
 from django.db.models import Value
 from django.contrib import messages
 from django.contrib.sites.models import Site
@@ -63,7 +63,7 @@ def profile(request):
             return redirect('profile')
     return render(
         request,
-        'account/card.html',
+        'profile/card.html',
         {
             'section': 'profile',
             'entity': 'self',
@@ -81,12 +81,12 @@ def account(request):
         )
         if user_form.is_valid():
             user_form.save()
-            # return redirect('account')
+            # return redirect('profile')
     else:
         user_form = UserEditEmailForm(instance=request.user)
     return render(
         request,
-        'account/account.html',
+        'profile/account.html',
         {'user_form': user_form}
     )
 
@@ -102,20 +102,20 @@ def register(request):
             Profile.objects.create(user=new_user)
             return render(
                 request,
-                'account/register_done.html',
+                'profile/register_done.html',
                 {'new_user': new_user},
             )
     else:
         user_form = UserRegistrationForm()
     return render(
         request,
-        'account/register.html',
+        'profile/register.html',
         {'user_form': user_form}
     )
 
 
 class RegisterWizard(SessionWizardView):
-    template_name = 'account/register.html'
+    template_name = 'profile/register.html'
 
     def done(self, form_list, **kwargs):
         new_user = form_list[0].save(commit=False)
@@ -131,7 +131,7 @@ class RegisterWizard(SessionWizardView):
         new_profile.save()
         return render(
             self.request,
-            'account/register_done.html',
+            'profile/register_done.html',
             {'first_name': fn},
         )
 
@@ -192,7 +192,7 @@ class RegisterWizard(SessionWizardView):
 #         url_formset = UrlFormSet(instance=card)
 #     return render(
 #         request,
-#         'account/edit.html',  # todo: this or something else?
+#         'profile/edit.html',  # todo: this or something else?
 #         {
 #             'mode': mode,
 #             'card_form': card_form,
@@ -210,7 +210,7 @@ class EditCardView(TemplateResponseMixin, View):
     """
     Edits Card and optionally Profile
     """
-    template_name = 'account/edit.html'
+    template_name = 'profile/edit.html'
 
     user = None
     user_profile = None
@@ -359,7 +359,7 @@ def update_profile_img(request):
         form = ProfileImgEditForm(instance=user_card)
     return render(
         request,
-        'account/partials/update_profile_img.html',
+        'profile/partials/update_profile_img.html',
         {'form': form}
     )
 
@@ -371,7 +371,7 @@ def connection_list(request):
                    .rel_from_set.all())  #.select_related() could improve performance
     return render(
         request,
-        'account/user/connections.html',
+        'profile/user/connections.html',
         {'section': 'connections',
          'connections': connections}
     )
@@ -385,7 +385,7 @@ def connection_detail(request, connection_id):
                                    profile_from=request.user.profile_set.get(title='Personal'))
     # return render(
     #     request,
-    #     'account/card.html',
+    #     'profile/card.html',
     #     {
     #         'section': 'connections',
     #         'entity': 'connection',
@@ -428,7 +428,7 @@ def share_card(request):
     # qr_svg = qrcode.make(vcard, image_factory=qrcode.image.svg.SvgPathImage)
     return render(
         request,
-        'account/partials/share_profile.html',
+        'profile/partials/share_profile.html',
         {'link': abs_link,
          'svg': qr_svg.to_string(encoding='unicode')}
     )
@@ -452,7 +452,7 @@ def view_shared_profile(request, share_uuid):
             pass
     return render(
         request,
-        'account/card.html',
+        'profile/card.html',
         {
             'section': '',
             'entity': 'shared',
@@ -496,14 +496,14 @@ def import_cards(request):
             vcard.save_model_dict_to_db(request.user, vmods)
             return render(
                 request,
-                'account/user/contactbook.html',
+                'profile/user/contactbook.html',
                 {'section': 'contactbook'}
             )
     else:
         form = ImportCardForm()
     return render(
         request,
-        'account/user/import_cards.html',
+        'profile/user/import_cards.html',
         {'section': 'contactbook',
          'form': form}
     )
@@ -522,7 +522,7 @@ def contact_book(request):
         cards = paginator.page(paginator.num_pages)
     return render(
         request,
-        'account/user/contactbook.html',
+        'profile/user/contactbook.html',
         {
             'section': 'contactbook',
             'cards': cards,
@@ -539,7 +539,7 @@ def connection_detail(request, connection_id):
     p_to = connection.profile_to
     return render(
         request,
-        'account/card.html',
+        'profile/card.html',
         {
             'section': 'connections',
             'entity': 'connection',
@@ -558,7 +558,7 @@ def card_detail(request, card_id):
     )
     return  render(
         request,
-        'account/card.html',
+        'profile/card.html',
         {
             'section': 'contactbook',
             'entity': 'connection',

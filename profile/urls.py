@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
-from account.forms import UserRegistrationForm,CardNameForm
+from profile.forms import UserRegistrationForm,CardNameForm
 
 from . import views
 
