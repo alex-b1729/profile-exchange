@@ -16,7 +16,7 @@
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.webp' %}"/>
 
   <title>{% block title %}{% endblock %}</title>
-  {# <link href="{% static "css/base.css" %}" rel="stylesheet"> #}
+  {# <link href="{% static 'css/base.css' %}" rel="stylesheet"> #}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
@@ -36,13 +36,13 @@
         {% if request.user.is_authenticated %}
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link{% if section == 'profile' %} active{% endif %}" href="{% url "profile" %}">Profile</a>
+            <a class="nav-link{% if section == 'profile' %} active{% endif %}" href="{% url 'profile' %}">Profile</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="{% url "connection_list" %}">Connections</a>
+            <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="{% url 'connection_list' %}">Connections</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if section == 'contactbook' %} active{% endif %}" href="{% url "contact_book" %}">ContactBook</a>
+            <a class="nav-link{% if section == 'contactbook' %} active{% endif %}" href="{% url 'contact_book' %}">ContactBook</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled{% if section == 'messaging' %} active{% endif %}" href="#">Messaging</a>
@@ -58,7 +58,7 @@
               <li><a class="dropdown-item" href="{% url 'account' %}">Account</a></li>
               <li><hr class="dropdown-divider"></li>
               <li>
-                <form action="{% url "logout" %}" method="post">
+                <form action="{% url 'logout' %}" method="post">
                   <button type="submit" class="dropdown-item btn btn-link">Logout</button>
                   {% csrf_token %}
                 </form>
@@ -68,8 +68,9 @@
         </ul>
 
         {% else %}
+        {# todo: should always set next as current page #}
         <ul class="navbar-nav ms-auto">
-          <a class="nav-link" href="{% url "login" %}">Log-in</a>
+          <a class="nav-link" href="{% url 'login' %}">Log-in</a>
         </ul>
         {% endif %}
 

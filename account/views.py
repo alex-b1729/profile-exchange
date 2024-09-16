@@ -448,6 +448,7 @@ def view_shared_profile(request, share_uuid):
             if conn:
                 return redirect('connection_detail', connection_id=conn.id)
         except Profile.DoesNotExist or Connection.DoesNotExist:
+            # todo: display message?
             pass
     return render(
         request,
