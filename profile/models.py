@@ -564,14 +564,16 @@ class Profile(models.Model):
 
     # eventually use this to differentiate different profiles for same user
     # e.g. personal, professional, business, etc.
-    title = models.CharField(max_length=50, default='Personal')
+    title = models.CharField(max_length=50)
+    # local user's description
+    description = models.CharField(blank=True, null=True)
 
     # X-HEADLINE
     headline = models.CharField(max_length=120, blank=True, null=True)
     # X-LOCATION
     location = models.CharField(max_length=80, blank=True, null=True)
-    # X-DESCRIPTION
-    description = models.CharField(blank=True, null=True)
+    # X-ABOUT
+    about = models.CharField(blank=True, null=True)
 
     connections = models.ManyToManyField(
         'self',
