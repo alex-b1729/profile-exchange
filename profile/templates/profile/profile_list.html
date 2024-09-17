@@ -8,15 +8,56 @@
 <h1>Your Profiles</h1>
 <a href="#">New Profile</a>
 {% if profiles %}
-<ul>
+
 {% for p in profiles %}
-    <li>
-        <a href="{{ p.get_absolute_url }}">
-            {{ p.title }}
-        </a>
-    </li>
+<div class="card" style="width: 18rem;">
+    {% with photo=p.card.photo %}
+    {% if photo %}
+    {% thumbnail photo "200x150" crop="center" as im %}
+    <a href="{{ p.get_absolute_url }}">
+        <img src="{{ im.url }}" class="card-img-top" alt="{{ p.title }} Profile photo" />
+    </a>
+    {% endthumbnail %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card-body">
+        <h5 class="card-title">
+            <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
+                {{ p.title }}
+                {# todo: why doesn't p.card.kind work? #}
+                <span class="text-muted"> &#x2022; <i>{{ p.card.get_kind_display }} Profile</i></span>
+            </a>
+        </h5>
+
+        {% if p.description %}
+        <p class="card-text">{{ p.description }}</p>
+        {% endif %}
+
+        <hr />
+        <p class="card-text fw-bold mb-1">{{ p.card.FN }}</p>
+        <p class="card-text mb-2">{{ p.headline }}</p>
+        {% with nick=p.card.nickname loc=p.location %}
+        {% if nick or loc %}
+        <p class="card-text text-muted">
+            {% if loc %}
+            {{ loc }}
+            {% endif %}
+
+            {% if nick and loc %}
+            &#x2022;
+            {% endif %}
+
+            {% if nick %}
+            "{{ nick }}"
+            {% endif %}
+        </p>
+        {% endif %}
+        {% endwith %}
+    </div>
+</div>
 {% endfor %}
-</ul>
+
 {% endif %}
 
 {% endblock %}
