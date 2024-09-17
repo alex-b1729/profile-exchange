@@ -46,6 +46,7 @@ from .forms import (
     OrgFormSet,
     TagFormSet,
     UrlFormSet,
+    ProfileDetailEditForm,
     ProfileEditForm,
     ImportCardForm,
     ProfileImgEditForm,
@@ -248,7 +249,7 @@ class EditCardView(TemplateResponseMixin, View):
         )
 
     def get_profile_form(self, data=None):
-        return ProfileEditForm(
+        return ProfileDetailEditForm(
             instance=self.user_profile, data=data
         )
 
