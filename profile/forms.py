@@ -299,7 +299,7 @@ UrlFormSet = inlineformset_factory(
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['headline', 'location', 'description']
+        fields = ['headline', 'location', 'about']
         widgets = {
             'headline': forms.TextInput(attrs={
                 'placeholder': 'You in a sentence...',
@@ -308,7 +308,7 @@ class ProfileEditForm(forms.ModelForm):
             'location': forms.TextInput(attrs={
                 'class': 'form-control'
             }),
-            'description': forms.Textarea(attrs={
+            'about': forms.Textarea(attrs={
                 'placeholder': 'You in a paragraph...',
                 'rows': 5,
                 'class': 'form-control'

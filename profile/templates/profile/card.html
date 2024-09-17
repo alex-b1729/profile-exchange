@@ -111,22 +111,22 @@
     {% with nick=vc.nickname.value loc=profile.location %}
     {% if nick or loc %}
     <div class="d-flex justify-content-start mb-4">
-      {% if nick %}
-      <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
+      {% if loc %}
+      <div id="location" class="fs-6 text-muted">{{ loc }}</div>
       {% endif %}
 
       {% if nick and loc %}
       <div class="fs-6 text-muted mx-2"> &#x2022; </div>
       {% endif %}
 
-      {% if loc %}
-      <div id="location" class="fs-6 text-muted">{{ loc }}</div>
+      {% if nick %}
+      <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
       {% endif %}
     </div>
     {% endif %}
     {% endwith %}
 
-    {% with description=profile.description %}
+    {% with description=profile.about %}
     {% if description %}
     <p class="d-flex flex-wrap border-top pt-3">
       {{ description }}
