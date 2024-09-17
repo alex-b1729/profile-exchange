@@ -19,8 +19,19 @@ from django.conf import settings
 from django.urls import path, include
 from django.conf.urls.static import static
 
+from profile import views as prof_views
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('account/', prof_views.account, name='account'),
+    path('account/', include('django.contrib.auth.urls')),
+    path(
+        'account/register/',
+        prof_views.RegisterWizard.as_view([
+            prof_views.UserRegistrationForm,
+            prof_views.CardNameForm]),
+        name='register'
+    ),
+    path('admin/', admin.site.urls),
     path('profile/', include('profile.urls')),
 ]
 
