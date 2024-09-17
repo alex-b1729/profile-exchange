@@ -3,36 +3,28 @@ import datetime as dt
 import qrcode.image.svg
 from profile.utils import vcard
 from django.db.models import Value
-from django.contrib import messages
-from django.contrib.sites.models import Site
+from django.urls import reverse_lazy
 from django.core.files.base import ContentFile
-from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from formtools.wizard.views import SessionWizardView
-# from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from django.contrib import messages
+from django.contrib.sites.models import Site
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+from django.views.generic.list import ListView
 from django.views.defaults import page_not_found
 from django.views.generic.detail import DetailView
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from .models import (
-    Card,
-    Profile,
-    Connection,
-    Address,
-    Phone,
-    Email,
-    Title,
-    Role,
-    Org,
-    Tag,
-    Url,
-)
+from .models import Profile
 from .forms import (
     UserRegistrationForm,
     CardNameForm,
@@ -51,6 +43,63 @@ from .forms import (
     ImportCardForm,
     ProfileImgEditForm,
 )
+
+
+class UserMixin(object):
+    def get_queryset(self):
+        qs = super(UserMixin, self).get_queryset()
+        return qs.filter(user=self.request.user)
+
+
+class UserEditMixin(object):
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(UserEditMixin, self).form_valid(form)
+
+
+class UserProfileMixin(UserMixin, LoginRequiredMixin):
+    model = Profile
+    fields = [
+        'kind',
+        'title',
+        'description',
+        'prefix',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'suffix',
+        'nickname',
+        'photo',
+        'headline',
+        'location',
+        'about',
+    ]
+    success_url = reverse_lazy('manage_profile_list')
+
+
+class UserProfileEditMixin(UserProfileMixin, UserEditMixin):
+    """todo: Gotta add for full profile edit
+    This is just to edit the profile list page"""
+    fields = ['title', 'kind', 'description']
+    success_url = reverse_lazy('manage_profile_list')
+    template = 'profile/manage/profile/form.html'
+
+
+class ManageProfileListView(UserProfileMixin, ListView):
+    template_name = 'profile/manage/profile/list.html'
+
+
+class ProfileCreateView(UserProfileEditMixin, CreateView):
+    pass
+
+
+class ProfileUpdateView(UserProfileEditMixin, UpdateView):
+    pass
+
+
+class ProfileDeleteView(UserProfileMixin, DeleteView):
+    template_name = 'profile/manage/profile/delete.html'
+    success_url = reverse_lazy('manage_profile_list')
 
 
 @login_required
