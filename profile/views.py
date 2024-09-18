@@ -27,21 +27,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .models import Profile
 from .forms import (
     UserRegistrationForm,
-    CardNameForm,
-    UserEditEmailForm,
-    CardEditForm,
-    AddressFormSet,
-    PhoneFormSet,
-    EmailFormSet,
-    TitleFormSet,
-    RoleFormSet,
-    OrgFormSet,
-    TagFormSet,
-    UrlFormSet,
+    ProfileDetailFormSet,
     ProfileDetailEditForm,
     ProfileEditForm,
-    ImportCardForm,
-    ProfileImgEditForm,
+    UserEditEmailForm,
 )
 
 
@@ -74,53 +63,70 @@ class UserProfileMixin(UserMixin, LoginRequiredMixin):
         'location',
         'about',
     ]
-    success_url = reverse_lazy('manage_profile_list')
+    success_url = reverse_lazy('profile_list')
 
 
-class UserProfileEditMixin(UserProfileMixin, UserEditMixin):
-    """todo: Gotta add for full profile edit
-    This is just to edit the profile list page"""
-    fields = ['title', 'kind', 'description']
-    success_url = reverse_lazy('manage_profile_list')
-    template = 'profile/manage/profile/form.html'
+class ProfileEditView(
+    TemplateResponseMixin,
+    View,
+    UserProfileMixin,
+    UserEditMixin,
+):
+    """
+    Creates or edits profile
+    """
+    template_name = 'profile/manage/profile/form.html'
 
+    profile = None
+    slug = None
+    user = None
+    files = None
 
-class ManageProfileListView(UserProfileMixin, ListView):
-    template_name = 'profile/manage/profile/list.html'
+    def get_profile_form(self, data=None, files=None):
+        return ProfileEditForm(
+            instance=self.profile,
+            data=data,
+            files=files,
+        )
 
+    def dispatch(self, request, *args, **kwargs):
+        self.user = request.user
+        if 'slug' in kwargs:
+            self.slug = kwargs['slug']
+            self.profile = get_object_or_404(
+                Profile,
+                slug=self.slug
+            )
+        # self.files = request.FILES
+        return super().dispatch(request, *args, **kwargs)
 
-class ProfileCreateView(UserProfileEditMixin, CreateView):
-    pass
+    def get(self, request, *args, **kwargs):
+        form = self.get_profile_form()
+        return self.render_to_response({'form': form})
 
-
-class ProfileUpdateView(UserProfileEditMixin, UpdateView):
-    pass
-
-
-class ProfileDeleteView(UserProfileMixin, DeleteView):
-    template_name = 'profile/manage/profile/delete.html'
-    success_url = reverse_lazy('manage_profile_list')
+    def post(self, request, *args, **kwargs):
+        form = self.get_profile_form(data=request.POST, files=self.files)
+        if form.is_valid():
+            p = form.save(commit=False)
+            p.user = self.user
+            p.save()
+            return redirect('profile', slug=self.slug)
+        return self.render_to_response({'form': form})
 
 
 @login_required
 def profile(request, slug):
     profile = get_object_or_404(Profile, user=request.user, slug=slug)
-    # query all the vcard data here for easier display
-    vc = profile.card.to_vobject()
-    # below bugs when user is admin
-    # profile = request.user.profile_set.select_related('card').get(title='Personal')
     if request.method == 'POST':
         if 'delete-profile-img' in request.POST:
-            profile.card.photo.delete(save=True)
+            profile.photo.delete(save=True)
             return redirect('profile', slug=slug)
     return render(
         request,
-        'profile/card.html',
+        'profile/detail.html',
         {
-            'section': 'profiles',
             'entity': 'self',
             'profile': profile,
-            'vc': vc,
         }
     )
 
@@ -129,14 +135,22 @@ def profile(request, slug):
 def profile_list(request):
     profiles = request.user.profile_set.all()
     if request.method == 'POST':
-        # todo: edit/add profiles
-        pass
+        formset = ProfileDetailFormSet(
+            instance=request.user,
+            data=request.POST,
+        )
+        if formset.is_valid():
+            formset.save()
+            return reverse_lazy('profile_list')
+    else:
+        formset = ProfileDetailFormSet(instance=request.user)
     return render(
         request,
-        'profile/profile_list.html',
+        'profile/list.html',
         {
             'section': 'profiles',
-            'profiles': profiles
+            'profiles': profiles,
+            'profile_formset': formset,
          }
     )
 
@@ -160,54 +174,54 @@ def account(request):
     )
 
 
-# def register(request):
-#     """depreciated for registration wizard"""
-#     if request.method == 'POST':
-#         user_form = UserRegistrationForm(request.POST)
-#         if user_form.is_valid():
-#             new_user = user_form.save(commit=False)
-#             new_user.set_password(user_form.cleaned_data['password'])
-#             new_user.save()
-#             Profile.objects.create(user=new_user)
-#             return render(
-#                 request,
-#                 'profile/register_done.html',
-#                 {'new_user': new_user},
-#             )
-#     else:
-#         user_form = UserRegistrationForm()
-#     return render(
-#         request,
-#         'profile/register.html',
-#         {'user_form': user_form}
-#     )
+def register(request):
+    """depreciated for registration wizard"""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.set_password(form.cleaned_data['password'])
+            new_user.save()
+            # Profile.objects.create(user=new_user)
+            return render(
+                request,
+                'profile/register_done.html',
+                {'new_user': new_user},
+            )
+    else:
+        form = UserRegistrationForm()
+    return render(
+        request,
+        'profile/register.html',
+        {'form': form}
+    )
 
 
-class RegisterWizard(SessionWizardView):
-    template_name = 'profile/register.html'
-
-    def done(self, form_list, **kwargs):
-        new_user = form_list[0].save(commit=False)
-        name_form_data = form_list[1].cleaned_data
-        fn = name_form_data['first_name']
-        ln = name_form_data['last_name']
-
-        new_card = Card(user=new_user, first_name=fn, last_name=ln)
-        new_profile = Profile(
-            user=new_user,
-            card=new_card,
-            title='Personal',
-            slug='personal',
-        )
-
-        new_user.save()
-        new_card.save()
-        new_profile.save()
-        return render(
-            self.request,
-            'profile/register_done.html',
-            {'first_name': fn},
-        )
+# class RegisterWizard(SessionWizardView):
+#     template_name = 'profile/register.html'
+#
+#     def done(self, form_list, **kwargs):
+#         new_user = form_list[0].save(commit=False)
+#         name_form_data = form_list[1].cleaned_data
+#         fn = name_form_data['first_name']
+#         ln = name_form_data['last_name']
+#
+#         new_card = Card(user=new_user, first_name=fn, last_name=ln)
+#         new_profile = Profile(
+#             user=new_user,
+#             card=new_card,
+#             title='Personal',
+#             slug='personal',
+#         )
+#
+#         new_user.save()
+#         new_card.save()
+#         new_profile.save()
+#         return render(
+#             self.request,
+#             'profile/register_done.html',
+#             {'first_name': fn},
+#         )
 
 
 # def edit_connection(request, connection_id=None):
@@ -280,372 +294,356 @@ class RegisterWizard(SessionWizardView):
 #     )
 
 
-class EditCardView(TemplateResponseMixin, View):
-    """
-    Edits Card and optionally Profile
-    """
-    template_name = 'profile/edit.html'
-
-    user = None
-    slug = None
-    user_profile = None
-    user_card = None
-    files = None
-
-    def get_card_form(self, data=None, files=None):
-        return CardEditForm(
-            instance=self.user_card, data=data
-        )
-
-    def get_profile_form(self, data=None):
-        return ProfileDetailEditForm(
-            instance=self.user_profile, data=data
-        )
-
-    def get_address_formset(self, data=None):
-        return AddressFormSet(instance=self.user_card, data=data)
-
-    def get_phone_formset(self, data=None):
-        return PhoneFormSet(instance=self.user_card, data=data)
-
-    def get_email_formset(self, data=None):
-        return EmailFormSet(instance=self.user_card, data=data)
-
-    def get_title_formset(self, data=None):
-        return TitleFormSet(instance=self.user_card, data=data)
-
-    def get_role_formset(self, data=None):
-        return RoleFormSet(instance=self.user_card, data=data)
-
-    def get_org_formset(self, data=None):
-        return OrgFormSet(instance=self.user_card, data=data)
-
-    def get_tag_formset(self, data=None):
-        return TagFormSet(instance=self.user_card, data=data)
-
-    def get_url_formset(self, data=None):
-        return UrlFormSet(instance=self.user_card, data=data)
-
-    def dispatch(self, request, *args, **kwargs):
-        if 'slug' in kwargs:
-            self.slug = kwargs['slug']
-        else:
-            page_not_found()
-        self.user = request.user
-        self.user_profile = get_object_or_404(
-            Profile,
-            user=self.user,
-            slug=kwargs['slug'],
-        )
-        self.user_card = self.user_profile.card
-        # appears to work fine for multiple forms with files
-        self.files = request.FILES
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        card_form = self.get_card_form()
-        profile_form = self.get_profile_form()
-        address_formset = self.get_address_formset()
-        phone_formset = self.get_phone_formset()
-        email_formset = self.get_email_formset()
-        title_formset = self.get_title_formset()
-        role_formset = self.get_role_formset()
-        org_formset = self.get_org_formset()
-        tag_formset = self.get_tag_formset()
-        url_formset = self.get_url_formset()
-        return self.render_to_response(
-            {'mode': 'edit',
-             'profile_pic': self.user_card.photo,
-             'card_form': card_form,
-             'profile_form': profile_form,
-             'address_formset': address_formset,
-             'phone_formset': phone_formset,
-             'email_formset': email_formset,
-             'title_formset': title_formset,
-             'role_formset': role_formset,
-             'org_formset': org_formset,
-             'tag_formset': tag_formset,
-             'url_formset': url_formset}
-        )
-
-    def post(self, request, *args, **kwargs):
-        card_form = self.get_card_form(data=request.POST, files=self.files)
-        profile_form = self.get_profile_form(data=request.POST)
-        address_formset = self.get_address_formset(data=request.POST)
-        phone_formset = self.get_phone_formset(data=request.POST)
-        email_formset = self.get_email_formset(data=request.POST)
-        title_formset = self.get_title_formset(data=request.POST)
-        role_formset = self.get_role_formset(data=request.POST)
-        org_formset = self.get_org_formset(data=request.POST)
-        tag_formset = self.get_tag_formset(data=request.POST)
-        url_formset = self.get_url_formset(data=request.POST)
-        if (
-            card_form.is_valid()
-            and profile_form.is_valid()
-            and address_formset.is_valid()
-            and phone_formset.is_valid()
-            and email_formset.is_valid()
-            and title_formset.is_valid()
-            and role_formset.is_valid()
-            and org_formset.is_valid()
-            and tag_formset.is_valid()
-            and url_formset.is_valid()
-        ):
-            card_form.save()
-            profile_form.save()
-            address_formset.save()
-            phone_formset.save()
-            email_formset.save()
-            title_formset.save()
-            role_formset.save()
-            org_formset.save()
-            tag_formset.save()
-            url_formset.save()
-            return redirect('profile', slug=self.slug)
-        return self.render_to_response(
-            {'mode': 'edit',
-             'profile_pic': self.user_card.photo,
-             'card_form': card_form,
-             'profile_form': profile_form,
-             'address_formset': address_formset,
-             'phone_formset': phone_formset,
-             'email_formset': email_formset,
-             'title_formset': title_formset,
-             'role_formset': role_formset,
-             'org_formset': org_formset,
-             'tag_formset': tag_formset,
-             'url_formset': url_formset}
-        )
-
-
-def update_profile_img(request, slug):
-    user = request.user
-    user_profile = get_object_or_404(
-        Profile,
-        user=user,
-        slug=slug,
-    )
-    user_card = user_profile.card
-    if request.method == 'POST':
-        form = ProfileImgEditForm(
-            instance=user_card,
-            data=request.POST,
-            files=request.FILES
-        )
-        if form.is_valid():
-            form.save()
-            return redirect('profile', slug=slug)
-    else:
-        form = ProfileImgEditForm(instance=user_card)
-    return render(
-        request,
-        'profile/partials/update_profile_img.html',
-        {
-            'form': form,
-            'slug': slug,
-        }
-    )
-
-
-@login_required
-def connection_list(request):
-    # gotta use .rel_from_set instead of .connections or will only get the profiles
-    connections = (request.user.profile_set.get(title='Personal')
-                   .rel_from_set.all())  #.select_related() could improve performance
-    return render(
-        request,
-        'profile/user/connections.html',
-        {'section': 'connections',
-         'connections': connections}
-    )
-
-
-@login_required
-def connection_detail(request, connection_id):
-    connection = get_object_or_404(Connection,
-                                   id=connection_id,
-                                   # below so you can't try to query connections you're not part of
-                                   profile_from=request.user.profile_set.get(title='Personal'))
-    # return render(
-    #     request,
-    #     'profile/card.html',
-    #     {
-    #         'section': 'connections',
-    #         'entity': 'connection',
-    #         'profile': connection.profile_to
-    #     }
-    # )
-
-@login_required
-def download_card(request, connection_id=None):
-    if connection_id:
-        # connection = get_object_or_404(
-        #     Connection,
-        #     id=connection_id,
-        #     user=request.user
-        # )
-        # card = connection.card
-        return None
-    else:
-        card = request.user.profile_set.get(title='Personal').card
-    return card.vcf_http_reponse(request)
-
-
-@login_required
-# @require_POST  # post if i'm changing the server state
-def share_card(request):
-    p = get_object_or_404(
-        Profile,
-        user=request.user,
-        title='Personal'
-    )
-    rel_link = p.get_shareable_url()
-    abs_link = f'https://{Site.objects.get_current().domain}{rel_link}'
-    vcf = p.card.vcf
-    qr = qrcode.QRCode(
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        image_factory=qrcode.image.svg.SvgPathImage
-    )
-    qr.add_data(vcf)
-    qr_svg = qr.make_image()
-    # qr_svg = qrcode.make(vcard, image_factory=qrcode.image.svg.SvgPathImage)
-    return render(
-        request,
-        'profile/partials/share_profile.html',
-        {'link': abs_link,
-         'svg': qr_svg.to_string(encoding='unicode')}
-    )
-
-
-def view_shared_profile(request, share_uuid):
-    p = get_object_or_404(
-        Profile,
-        share_uuid=share_uuid
-    )
-    # redirect to connection if they're already connections
-    if request.user.is_authenticated:
-        try:
-            p_from = request.user.profile_set.get(title='Personal')
-            p_to = p_from.connections.get(share_uuid=share_uuid)
-            conn = Connection.objects.filter(profile_from=p_from, profile_to=p_to)[0]
-            if conn:
-                return redirect('connection_detail', connection_id=conn.id)
-        except Profile.DoesNotExist or Connection.DoesNotExist:
-            # todo: display message?
-            pass
-    return render(
-        request,
-        'profile/card.html',
-        {
-            'section': '',
-            'entity': 'shared',
-            'profile': p,
-            'vc': p.card.to_vobject()
-        }
-    )
-
-
-@login_required
-@require_POST
-def connect(request, share_uuid): #, share_title_from='Personal'):
-    try:
-        p_from = get_object_or_404(
-            Profile,
-            user=request.user,
-            title='Personal'
-        )
-        p_to = get_object_or_404(
-            Profile,
-            share_uuid=share_uuid
-        )
-        p_from.connections.add(p_to)
-        new_connection = Connection.objects.get(
-            profile_from=p_from,
-            profile_to=p_to
-        )
-        return redirect('connection_detail', connection_id=new_connection.id)
-    except Exception as e:
-        raise e
-        # return JsonResponse({'status': 'ko'})
-
-
-@login_required
-def import_cards(request):
-    if request.method == 'POST':
-        form = ImportCardForm(request.POST, request.FILES)
-        if form.is_valid():
-            # todo: this ain't memory safe
-            vmods = vcard.vcf_to_model_dicts(request.FILES['file'].read().decode("utf-8") )
-            vcard.save_model_dict_to_db(request.user, vmods)
-            return render(
-                request,
-                'profile/user/contactbook.html',
-                {'section': 'contactbook'}
-            )
-    else:
-        form = ImportCardForm()
-    return render(
-        request,
-        'profile/user/import_cards.html',
-        {'section': 'contactbook',
-         'form': form}
-    )
-
-
-@login_required
-def contact_book(request):
-    obj_list = Card.objects.filter(user=request.user)
-    paginator = Paginator(obj_list, 3)
-    page = request.GET.get('page')
-    try:
-        cards = paginator.page(page)
-    except PageNotAnInteger:
-        cards = paginator.page(1)
-    except EmptyPage:
-        cards = paginator.page(paginator.num_pages)
-    return render(
-        request,
-        'profile/user/contactbook.html',
-        {
-            'section': 'contactbook',
-            'cards': cards,
-        }
-    )
-
-
-@login_required
-def connection_detail(request, connection_id):
-    connection = get_object_or_404(Connection,
-                                   id=connection_id,
-                                   # below so you can't try to query connections you're not part of
-                                   profile_from=request.user.profile_set.get(title='Personal'))
-    p_to = connection.profile_to
-    return render(
-        request,
-        'profile/card.html',
-        {
-            'section': 'connections',
-            'entity': 'connection',
-            'profile': p_to,
-            'vc': p_to.card.to_vobject()
-        }
-    )
-
-
-@login_required
-def card_detail(request, card_id):
-    card = get_object_or_404(
-        Card,
-        id=card_id,
-        user=request.user
-    )
-    return  render(
-        request,
-        'profile/card.html',
-        {
-            'section': 'contactbook',
-            'entity': 'connection',
-            'profile': None,
-            'vc': card.to_vobject()
-        }
-    )
+# class EditCardView(TemplateResponseMixin, View):
+#     """
+#     Edits Card and optionally Profile
+#     """
+#     template_name = 'profile/edit.html'
+#
+#     user = None
+#     slug = None
+#     user_profile = None
+#     user_card = None
+#     files = None
+#
+#     def get_card_form(self, data=None, files=None):
+#         return CardEditForm(
+#             instance=self.user_card, data=data
+#         )
+#
+#     def get_profile_form(self, data=None):
+#         return ProfileDetailEditForm(
+#             instance=self.user_profile, data=data
+#         )
+#
+#     def get_address_formset(self, data=None):
+#         return AddressFormSet(instance=self.user_card, data=data)
+#
+#     def get_phone_formset(self, data=None):
+#         return PhoneFormSet(instance=self.user_card, data=data)
+#
+#     def get_email_formset(self, data=None):
+#         return EmailFormSet(instance=self.user_card, data=data)
+#
+#     def get_title_formset(self, data=None):
+#         return TitleFormSet(instance=self.user_card, data=data)
+#
+#     def get_role_formset(self, data=None):
+#         return RoleFormSet(instance=self.user_card, data=data)
+#
+#     def get_org_formset(self, data=None):
+#         return OrgFormSet(instance=self.user_card, data=data)
+#
+#     def get_tag_formset(self, data=None):
+#         return TagFormSet(instance=self.user_card, data=data)
+#
+#     def get_url_formset(self, data=None):
+#         return UrlFormSet(instance=self.user_card, data=data)
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         if 'slug' in kwargs:
+#             self.slug = kwargs['slug']
+#         else:
+#             page_not_found()
+#         self.user = request.user
+#         self.user_profile = get_object_or_404(
+#             Profile,
+#             user=self.user,
+#             slug=kwargs['slug'],
+#         )
+#         self.user_card = self.user_profile.card
+#         # appears to work fine for multiple forms with files
+#         self.files = request.FILES
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def get(self, request, *args, **kwargs):
+#         card_form = self.get_card_form()
+#         profile_form = self.get_profile_form()
+#         address_formset = self.get_address_formset()
+#         phone_formset = self.get_phone_formset()
+#         email_formset = self.get_email_formset()
+#         title_formset = self.get_title_formset()
+#         role_formset = self.get_role_formset()
+#         org_formset = self.get_org_formset()
+#         tag_formset = self.get_tag_formset()
+#         url_formset = self.get_url_formset()
+#         return self.render_to_response(
+#             {'mode': 'edit',
+#              'profile_pic': self.user_card.photo,
+#              'card_form': card_form,
+#              'profile_form': profile_form,
+#              'address_formset': address_formset,
+#              'phone_formset': phone_formset,
+#              'email_formset': email_formset,
+#              'title_formset': title_formset,
+#              'role_formset': role_formset,
+#              'org_formset': org_formset,
+#              'tag_formset': tag_formset,
+#              'url_formset': url_formset}
+#         )
+#
+#     def post(self, request, *args, **kwargs):
+#         card_form = self.get_card_form(data=request.POST, files=self.files)
+#         profile_form = self.get_profile_form(data=request.POST)
+#         address_formset = self.get_address_formset(data=request.POST)
+#         phone_formset = self.get_phone_formset(data=request.POST)
+#         email_formset = self.get_email_formset(data=request.POST)
+#         title_formset = self.get_title_formset(data=request.POST)
+#         role_formset = self.get_role_formset(data=request.POST)
+#         org_formset = self.get_org_formset(data=request.POST)
+#         tag_formset = self.get_tag_formset(data=request.POST)
+#         url_formset = self.get_url_formset(data=request.POST)
+#         if (
+#             card_form.is_valid()
+#             and profile_form.is_valid()
+#             and address_formset.is_valid()
+#             and phone_formset.is_valid()
+#             and email_formset.is_valid()
+#             and title_formset.is_valid()
+#             and role_formset.is_valid()
+#             and org_formset.is_valid()
+#             and tag_formset.is_valid()
+#             and url_formset.is_valid()
+#         ):
+#             card_form.save()
+#             profile_form.save()
+#             address_formset.save()
+#             phone_formset.save()
+#             email_formset.save()
+#             title_formset.save()
+#             role_formset.save()
+#             org_formset.save()
+#             tag_formset.save()
+#             url_formset.save()
+#             return redirect('profile', slug=self.slug)
+#         return self.render_to_response(
+#             {'mode': 'edit',
+#              'profile_pic': self.user_card.photo,
+#              'card_form': card_form,
+#              'profile_form': profile_form,
+#              'address_formset': address_formset,
+#              'phone_formset': phone_formset,
+#              'email_formset': email_formset,
+#              'title_formset': title_formset,
+#              'role_formset': role_formset,
+#              'org_formset': org_formset,
+#              'tag_formset': tag_formset,
+#              'url_formset': url_formset}
+#         )
+#
+#
+# def update_profile_img(request, slug):
+#     user = request.user
+#     user_profile = get_object_or_404(
+#         Profile,
+#         user=user,
+#         slug=slug,
+#     )
+#     user_card = user_profile.card
+#     if request.method == 'POST':
+#         form = ProfileImgEditForm(
+#             instance=user_card,
+#             data=request.POST,
+#             files=request.FILES
+#         )
+#         if form.is_valid():
+#             form.save()
+#             return redirect('profile', slug=slug)
+#     else:
+#         form = ProfileImgEditForm(instance=user_card)
+#     return render(
+#         request,
+#         'profile/partials/update_profile_img.html',
+#         {
+#             'form': form,
+#             'slug': slug,
+#         }
+#     )
+#
+#
+# @login_required
+# def connection_list(request):
+#     # gotta use .rel_from_set instead of .connections or will only get the profiles
+#     connections = (request.user.profile_set.get(title='Personal')
+#                    .rel_from_set.all())  #.select_related() could improve performance
+#     return render(
+#         request,
+#         'profile/user/connections.html',
+#         {'section': 'connections',
+#          'connections': connections}
+#     )
+#
+#
+# @login_required
+# def connection_detail(request, connection_id):
+#     connection = get_object_or_404(Connection,
+#                                    id=connection_id,
+#                                    # below so you can't try to query connections you're not part of
+#                                    profile_from=request.user.profile_set.get(title='Personal'))
+#
+# @login_required
+# def download_card(request, connection_id=None):
+#     if connection_id:
+#         return None
+#     else:
+#         card = request.user.profile_set.get(title='Personal').card
+#     return card.vcf_http_reponse(request)
+#
+#
+# @login_required
+# def share_card(request):
+#     p = get_object_or_404(
+#         Profile,
+#         user=request.user,
+#         title='Personal'
+#     )
+#     rel_link = p.get_shareable_url()
+#     abs_link = f'https://{Site.objects.get_current().domain}{rel_link}'
+#     vcf = p.card.vcf
+#     qr = qrcode.QRCode(
+#         error_correction=qrcode.constants.ERROR_CORRECT_L,
+#         image_factory=qrcode.image.svg.SvgPathImage
+#     )
+#     qr.add_data(vcf)
+#     qr_svg = qr.make_image()
+#     # qr_svg = qrcode.make(vcard, image_factory=qrcode.image.svg.SvgPathImage)
+#     return render(
+#         request,
+#         'profile/partials/share_profile.html',
+#         {'link': abs_link,
+#          'svg': qr_svg.to_string(encoding='unicode')}
+#     )
+#
+#
+# def view_shared_profile(request, share_uuid):
+#     p = get_object_or_404(
+#         Profile,
+#         share_uuid=share_uuid
+#     )
+#     # redirect to connection if they're already connections
+#     if request.user.is_authenticated:
+#         try:
+#             p_from = request.user.profile_set.get(title='Personal')
+#             p_to = p_from.connections.get(share_uuid=share_uuid)
+#             conn = Connection.objects.filter(profile_from=p_from, profile_to=p_to)[0]
+#             if conn:
+#                 return redirect('connection_detail', connection_id=conn.id)
+#         except Profile.DoesNotExist or Connection.DoesNotExist:
+#             # todo: display message?
+#             pass
+#     return render(
+#         request,
+#         'profile/card.html',
+#         {
+#             'section': '',
+#             'entity': 'shared',
+#             'profile': p,
+#             'vc': p.card.to_vobject()
+#         }
+#     )
+#
+#
+# @login_required
+# @require_POST
+# def connect(request, share_uuid): #, share_title_from='Personal'):
+#     try:
+#         p_from = get_object_or_404(
+#             Profile,
+#             user=request.user,
+#             title='Personal'
+#         )
+#         p_to = get_object_or_404(
+#             Profile,
+#             share_uuid=share_uuid
+#         )
+#         p_from.connections.add(p_to)
+#         new_connection = Connection.objects.get(
+#             profile_from=p_from,
+#             profile_to=p_to
+#         )
+#         return redirect('connection_detail', connection_id=new_connection.id)
+#     except Exception as e:
+#         raise e
+#         # return JsonResponse({'status': 'ko'})
+#
+#
+# @login_required
+# def import_cards(request):
+#     if request.method == 'POST':
+#         form = ImportCardForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # todo: this ain't memory safe
+#             vmods = vcard.vcf_to_model_dicts(request.FILES['file'].read().decode("utf-8") )
+#             vcard.save_model_dict_to_db(request.user, vmods)
+#             return render(
+#                 request,
+#                 'profile/user/contactbook.html',
+#                 {'section': 'contactbook'}
+#             )
+#     else:
+#         form = ImportCardForm()
+#     return render(
+#         request,
+#         'profile/user/import_cards.html',
+#         {'section': 'contactbook',
+#          'form': form}
+#     )
+#
+#
+# @login_required
+# def contact_book(request):
+#     obj_list = Card.objects.filter(user=request.user)
+#     paginator = Paginator(obj_list, 3)
+#     page = request.GET.get('page')
+#     try:
+#         cards = paginator.page(page)
+#     except PageNotAnInteger:
+#         cards = paginator.page(1)
+#     except EmptyPage:
+#         cards = paginator.page(paginator.num_pages)
+#     return render(
+#         request,
+#         'profile/user/contactbook.html',
+#         {
+#             'section': 'contactbook',
+#             'cards': cards,
+#         }
+#     )
+#
+#
+# @login_required
+# def connection_detail(request, connection_id):
+#     connection = get_object_or_404(Connection,
+#                                    id=connection_id,
+#                                    # below so you can't try to query connections you're not part of
+#                                    profile_from=request.user.profile_set.get(title='Personal'))
+#     p_to = connection.profile_to
+#     return render(
+#         request,
+#         'profile/card.html',
+#         {
+#             'section': 'connections',
+#             'entity': 'connection',
+#             'profile': p_to,
+#             'vc': p_to.card.to_vobject()
+#         }
+#     )
+#
+#
+# @login_required
+# def card_detail(request, card_id):
+#     card = get_object_or_404(
+#         Card,
+#         id=card_id,
+#         user=request.user
+#     )
+#     return  render(
+#         request,
+#         'profile/card.html',
+#         {
+#             'section': 'contactbook',
+#             'entity': 'connection',
+#             'profile': None,
+#             'vc': card.to_vobject()
+#         }
+#     )

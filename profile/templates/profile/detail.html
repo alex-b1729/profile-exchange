@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load static %}
+
+{% block title %}{{ profile.title }} | Profile{% endblock %}
+
+{% block content %}
+
+{% if entity == 'self' %}
+{# from bootstrap https://htmx.org/examples/modal-bootstrap/ #}
+{# share profile modal and update image #}
+<div id="modals-here"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div id="update-img-model"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+{% endif %}
+
+{% if entity == "shared" %}
+<div class="container mb-3">
+  {% if request.user.is_authenticated %}
+  {% with suuid=p.share_uuid %}
+  <form action="{{ request.build_absolute_uri }}connect/" method="post">
+    <button class="btn btn-outline-primary" type="submit">Connect</button>
+    {% csrf_token %}
+  </form>
+  {% endwith %}
+  {% else %}
+  <p>
+    <a href="{% url 'login' %}?next={{ profile.get_shareable_url }}">Log-in</a>
+    or <a href="{% url 'register' %}">create an account</a> to connect with
+    {{ vc.n.value.given|default:vc.fn}}.
+  </p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="container p-3 mb-3 d-md-flex border-bottom">
+  <div class="me-5 mb-3 d-flex flex-column">
+    <div class="position-relative">
+      {% with profimg=profile.photo %}
+      {% thumbnail profimg "200x200" crop="center" as im %}
+      <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+      {% empty %}
+      <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="gray" />
+      </svg>
+      {% endthumbnail %}
+      {% if entity == "self" or entity == "connection" %}
+      <span class="position-absolute top-0 start-0 dropdown">
+        <button type="button" class="btn btn-light border border-dark pt-0 pb-1" data-bs-toggle="dropdown" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+          </svg>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <button
+              hx-get="{{ profile.get_absolute_url }}edit/profileimg/"
+              hx-target="#update-img-model"
+              hx-trigger="click"
+              data-bs-toggle="modal"
+              data-bs-target="#update-img-model"
+              class="dropdown-item">
+              {% if profimg %}
+              Update
+              {% else %}
+              Upload Image
+              {% endif %}
+            </button>
+          </li>
+          {% if profimg %}
+          <li>
+            <form method="post" onsubmit="return confirm('Are you sure you wish to delete your profile picture?');">
+              <input type="hidden" name="delete-profile-img" value="true" id="delete-profile-img" />
+              <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
+              {% csrf_token %}
+            </form>
+          </li>
+          {% endif %}
+        </ul>
+      </span>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="justify-content-left flex-wrap">
+    <div id="FN" class="fs-2 fw-bold mb-0">{{ profile.fn }}</div>
+
+    {% with headline=profile.headline %}
+    {% if headline %}
+    <p id="headline" class="card-text mb-2">{{ headline }}</p>
+    {% endif %}
+    {% endwith %}
+
+    {% with nick=profile.nickname loc=profile.location %}
+    {% if nick or loc %}
+    <div class="d-flex justify-content-start mb-4">
+      {% if loc %}
+      <div id="location" class="fs-6 text-muted">{{ loc }}</div>
+      {% endif %}
+
+      {% if nick and loc %}
+      <div class="fs-6 text-muted mx-2"> &#x2022; </div>
+      {% endif %}
+
+      {% if nick %}
+      <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% with description=profile.about %}
+    {% if description %}
+    <p class="d-flex flex-wrap border-top pt-3">
+      {{ description }}
+    </p>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+{% if entity == "self" or entity == "connection" %}
+<div class="container mb-3 d-inline-flex">
+  {% if entity == "self" %}
+  <button
+    hx-get="#" {# url share #}
+    hx-target="#modals-here"
+    hx-trigger="click"
+    data-bs-toggle="modal"
+    data-bs-target="#modals-here"
+    class="btn btn-dark me-3">Share</button>
+  <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
+  {% endif %}
+  {# <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a> #}
+  <a class="btn btn-dark me-3" href="{{ profile.get_absolute_url }}edit/">Edit</a>
+</div>
+{% endif %}
+
+<div class="container mb-3">
+  <p><i>{{ profile.get_kind_display }}</i></p>
+
+</div>
+
+{% endblock %}

@@ -35,7 +35,7 @@ class Profile(models.Model):
 
     # -------- local info for the user --------
     title = models.CharField(max_length=50, blank=False)
-    slug = models.SlugField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=False)
     description = models.CharField(blank=True, null=True)
 
     # -------- info displayed on profile --------
@@ -44,7 +44,7 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=50, blank=True)
     middle_name = models.CharField(max_length=50, blank=True)
     # last name serves as name if kind is not individual
-    last_name = models.CharField(max_length=50, blank=False)
+    last_name = models.CharField(max_length=50, blank=True)
     suffix = models.CharField(max_length=50, blank=True)
     nickname = models.CharField(max_length=50, blank=True)
 
@@ -70,6 +70,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
+
+    @property
+    def fn(self):
+        s = (f'{self.prefix + " " if self.prefix else ""}'
+             f'{self.first_name + " " if self.first_name else ""}'
+             f'{self.middle_name + " " if self.middle_name else ""}'
+             f'{self.last_name}'
+             f'{", " + self.suffix if self.suffix else ""}')
+        return s
 
 
 class Content(models.Model):
@@ -115,18 +124,38 @@ class ItemBase(models.Model):
 
 # todo: validate all Items
 class Email(ItemBase):
+    type = models.CharField(
+        max_length=1,
+        choices=vcard.WH_TYPE_CHOICES,
+        blank=True
+    )
     email_address = models.EmailField()
 
 
 class Phone(ItemBase):
+    type = models.CharField(
+        max_length=1,
+        choices=vcard.WH_TYPE_CHOICES,
+        blank=True
+    )
     phone_number = PhoneNumberField()
 
 
 class Link(ItemBase):
+    type = models.CharField(
+        max_length=1,
+        choices=vcard.WH_TYPE_CHOICES,
+        blank=True
+    )
     url = models.URLField()
 
 
 class Address(ItemBase):
+    type = models.CharField(
+        max_length=1,
+        choices=vcard.WH_TYPE_CHOICES,
+        blank=True
+    )
     street1 = models.CharField(blank=False)
     street2 = models.CharField(blank=True)
     city = models.CharField(blank=False)

@@ -2,37 +2,27 @@
 
 {% block title %}Create an account{% endblock %}
 
-{% block head %}
-{{ wizard.form.media }}
-{% endblock %}
-
 {% block card %}
 <div class="card-header">
     <h5 class="card-title">Create your account</h5>
-    {% if wizard.steps.step0 == 1 %}
-    <p>Set up your name for your contact card.</p>
-    {% endif %}
 </div>
 
 <div class="card-body text-center">
     <form method="post">
         {% csrf_token %}
-        {{ wizard.management_form }}
-
-        {% if wizard.steps.step0 == 0 %} {# UserRegistrationForm #}
         <ul class="list-group list-group-flush">
-            <li class="list-group-item"> {# username and email section #}
+            <li class="list-group-item">  {# username email section #}
                 <div class="mb-3">
-                    <label for="{{ wizard.form.username.id_for_label }}" class="form-label">
-                        {{ wizard.form.username.label }}
+                    <label for="{{ form.username.id_for_label }}" class="form-label">
+                        {{ form.username.label }}
                     </label>
-                    {{ wizard.form.username }}
-                    <div id="{{ wizard.form.username.id_for_label }}" class="form-text">
-                        {{ wizard.form.username.help_text }}
+                    {{ form.username }}
+                    <div id="{{ form.username.id_for_label }}" class="form-text">
+                        {{ form.username.help_text }}
                     </div>
-                    {% if wizard.form.username.errors %}
+                    {% if form.username.errors %}
                     <ul>
-                      {% for e in wizard.form.username.errors %}
+                      {% for e in form.username.errors %}
                       <li class="text-danger">{{ e }}</li>
                       {% endfor %}
                     </ul>
@@ -40,31 +30,32 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="{{ wizard.form.email.id_for_label }}" class="form-label">
-                        {{ wizard.form.email.label }}
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        {{ form.email.label }}
                     </label>
-                    {{ wizard.form.email }}
-                    <div id="{{ wizard.form.email.id_for_label }}" class="form-text">
-                        {{ wizard.form.email.help_text }}
+                    {{ form.email }}
+                    <div id="{{ form.email.id_for_label }}" class="form-text">
+                        {{ form.email.help_text }}
                     </div>
-                    {% if wizard.form.email.errors %}
+                    {% if form.email.errors %}
                     <ul>
-                      {% for e in wizard.form.email.errors %}
+                      {% for e in form.email.errors %}
                       <li class="text-danger">{{ e }}</li>
                       {% endfor %}
                     </ul>
                     {% endif %}
                 </div>
             </li>
+
             <li class="list-group-item"> {# pw section #}
                 <div class="mb-3">
-                    <label for="{{ wizard.form.password.id_for_label }}" class="form-label">
-                        {{ wizard.form.password.label }}
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        {{ form.password.label }}
                     </label>
-                    {{ wizard.form.password }}
-                    {% if wizard.form.password.errors %}
+                    {{ form.password }}
+                    {% if form.password.errors %}
                     <ul>
-                      {% for e in wizard.form.password.errors %}
+                      {% for e in form.password.errors %}
                       <li class="text-danger">{{ e }}</li>
                       {% endfor %}
                     </ul>
@@ -72,13 +63,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="{{ wizard.form.password2.id_for_label }}" class="form-label">
-                        {{ wizard.form.password2.label }}
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">
+                        {{ form.password2.label }}
                     </label>
-                    {{ wizard.form.password2 }}
-                    {% if wizard.form.password2.errors %}
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
                     <ul>
-                      {% for e in wizard.form.password2.errors %}
+                      {% for e in form.password2.errors %}
                       <li class="text-danger">{{ e }}</li>
                       {% endfor %}
                     </ul>
@@ -87,64 +78,22 @@
             </li>
         </ul>
         <div class="card-text">
-          <input class="btn btn-primary" type="submit" value="Next" />
+          <input class="btn btn-primary" type="submit" value="Register" />
         </div>
-        {% endif %}
-
-        {% if  wizard.steps.step0 == 1 %} {# UserRegistrationForm #}
-        <div class="mb-3">
-            <label for="{{ wizard.form.first_name.id_for_label }}" class="form-label">
-                {{ wizard.form.first_name.label }}
-            </label>
-            {{ wizard.form.first_name }}
-            <div id="{{ wizard.form.first_name.id_for_label }}" class="form-text">
-                {{ wizard.form.first_name.help_text }}
-            </div>
-            {% if wizard.form.first_name.errors %}
-            <ul>
-              {% for e in wizard.form.first_name.errors %}
-              <li class="text-danger">{{ e }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="{{ wizard.form.last_name.id_for_label }}" class="form-label">
-                {{ wizard.form.last_name.label }}
-            </label>
-            {{ wizard.form.last_name }}
-            <div id="{{ wizard.form.last_name.id_for_label }}" class="form-text">
-                {{ wizard.form.last_name.help_text }}
-            </div>
-            {% if wizard.form.last_name.errors %}
-            <ul>
-              {% for e in wizard.form.last_name.errors %}
-              <li class="text-danger">{{ e }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-        <div class="card-text">
-          <input class="btn btn-primary" type="submit" value="Finish" />
-        </div>
-        {% endif %}
     </form>
 </div>
 
 <div class="card-footer d-flex flex-column">
-    {% if wizard.form.non_field_errors %}
+    {% if form.non_field_errors %}
     <ul>
-        {% for e in wizard.form.non_field_errors %}
+        {% for e in form.non_field_errors %}
         <li class="text-danger">{{ e }}</li>
         {% endfor %}
     </ul>
     {% endif %}
 
-    {% if  wizard.steps.step0 == 0 %}
     <p class="card-text">
-        {{ wizard.form.password2.help_text }}
+        {{ form.password2.help_text }}
     </p>
-    {% endif %}
 </div>
 {% endblock %}
