@@ -35,7 +35,6 @@ class Profile(models.Model):
 
     # -------- local info for the user --------
     title = models.CharField(max_length=50, blank=False)
-    slug = models.SlugField(max_length=100, unique=True, blank=False)
     description = models.CharField(blank=True, null=True)
 
     # -------- info displayed on profile --------
@@ -60,13 +59,8 @@ class Profile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super(Profile, self).save(*args, **kwargs)
-
     def get_absolute_url(self):
-        return reverse('profile', kwargs={'slug': self.slug})
+        return reverse('profile', kwargs={'pk': self.pk})
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
