@@ -5,10 +5,12 @@ from . import views
 
 urlpatterns = [
     path('', views.profile_list, name='profile_list'),
-    path('create/', views.ProfileEditView.as_view(), name='profile_create'),
-    path('<slug:slug>/', views.profile, name='profile'),
-    path('<slug:slug>/edit/', views.ProfileEditView.as_view(), name='profile_edit'),
-    # path('<slug:slug>/delete/', views.ProfileDeleteView.as_view(), name='profile_delete'),
+    path('create/', views.ProfileEditCreateView.as_view(), name='profile_create'),
+    # consider [Sqids](https://sqids.org/) instead of pks
+    path('<pk>/', views.profile, name='profile'),
+    path('<pk>/edit/', views.ProfileEditCreateView.as_view(), name='profile_edit'),
+    path('<pk>/delete/', views.profile_delete, name='profile_delete'),
+    path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit')
 
     # path('', views.profile_list, name='profile_list'),
     # path('<slug:slug>/', views.profile, name='profile'),

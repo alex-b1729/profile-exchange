@@ -66,10 +66,27 @@ class UserRegistrationForm(forms.ModelForm):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
+        fields = ['title', 'kind', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Profile title',
+                'class': 'form-control mb-3'
+            }),
+            'kind': forms.Select(attrs={
+                'class': 'form-select mb-3'
+            }),
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Profile description',
+                'rows': 2,
+                'class': 'form-control'
+            }),
+        }
+
+
+class ProfileDetailEditForm(forms.ModelForm):
+    class Meta:
+        model = Profile
         fields = [
-            # 'kind',
-            # 'title',
-            # 'description',
             'prefix',
             'first_name',
             'middle_name',
@@ -81,17 +98,6 @@ class ProfileEditForm(forms.ModelForm):
             'about',
         ]
         widgets = {
-            # 'kind': forms.Select(attrs={
-            #     'class': 'form-select'
-            # }),
-            # 'title': forms.TextInput(attrs={
-            #     'size': 30,
-            #     'class': 'form-control'
-            # }),
-            # 'description': forms.Textarea(attrs={
-            #     'class': 'form-control',
-            #     'rows': 2,
-            # }),
             'prefix': forms.TextInput(attrs={
                 'autocomplete': 'honorific-prefix',
                 'size': 6,
@@ -133,37 +139,6 @@ class ProfileEditForm(forms.ModelForm):
                 'rows': 3,
             }),
         }
-
-
-class ProfileDetailEditForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['title', 'kind', 'description']
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'placeholder': 'Profile title',
-                'class': 'form-control mb-3'
-            }),
-            'kind': forms.Select(attrs={
-                'class': 'form-select mb-3'
-            }),
-            'description': forms.Textarea(attrs={
-                'placeholder': 'Profile description',
-                'rows': 3,
-                'class': 'form-control'
-            }),
-        }
-
-
-ProfileDetailFormSet = inlineformset_factory(
-    get_user_model(),
-    Profile,
-    form=ProfileDetailEditForm,
-    fields=('title', 'kind', 'description'),
-    extra=1,
-    min_num=1,
-    can_delete=False
-)
 
 
 class CardNameForm(forms.Form):

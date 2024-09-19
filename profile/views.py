@@ -27,151 +27,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .models import Profile
 from .forms import (
     UserRegistrationForm,
-    ProfileDetailFormSet,
-    ProfileDetailEditForm,
     ProfileEditForm,
     UserEditEmailForm,
+    ProfileDetailEditForm,
 )
-
-
-class UserMixin(object):
-    def get_queryset(self):
-        qs = super(UserMixin, self).get_queryset()
-        return qs.filter(user=self.request.user)
-
-
-class UserEditMixin(object):
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(UserEditMixin, self).form_valid(form)
-
-
-class UserProfileMixin(UserMixin, LoginRequiredMixin):
-    model = Profile
-    fields = [
-        'kind',
-        'title',
-        'description',
-        'prefix',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'suffix',
-        'nickname',
-        'photo',
-        'headline',
-        'location',
-        'about',
-    ]
-    success_url = reverse_lazy('profile_list')
-
-
-class ProfileEditView(
-    TemplateResponseMixin,
-    View,
-    UserProfileMixin,
-    UserEditMixin,
-):
-    """
-    Creates or edits profile
-    """
-    template_name = 'profile/manage/profile/form.html'
-
-    profile = None
-    slug = None
-    user = None
-    files = None
-
-    def get_profile_form(self, data=None, files=None):
-        return ProfileEditForm(
-            instance=self.profile,
-            data=data,
-            files=files,
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        self.user = request.user
-        if 'slug' in kwargs:
-            self.slug = kwargs['slug']
-            self.profile = get_object_or_404(
-                Profile,
-                slug=self.slug
-            )
-        # self.files = request.FILES
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_profile_form()
-        return self.render_to_response({'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_profile_form(data=request.POST, files=self.files)
-        if form.is_valid():
-            p = form.save(commit=False)
-            p.user = self.user
-            p.save()
-            return redirect('profile', slug=self.slug)
-        return self.render_to_response({'form': form})
-
-
-@login_required
-def profile(request, slug):
-    profile = get_object_or_404(Profile, user=request.user, slug=slug)
-    if request.method == 'POST':
-        if 'delete-profile-img' in request.POST:
-            profile.photo.delete(save=True)
-            return redirect('profile', slug=slug)
-    return render(
-        request,
-        'profile/detail.html',
-        {
-            'entity': 'self',
-            'profile': profile,
-        }
-    )
-
-
-@login_required
-def profile_list(request):
-    profiles = request.user.profile_set.all()
-    if request.method == 'POST':
-        formset = ProfileDetailFormSet(
-            instance=request.user,
-            data=request.POST,
-        )
-        if formset.is_valid():
-            formset.save()
-            return reverse_lazy('profile_list')
-    else:
-        formset = ProfileDetailFormSet(instance=request.user)
-    return render(
-        request,
-        'profile/list.html',
-        {
-            'section': 'profiles',
-            'profiles': profiles,
-            'profile_formset': formset,
-         }
-    )
-
-
-@login_required
-def account(request):
-    if request.method == 'POST':
-        user_form = UserEditEmailForm(
-            instance=request.user,
-            data=request.POST
-        )
-        if user_form.is_valid():
-            user_form.save()
-            # return redirect('profile')
-    else:
-        user_form = UserEditEmailForm(instance=request.user)
-    return render(
-        request,
-        'profile/account.html',
-        {'user_form': user_form}
-    )
 
 
 def register(request):
@@ -194,6 +53,155 @@ def register(request):
         request,
         'profile/register.html',
         {'form': form}
+    )
+
+
+@login_required
+def account(request):
+    if request.method == 'POST':
+        user_form = UserEditEmailForm(
+            instance=request.user,
+            data=request.POST
+        )
+        if user_form.is_valid():
+            user_form.save()
+            # return redirect('profile')
+    else:
+        user_form = UserEditEmailForm(instance=request.user)
+    return render(
+        request,
+        'profile/account.html',
+        {'user_form': user_form}
+    )
+
+
+class UserMixin(object):
+    def get_queryset(self):
+        qs = super(UserMixin, self).get_queryset()
+        return qs.filter(user=self.request.user)
+
+
+@login_required
+def profile_list(request):
+    profiles = request.user.profile_set.all()
+    return render(
+        request,
+        'profile/list.html',
+        {
+            'section': 'profiles',
+            'profiles': profiles,
+         }
+    )
+
+
+class ProfileEditCreateView(
+    TemplateResponseMixin,
+    View,
+    UserMixin,
+):
+    template_name = 'profile/partials/profile_edit.html'
+    user = None
+    profile = None
+    pk = None
+
+    def get_form(self, data=None, files=None):
+        return ProfileEditForm(
+            instance=self.profile,
+            data=data,
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = request.user
+        if 'pk' in kwargs:
+            self.pk = kwargs['pk']
+            self.profile = get_object_or_404(
+                Profile,
+                pk=self.pk,
+                user=self.user,
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response({'form': form, 'pk': self.pk})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(data=request.POST)
+        if form.is_valid():
+            p = form.save(commit=False)
+            p.user = self.user
+            p.save()
+            return redirect('profile_list')
+        return self.render_to_response({'form': form, 'pk': self.pk})
+
+
+class ProfileDetailEditView(
+    TemplateResponseMixin,
+    View,
+    UserMixin,
+):
+    template_name = 'profile/manage/profile/edit_detail.html'
+    user = None
+    profile = None
+    pk = None
+
+    def get_form(self, data=None, files=None):
+        return ProfileDetailEditForm(
+            instance=self.profile,
+            data=data,
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = request.user
+        if 'pk' in kwargs:
+            self.pk = kwargs['pk']
+            self.profile = get_object_or_404(
+                Profile,
+                pk=self.pk,
+                user=self.user,
+            )
+        else:
+            return page_not_found
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response({'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(data=request.POST)
+        if form.is_valid():
+            p = form.save(commit=True)
+            return redirect('profile', pk=p.pk)
+        return self.render_to_response({'form': form})
+
+
+@login_required
+@require_POST
+def profile_delete(request, pk):
+    p = get_object_or_404(
+        Profile,
+        user=request.user,
+        pk=pk
+    )
+    p.delete()
+    return redirect('profile_list')
+
+@login_required
+def profile(request, pk):
+    profile = get_object_or_404(Profile, user=request.user, pk=pk)
+    # todo separate view for below
+    # if request.method == 'POST':
+    #     if 'delete-profile-img' in request.POST:
+    #         profile.photo.delete(save=True)
+    #         return redirect('profile', pk=pk)
+    return render(
+        request,
+        'profile/detail.html',
+        {
+            'entity': 'self',
+            'profile': profile,
+        }
     )
 
 

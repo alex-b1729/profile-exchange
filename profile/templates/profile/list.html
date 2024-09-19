@@ -7,24 +7,30 @@
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom">
     <h2>My Profiles</h2>
-    <a href="{% url 'profile_create' %}" class="btn btn-primary">New Profile</a>
+    <a href="#" class="btn btn-primary">New Profile</a>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="form-container">
-    <div class="d-md-inline-flex g-3">
-        {% for p in profiles %}
-        <div id="profile-{{ forloop.counter0 }}" class="card me-3 mb-3" style="width: 18rem;">
-            {% with photo=p.photo %}
-            {% if photo %}
-            {% thumbnail photo "200x150" crop="center" as im %}
-            <a href="{{ p.get_absolute_url }}">
-                <img src="{{ im.url }}" class="card-img-top" alt="{{ p.title }} Profile photo" />
-            </a>
-            {% endthumbnail %}
-            {% endif %}
-            {% endwith %}
+<div class="d-md-inline-flex g-3">
+    {% for p in profiles %}
+    <div id="profile-{{ forloop.counter0 }}" class="card me-3 mb-3" style="width: 18rem;">
+        {% with photo=p.photo %}
+        {% if photo %}
+        {% thumbnail photo "200x150" crop="center" as im %}
+        <a href="{{ p.get_absolute_url }}">
+            <img src="{{ im.url }}" class="card-img-top" alt="{{ p.title }} Profile photo" />
+        </a>
+        {% endthumbnail %}
+        {% endif %}
+        {% endwith %}
 
-            <div class="card-body">
+        <div class="card-body">
+            <div id="profile-{{ forloop.counter0 }}-description">
+                <button
+                  hx-get="{% url 'profile_edit' p.pk %}"
+                  hx-target="#profile-{{ forloop.counter0 }}-description"
+                  hx-trigger="click">
+                    Click me!
+                </button>
                 <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
                     <h5 class="card-title">
                         {{ p.title }}
@@ -35,70 +41,66 @@
                 {% if p.description %}
                 <p class="card-text">{{ p.description }}</p>
                 {% endif %}
-
-                <hr />
-                <p class="card-text fw-bold mb-1">{{ p.fn }}</p>
-                <p class="card-text mb-2">{{ p.headline }}</p>
-                {% with nick=p.nickname loc=p.location %}
-                {% if nick or loc %}
-                <p class="card-text text-muted">
-                    {% if loc %}
-                    {{ loc }}
-                    {% endif %}
-
-                    {% if nick and loc %}
-                    &#x2022;
-                    {% endif %}
-
-                    {% if nick %}
-                    "{{ nick }}"
-                    {% endif %}
-                </p>
-                {% endif %}
-                {% endwith %}
-                <a href="{% url 'profile_edit' p.slug %}" class="card-link">Edit</a>
-                <a href="#" class="card-link">Delete</a>
             </div>
+
+            <hr />
+            <p class="card-text fw-bold mb-1">{{ p.fn }}</p>
+            <p class="card-text mb-2">{{ p.headline }}</p>
+            {% with nick=p.nickname loc=p.location %}
+            {% if nick or loc %}
+            <p class="card-text text-muted">
+                {% if loc %}
+                {{ loc }}
+                {% endif %}
+
+                {% if nick and loc %}
+                &#x2022;
+                {% endif %}
+
+                {% if nick %}
+                "{{ nick }}"
+                {% endif %}
+            </p>
+            {% endif %}
+            {% endwith %}
+            <a href="{% url 'profile_detail_edit' p.pk %}" class="card-link">Edit</a>
+            <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
+                    action="{% url 'profile_delete' p.pk %}">
+              <button class="btn btn-danger" type="submit" value="deleted">Delete</button>
+              {% csrf_token %}
+            </form>
         </div>
-        {% endfor %}
-        <div id="profile-{{ profiles|length }}" class="card me-3 mb-3 text-center" style="width: 18rem;">
-            <div class="card-body">
-                <a href="{% url 'profile_create' %}">
+    </div>
+    {% endfor %}
+    <div id="profile-{{ profiles|length }}" class="card me-3 mb-3" style="width: 18rem;">
+        <div class="card-body" id="new-profile">
+            <div class="text-center">
+                <button
+                    hx-get="{% url 'profile_create' %}"
+                    hx-target="#new-profile"
+                    hx-trigger="click"
+                    class="btn btn-link">
                     <h1 class="card-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle fs-1" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
                         </svg>
                     </h1>
-                </a>
-                <hr />
-                <p class="card-text">
-                    {% if profiles %}
-                    Create new profile
-                    {% else %}
-                    Set up your first profile to get started.
-                    {% endif %}
-                </p>
+                </button>
             </div>
-        </div>
-    </div>
 
-    {# hidden formsets #}
-    {{ profile_formset.management_form }}
-    <div id="formsets">
-        <p>formset stuff</p>
-        {% csrf_token %}
-        {% for form in profile_formset %}
-        <div id="form-{{ forloop.counter0 }}" class="card me-3 mb-3" style="width: 18rem;">
-            <div class="card-body">
-                {{ form.title }}
-                {{ form.kind }}
-                {{ form.description }}
-            </div>
+            <hr />
+            <p class="card-text">
+                {% if profiles %}
+                Create new profile
+                {% else %}
+                Create your first profile to get started.
+                {% endif %}
+            </p>
         </div>
-        {% endfor %}
-        <input class="btn btn-primary" type="submit" value="Save changes">
     </div>
-</form>
+</div>
 
 {% endblock %}

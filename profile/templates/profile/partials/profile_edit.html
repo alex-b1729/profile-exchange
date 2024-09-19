@@ -1,0 +1,15 @@
+<form method="post"
+      {% if pk %}
+      action="{% url 'profile_edit' pk %}">
+      {% else %}
+      action="{% url 'profile_create' %}">
+      {% endif %}
+
+    {{ form.title }} {{ form.title.errors }}
+    {{ form.kind }} {{ form.kind.errors }}
+    {{ form.description }} {{ form.description.errors }}
+
+    {% csrf_token %}
+    <input class="btn btn-primary" type="submit" value="Save" />
+    {{ form.non_field_errors }}
+</form>
