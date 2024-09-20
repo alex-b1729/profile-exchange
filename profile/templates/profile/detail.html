@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load thumbnail %}
 {% load static %}
+{% load profile_extras %}
 
 {% block title %}{{ profile.title }} | Profile{% endblock %}
 
@@ -70,7 +71,7 @@
         <ul class="dropdown-menu">
           <li>
             <button
-              hx-get="{{ profile.get_absolute_url }}edit/profileimg/"
+              hx-get="{{ profile.get_absolute_url }}editdetail/profileimg/"
               hx-target="#update-img-model"
               hx-trigger="click"
               data-bs-toggle="modal"
@@ -151,7 +152,7 @@
   <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
   {% endif %}
   {# <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a> #}
-  <a class="btn btn-dark me-3" href="{{ profile.get_absolute_url }}edit/">Edit</a>
+  <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
 </div>
 {% endif %}
 
@@ -175,8 +176,7 @@
     {% endwith %}
   </ul>
 
-  {% comment %}
-  {% for content in profile.content.all %}
+  {% for content in profile.contents.all %}
   {% with item=content.item %}
   <div class="card mb-3">
     <div class="card-header">
@@ -184,7 +184,8 @@
     </div>
 
   </div>
-  {% endcomment %}
+  {% endwith %}
+  {% endfor %}
 
 </div>
 

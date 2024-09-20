@@ -74,7 +74,7 @@
     </div>
     {% endfor %}
     <div id="profile-{{ profiles|length }}" class="card me-3 mb-3" style="width: 18rem;">
-        <div class="card-body" id="new-profile">
+        <div class="card-body align-content-center" id="new-profile">
             <div class="text-center">
                 <button
                     hx-get="{% url 'profile_create' %}"

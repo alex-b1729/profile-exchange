@@ -288,7 +288,12 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
 
     def get(self, request, profile_pk, model_name, content_pk=None):
         form = self.get_form(self.model, instance=self.obj)
-        return self.render_to_response({'form': form, 'object': self.obj})
+        return self.render_to_response({
+            'form': form,
+            'model': model_name,
+            'profile_pk': profile_pk,
+            'object': self.obj,
+        })
 
     def post(self, request, profile_pk, model_name, content_pk=None):
         form = self.get_form(
@@ -308,7 +313,12 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
                     item=obj,
                 )
             return redirect('profile', self.profile.pk)
-        return self.render_to_response({'form': form, 'object': self.obj})
+        return self.render_to_response({
+            'form': form,
+            'model': model_name,
+            'profile_pk': profile_pk,
+            'object': self.obj
+        })
 
 
 @login_required
