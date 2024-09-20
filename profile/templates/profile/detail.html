@@ -182,10 +182,29 @@
     <div class="card-header">
       <h5 class="card-title">{{ item }} {{ item|model_name }}</h5>
     </div>
-
+    content type: {{ content.content_type }}
+    model: {{ content.content_type.model }}
+    name: {{ content.content_type.name }}
   </div>
   {% endwith %}
   {% endfor %}
+
+  {% with emails=request.user.email_related.all %}
+  {% if emails %}
+  <div class="card mb-3">
+    <div class="card-header">
+      <h5 class="card-title">Emails</h5>
+    </div>
+    <div class="card-body">
+      <ul>
+        {% for email in emails %}
+        <li>{{ email.type }}, {{ email.email_address }}, {{ email.label }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+  {% endwith %}
 
 </div>
 
