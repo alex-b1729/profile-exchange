@@ -10,12 +10,13 @@ urlpatterns = [
     path('<pk>/', views.profile, name='profile'),
     path('<pk>/edit/', views.ProfileEditCreateView.as_view(), name='profile_edit'),
     path('<pk>/delete/', views.profile_delete, name='profile_delete'),
-    path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit')
+    path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
+    path('<pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
+    path('<pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
 
     # path('', views.profile_list, name='profile_list'),
     # path('<slug:slug>/', views.profile, name='profile'),
     # path('<slug:slug>/edit/', views.EditCardView.as_view(), name='edit'),
-    # path('<slug:slug>/edit/profileimg/', views.update_profile_img, name='update_profile_img'),
 
     # path('share/', views.share_card, name='share'),
     # path('share/<uuid:share_uuid>/', views.view_shared_profile, name='shared_profile'),

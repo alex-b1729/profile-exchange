@@ -157,15 +157,10 @@ class ProfileDetailEditForm(forms.ModelForm):
         }
 
 
-class CardNameForm(forms.Form):
-    first_name = forms.CharField(max_length=100)
-    last_name = forms.CharField(max_length=100)
-
+class ProfileImgEditForm(forms.ModelForm):
     class Meta:
-        widgets = {
-            'first_name': forms.TextInput(attrs={'autocomplete': 'given-name'}),
-            'last_name': forms.TextInput(attrs={'autocomplete': 'family-name'})
-        }
+        model = Profile
+        fields = ('photo',)
 
 
 class UserEditEmailForm(forms.ModelForm):
@@ -222,12 +217,6 @@ class UserEditEmailForm(forms.ModelForm):
 #             }),
 #             'note': forms.Textarea(attrs={'class': 'form-control'}),
 #         }
-#
-#
-# class ProfileImgEditForm(forms.ModelForm):
-#     class Meta:
-#         model = Card
-#         fields = ('photo',)
 #
 #
 # class AddressForm(forms.ModelForm):

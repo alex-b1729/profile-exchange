@@ -1,7 +1,7 @@
 {% load static %}
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
-    <form method="post" action="{% url 'update_profile_img' slug %}" enctype="multipart/form-data">
+    <form method="post" action="{% url 'update_profile_img' pk %}" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="modal-header">
         <h5 class="modal-title">Update your profile photo</h5>

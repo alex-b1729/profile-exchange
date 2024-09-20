@@ -30,6 +30,7 @@ from .forms import (
     ProfileEditForm,
     UserEditEmailForm,
     ProfileDetailEditForm,
+    ProfileImgEditForm,
 )
 
 
@@ -193,14 +194,10 @@ def profile_delete(request, pk):
     p.delete()
     return redirect('profile_list')
 
+
 @login_required
 def profile(request, pk):
     profile = get_object_or_404(Profile, user=request.user, pk=pk)
-    # todo separate view for below
-    # if request.method == 'POST':
-    #     if 'delete-profile-img' in request.POST:
-    #         profile.photo.delete(save=True)
-    #         return redirect('profile', pk=pk)
     return render(
         request,
         'profile/detail.html',
@@ -209,6 +206,46 @@ def profile(request, pk):
             'profile': profile,
         }
     )
+
+
+def update_profile_img(request, pk):
+    user = request.user
+    user_profile = get_object_or_404(
+        Profile,
+        user=user,
+        pk=pk,
+    )
+    if request.method == 'POST':
+        form = ProfileImgEditForm(
+            instance=user_profile,
+            data=request.POST,
+            files=request.FILES
+        )
+        if form.is_valid():
+            form.save()
+            return redirect('profile', pk=pk)
+    else:
+        form = ProfileImgEditForm(instance=user_profile)
+    return render(
+        request,
+        'profile/partials/update_profile_img.html',
+        {
+            'form': form,
+            'pk': pk,
+        }
+    )
+
+
+@login_required
+@require_POST
+def profile_img_delete(request, pk):
+    p = get_object_or_404(
+        Profile,
+        user=request.user,
+        pk=pk
+    )
+    p.photo.delete(save=True)
+    return redirect('profile', pk)
 
 
 # class RegisterWizard(SessionWizardView):
@@ -446,33 +483,6 @@ def profile(request, pk):
 #         )
 #
 #
-# def update_profile_img(request, slug):
-#     user = request.user
-#     user_profile = get_object_or_404(
-#         Profile,
-#         user=user,
-#         slug=slug,
-#     )
-#     user_card = user_profile.card
-#     if request.method == 'POST':
-#         form = ProfileImgEditForm(
-#             instance=user_card,
-#             data=request.POST,
-#             files=request.FILES
-#         )
-#         if form.is_valid():
-#             form.save()
-#             return redirect('profile', slug=slug)
-#     else:
-#         form = ProfileImgEditForm(instance=user_card)
-#     return render(
-#         request,
-#         'profile/partials/update_profile_img.html',
-#         {
-#             'form': form,
-#             'slug': slug,
-#         }
-#     )
 #
 #
 # @login_required

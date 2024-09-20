@@ -85,8 +85,10 @@
           </li>
           {% if profimg %}
           <li>
-            <form method="post" onsubmit="return confirm('Are you sure you wish to delete your profile picture?');">
-              <input type="hidden" name="delete-profile-img" value="true" id="delete-profile-img" />
+            <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete your profile picture?');"
+                    action="{% url 'profile_img_delete' profile.pk %}">
               <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
               {% csrf_token %}
             </form>
