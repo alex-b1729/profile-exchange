@@ -22,7 +22,7 @@ from django.views.defaults import page_not_found
 from django.views.generic.detail import DetailView
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import ModelFormMixin
 
 from .models import Profile
 from .forms import (
@@ -129,9 +129,15 @@ class ProfileEditCreateView(
         form = self.get_form(data=request.POST)
         if form.is_valid():
             p = form.save(commit=False)
-            p.user = self.user
-            p.save()
-            return redirect('profile_list')
+            if p.pk:
+                # editing existing
+                p.save()
+                return redirect('profile_list')
+            else:
+                # new profile
+                p.user = self.user
+                p.save()
+                return redirect('profile_detail_edit', p.pk)
         return self.render_to_response({'form': form, 'pk': self.pk})
 
 
