@@ -7,7 +7,6 @@
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom">
     <h2>My Profiles</h2>
-    <a href="#" class="btn btn-primary">New Profile</a>
 </div>
 
 <div class="d-md-inline-flex g-3">
@@ -29,7 +28,7 @@
                   hx-get="{% url 'profile_edit' p.pk %}"
                   hx-target="#profile-{{ forloop.counter0 }}-description"
                   hx-trigger="click">
-                    Click me!
+                    Edit Profile
                 </button>
                 <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
                     <h5 class="card-title">
@@ -63,7 +62,7 @@
             </p>
             {% endif %}
             {% endwith %}
-            <a href="{% url 'profile_detail_edit' p.pk %}" class="card-link">Edit</a>
+            <a href="{% url 'profile_detail_edit' p.pk %}" class="card-link">Edit profile content</a>
             <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
