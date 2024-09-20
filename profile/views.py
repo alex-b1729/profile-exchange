@@ -1,10 +1,13 @@
 import qrcode
 import datetime as dt
 import qrcode.image.svg
-from profile.utils import vcard
+from profile.utils import vcard, consts
+
+from django.apps import apps
 from django.db.models import Value
 from django.urls import reverse_lazy
 from django.core.files.base import ContentFile
+from django.forms.models import modelform_factory
 from formtools.wizard.views import SessionWizardView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -24,7 +27,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
 
-from .models import Profile
+from .models import Profile, Content
 from .forms import (
     UserRegistrationForm,
     ProfileEditForm,
@@ -246,6 +249,80 @@ def profile_img_delete(request, pk):
     )
     p.photo.delete(save=True)
     return redirect('profile', pk)
+
+
+class ContentCreateUpdateView(TemplateResponseMixin, View):
+    profile = None
+    model = None
+    obj = None
+    template_name = 'profile/partials/content_edit.html'
+
+    def get_model(self, model_name):
+        if model_name in ['email', 'phone', 'link', 'address']:
+            return apps.get_model(app_label='profile', model_name=model_name)
+        return None
+
+    def get_form(self, model, *args, **kwargs):
+        form = modelform_factory(
+            model,
+            exclude=('user', 'created', 'updated',)
+        )
+        return form(*args, **kwargs)
+
+    def dispatch(self, request, profile_pk, model_name, content_pk=None, *args, **kwargs):
+        self.profile = get_object_or_404(
+            Profile,
+            pk=profile_pk,
+            user=request.user,
+        )
+        self.model = self.get_model(model_name)
+        if content_pk:
+            self.obj = get_object_or_404(
+                self.model,
+                pk=content_pk,
+                user=request.user,
+            )
+        return super(ContentCreateUpdateView, self).dispatch(
+            request, profile_pk, model_name, content_pk, *args, **kwargs
+        )
+
+    def get(self, request, profile_pk, model_name, content_pk=None):
+        form = self.get_form(self.model, instance=self.obj)
+        return self.render_to_response({'form': form, 'object': self.obj})
+
+    def post(self, request, profile_pk, model_name, content_pk=None):
+        form = self.get_form(
+            self.model,
+            instance=self.obj,
+            data=request.POST,
+            files=request.FILES,
+        )
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            if not content_pk:
+                # new content
+                Content.objects.create(
+                    profile=self.profile,
+                    item=obj,
+                )
+            return redirect('profile', self.profile.pk)
+        return self.render_to_response({'form': form, 'object': self.obj})
+
+
+@login_required
+@require_POST
+def profile_content_delete(request, content_pk):
+    content = get_object_or_404(
+        Content,
+        pk=content_pk,
+        profile__user=request.user,
+    )
+    profile = content.profile
+    content.item.delete()
+    content.delete()
+    return redirect('profile', profile.pk)
 
 
 # class RegisterWizard(SessionWizardView):

@@ -1,0 +1,15 @@
+<div class="card mb-3">
+    <div class="card-header">
+        {% if object %}
+        Edit content
+        {% else %}
+        New content
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ form.as_div }}
+            <input type="submit" value="Save content" />
+        </form>
+    </div>
+</div>

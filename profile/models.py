@@ -85,12 +85,7 @@ class Content(models.Model):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to={
-            'model__in': (
-                'Email',
-                'Phone',
-                'Link',
-                'Address',
-            )
+            'model__in': consts.PROFILE_CONTENTS
         }
     )
     object_id = models.PositiveIntegerField()

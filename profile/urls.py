@@ -14,6 +14,27 @@ urlpatterns = [
     path('<pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
     path('<pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
 
+    path(
+        '<profile_pk>/content/<model_name>/create/',
+        views.ContentCreateUpdateView.as_view(),
+        name='profile_content_create'
+    ),
+    path(
+        '<profile_pk>/content/<model_name>/<content_pk>/',
+        views.ContentCreateUpdateView.as_view(),
+        name='profile_content_update'
+    ),
+    path(
+        '<profile_pk>/content/<model_name>/<content_pk>/',
+        views.ContentCreateUpdateView.as_view(),
+        name='profile_content_update'
+    ),
+    path(
+        '<profile_pk>/content/<int:content_pk>/delete/',
+        views.profile_content_delete,
+        name='profile_content_delete'
+    ),
+
     # path('', views.profile_list, name='profile_list'),
     # path('<slug:slug>/', views.profile, name='profile'),
     # path('<slug:slug>/edit/', views.EditCardView.as_view(), name='edit'),

@@ -155,8 +155,36 @@
 </div>
 {% endif %}
 
-<div class="container mb-3">
+<div class="container mb-3" id="profile-content">
   <p><i>{{ profile.get_kind_display }}</i></p>
+
+  <ul>
+    {% with 'email phone link address' as list %}
+    {% for obj in list.split %}
+    <li>
+      <button
+        hx-get="{% url 'profile_content_create' profile.pk obj %}"
+        hx-target="#profile-content"
+        hx-trigger="click"
+        hx-swap="beforeend"
+        class="btn btn-link">
+        New {{ obj }}
+    </button>
+    </li>
+    {% endfor %}
+    {% endwith %}
+  </ul>
+
+  {% comment %}
+  {% for content in profile.content.all %}
+  {% with item=content.item %}
+  <div class="card mb-3">
+    <div class="card-header">
+      <h5 class="card-title">{{ item }} {{ item|model_name }}</h5>
+    </div>
+
+  </div>
+  {% endcomment %}
 
 </div>
 
