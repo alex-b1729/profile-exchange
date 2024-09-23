@@ -27,7 +27,11 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
 
-from .models import Profile, Content
+from .models import (
+    Profile,
+    Content,
+    ItemBase
+)
 from .forms import (
     UserRegistrationForm,
     ProfileEditForm,
@@ -404,6 +408,22 @@ class ItemCreateUpdateView(TemplateResponseMixin, View):
             'form': form,
             'object': self.obj
         })
+
+
+@login_required
+@require_POST
+def item_delete(request, model_name, item_pk):
+    if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
+        model = apps.get_model(app_label='profile', model_name=model_name)
+    else:
+        return page_not_found
+    item = get_object_or_404(
+        model,
+        pk=item_pk,
+        user=request.user,
+    )
+    item.delete()
+    return redirect('content')
 
 
 # class RegisterWizard(SessionWizardView):

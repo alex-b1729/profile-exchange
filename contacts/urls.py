@@ -37,6 +37,11 @@ urlpatterns = [
         prof_views.ItemCreateUpdateView.as_view(),
         name='item_update'
     ),
+    path(
+        'content/<model_name>/<item_pk>/delete',
+        prof_views.item_delete,
+        name='item_delete'
+    ),
 
     path('admin/', admin.site.urls),
     path('profile/', include('profile.urls')),

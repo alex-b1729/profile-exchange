@@ -21,7 +21,7 @@ phone
 
 <form
     {% if object %}
-    action="{% url 'item_update' 'phone' obj.id %}"
+    action="{% url 'item_update' 'phone' object.pk %}"
     {% else %}
     action="{% url 'item_create' 'phone' %}"
     {% endif %}
@@ -29,7 +29,8 @@ phone
     enctype="multipart/form-data">
     {{ form.as_div }}
     {% csrf_token %}
-    <input type="submit" value="Save" />
+    <input type="submit" value="Save" class="btn btn-primary"/>
+    <a href="{% url 'content' %}" class="btn btn-secondary">Cancel</a>
 </form>
 
 {% endblock %}
