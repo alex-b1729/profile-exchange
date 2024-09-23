@@ -264,7 +264,10 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
     profile = None
     model = None
     obj = None
-    template_name = 'profile/partials/content_edit.html'
+    template_name = None  #'profile/partials/content_edit.html'
+
+    def set_template(self):
+        self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
 
     def get_model(self, model_name):
         if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
@@ -285,6 +288,7 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
             user=request.user,
         )
         self.model = self.get_model(model_name)
+        self.set_template()
         if content_pk:
             self.obj = get_object_or_404(
                 self.model,
@@ -342,6 +346,64 @@ def profile_content_delete(request, content_pk):
     content.item.delete()
     content.delete()
     return redirect('profile', profile.pk)
+
+
+class ItemCreateUpdateView(TemplateResponseMixin, View):
+    model = None
+    obj = None
+    template_name = None
+
+    def set_template(self):
+        self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
+
+    def get_model(self, model_name):
+        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
+            return apps.get_model(app_label='profile', model_name=model_name)
+        return None
+
+    def get_form(self, model, *args, **kwargs):
+        form = modelform_factory(
+            model,
+            exclude=('user', 'created', 'updated',)
+        )
+        return form(*args, **kwargs)
+
+    def dispatch(self, request, model_name, item_pk=None, *args, **kwargs):
+        self.model = self.get_model(model_name)
+        self.set_template()
+        if item_pk:
+            self.obj = get_object_or_404(
+                self.model,
+                pk=item_pk,
+                user=request.user,
+            )
+        return super(ItemCreateUpdateView, self).dispatch(
+            request, model_name, item_pk, *args, **kwargs
+        )
+
+    def get(self, request, model_name, item_pk=None):
+        form = self.get_form(self.model, instance=self.obj)
+        return self.render_to_response({
+            'form': form,
+            'object': self.obj,
+        })
+
+    def post(self, request, model_name, item_pk=None):
+        form = self.get_form(
+            self.model,
+            instance=self.obj,
+            data=request.POST,
+            files=request.FILES,
+        )
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
+            return redirect('content')
+        return self.render_to_response({
+            'form': form,
+            'object': self.obj
+        })
 
 
 # class RegisterWizard(SessionWizardView):

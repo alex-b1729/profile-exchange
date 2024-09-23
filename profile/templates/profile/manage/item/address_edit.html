@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if item %}
+Edit
+{% else %}
+New
+{% endif %}
+address
+{% endblock %}
+
+{% block content %}
+<h1>
+    {% if item %}
+    Edit
+    {% else %}
+    New
+    {% endif %}
+    address
+</h1>
+
+<form
+    {% if object %}
+    action="{% url 'item_update' 'address' obj.id %}"
+    {% else %}
+    action="{% url 'item_create' 'address' %}"
+    {% endif %}
+    method="post"
+    enctype="multipart/form-data">
+    {{ form.as_div }}
+    {% csrf_token %}
+    <input type="submit" value="Save" />
+</form>
+
+{% endblock %}

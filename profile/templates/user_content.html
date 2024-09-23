@@ -18,7 +18,9 @@ My Content
 <div class="card mb-3">
     <div class="card-header">
         Email
-        <button>New</button>
+        <a href="{% url 'item_create' 'email' %}" class="btn btn-primary">
+            New
+        </a>
     </div>
     <div class="card-body">
         {% if emails %}
@@ -41,7 +43,9 @@ My Content
 <div class="card mb-3">
     <div class="card-header">
         Phone
-        <button>New</button>
+        <a href="{% url 'item_create' 'phone' %}" class="btn btn-primary">
+            New
+        </a>
     </div>
     <div class="card-body">
         {% if phones %}
@@ -64,7 +68,9 @@ My Content
 <div class="card mb-3">
     <div class="card-header">
         Links
-        <button>New</button>
+        <a href="{% url 'item_create' 'link' %}" class="btn btn-primary">
+            New
+        </a>
     </div>
     <div class="card-body">
         {% if links %}
@@ -87,7 +93,9 @@ My Content
 <div class="card mb-3">
     <div class="card-header">
         Mailing
-        <button>New</button>
+        <a href="{% url 'item_create' 'address' %}" class="btn btn-primary">
+            New
+        </a>
     </div>
     <div class="card-body">
         {% if addrs %}
