@@ -159,6 +159,7 @@
 <div class="container mb-3" id="profile-content">
   <p><i>{{ profile.get_kind_display }}</i></p>
 
+  {# new buttons #}
   <ul>
     {% with 'email phone link address' as list %}
     {% for obj in list.split %}
@@ -180,11 +181,11 @@
   {% with item=content.item %}
   <div class="card mb-3">
     <div class="card-header">
-      <h5 class="card-title">{{ item }} {{ item|model_name }}</h5>
+      <h5 class="card-title">{{ item|model_name|title }}</h5>
     </div>
-    content type: {{ content.content_type }}
-    model: {{ content.content_type.model }}
-    name: {{ content.content_type.name }}
+    <div class="card-body">
+      {{ item.render|safe }}
+    </div>
   </div>
   {% endwith %}
   {% endfor %}

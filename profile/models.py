@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
 from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.contenttypes.models import ContentType
@@ -110,6 +111,12 @@ class ItemBase(models.Model):
     class Meta:
         abstract = True
 
+    def render(self):
+        return render_to_string(
+            f'profile/partials/models/{self.__class__.__name__.lower()}_render.html',
+            {'object': self}
+        )
+
 
 # todo: validate all Items
 class Email(ItemBase):
@@ -119,6 +126,9 @@ class Email(ItemBase):
         blank=True
     )
     email_address = models.EmailField()
+
+    def __str__(self):
+        return str(self.email_address)
 
 
 class Phone(ItemBase):
