@@ -41,6 +41,13 @@ from .forms import (
 )
 
 
+def home(request):
+    return render(
+        request,
+        'index.html',
+        {'section': ''},
+    )
+
 def register(request):
     """depreciated for registration wizard"""
     if request.method == 'POST':
