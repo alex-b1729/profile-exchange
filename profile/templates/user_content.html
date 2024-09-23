@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load static %}
+
+{% block title %}
+My Content
+{% endblock %}
+
+{% block content %}
+
+<h1>My Content</h1>
+<p>Hey {{ request.user.username }}, here's all your content.</p>
+<p>Mix and match this in your <a href="{% url 'profile_list' %}">profiles</a>.</p>
+
+<hr />
+
+{% with emails=request.user.email_related.all %}
+<div class="card mb-3">
+    <div class="card-header">
+        Email
+        <button>New</button>
+    </div>
+    <div class="card-body">
+        {% if emails %}
+        <ul class="list-group list-group-flush">
+            {% for email in emails %}
+            <li class="list-group-item">
+                <span class="text-muted">{{ email.get_type_display }}</span>
+                <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        Add an email to include in your profiles
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+
+{% with phones=request.user.phone_related.all %}
+<div class="card mb-3">
+    <div class="card-header">
+        Phone
+        <button>New</button>
+    </div>
+    <div class="card-body">
+        {% if phones %}
+        <ul class="list-group list-group-flush">
+            {% for phone in phones %}
+            <li class="list-group-item">
+                <span class="text-muted">{{ phone.get_type_display }}</span>
+                {{ phone.phone_number }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        Add a phone number to include in your profiles
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+
+{% with links=request.user.link_related.all %}
+<div class="card mb-3">
+    <div class="card-header">
+        Links
+        <button>New</button>
+    </div>
+    <div class="card-body">
+        {% if links %}
+        <ul class="list-group list-group-flush">
+            {% for link in links %}
+            <li class="list-group-item">
+                <span class="text-muted">{{ link.get_type_display }}</span>
+                <a href="{{ link.url }}">{{ link.url }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        Add an external link to include in your profiles
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+
+{% with addrs=request.user.address_related.all %}
+<div class="card mb-3">
+    <div class="card-header">
+        Mailing
+        <button>New</button>
+    </div>
+    <div class="card-body">
+        {% if addrs %}
+        <ul class="list-group list-group-flush">
+            {% for addr in addrs %}
+            <li class="list-group-item">
+                <div class="d-md-flex">
+                    <div class="me-3">
+                        <p class="text-muted">{{ addr.get_type_display }}</p>
+                    </div>
+                    <div class="justify-content-left flex-wrap">
+                        {{ addr.street1 }}<br>
+                        {% if addr.street2 %}{{ addr.street2 }}<br>{% endif %}
+                        {{ addr.city }}, {{ addr.state }} {{ addr.zip }}<br>
+                        {% if addr.country %}{{ addr.country }}{% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        Add an address to include in your profiles
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+
+{% endblock %}

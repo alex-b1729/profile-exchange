@@ -251,6 +251,15 @@ def profile_img_delete(request, pk):
     return redirect('profile', pk)
 
 
+@login_required
+def user_content_view(request):
+    return render(
+        request,
+        'user_content.html',
+        {'section': 'content'}
+    )
+
+
 class ContentCreateUpdateView(TemplateResponseMixin, View):
     profile = None
     model = None
@@ -258,7 +267,7 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
     template_name = 'profile/partials/content_edit.html'
 
     def get_model(self, model_name):
-        if model_name in ['email', 'phone', 'link', 'address']:
+        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
             return apps.get_model(app_label='profile', model_name=model_name)
         return None
 

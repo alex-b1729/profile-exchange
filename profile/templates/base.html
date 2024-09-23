@@ -39,10 +39,10 @@
             <a class="nav-link{% if section == 'profiles' %} active{% endif %}" href="{% url 'profile_list' %}">Profiles</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="#">Connections</a>
+            <a class="nav-link{% if section == 'content' %} active{% endif %}" href="{% url 'content' %}">My Content</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{% if section == 'contactbook' %} active{% endif %}" href="#">ContactBook</a>
+            <a class="nav-link disabled{% if section == 'connections' %} active{% endif %}" href="#">Connections</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled{% if section == 'messaging' %} active{% endif %}" href="#">Messaging</a>
