@@ -103,7 +103,7 @@ class ItemBase(models.Model):
         related_name='%(class)s_related',
         on_delete=models.CASCADE,
     )
-    profiles = GenericRelation(Content)
+    content_related = GenericRelation(Content)
     label = models.CharField(max_length=50, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)

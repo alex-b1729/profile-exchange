@@ -139,9 +139,8 @@
   </div>
 </div>
 
-{% if entity == "self" or entity == "connection" %}
+{% if profile.user == request.user %}
 <div class="container mb-3 d-inline-flex">
-  {% if entity == "self" %}
   <button
     hx-get="#" {# url share #}
     hx-target="#modals-here"
@@ -150,32 +149,82 @@
     data-bs-target="#modals-here"
     class="btn btn-dark me-3">Share</button>
   <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
-  {% endif %}
-  {# <a class="btn btn-dark me-3" href="{% url 'edit' %}">Edit</a> #}
   <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
+  {# {% include "partials/add_content.html" %} #}
+
+  <div class="btn-group">
+    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+      Add Content
+    </button>
+    <ul class="dropdown-menu">
+      <li class="dropend">
+        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
+          Contact Info
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'email' %}">
+              Email
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'phone' %}">
+              Phone
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'address' %}">
+              Address
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li class="dropend">
+        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
+          Documents
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="#">
+              Resume | CV
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              Manuscript
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              Certificate
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li class="dropend">
+        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
+          Media
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="#">
+              Image
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              External Link
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
 </div>
 {% endif %}
 
 <div class="container mb-3" id="profile-content">
   <p><i>{{ profile.get_kind_display }}</i></p>
-
-  {# new buttons #}
-  <ul>
-    {% with 'email phone link address' as list %}
-    {% for obj in list.split %}
-    <li>
-      <button
-        hx-get="{% url 'profile_content_create' profile.pk obj %}"
-        hx-target="#profile-content"
-        hx-trigger="click"
-        hx-swap="beforeend"
-        class="btn btn-link">
-        New {{ obj }}
-    </button>
-    </li>
-    {% endfor %}
-    {% endwith %}
-  </ul>
 
   {% for content in profile.contents.all %}
   {% with item=content.item %}
@@ -188,25 +237,9 @@
     </div>
   </div>
   {% endwith %}
+  {% empty %}
+  <h4>There's no content in the profile yet</h4>
   {% endfor %}
-
-  {% with emails=request.user.email_related.all %}
-  {% if emails %}
-  <div class="card mb-3">
-    <div class="card-header">
-      <h5 class="card-title">Emails</h5>
-    </div>
-    <div class="card-body">
-      <ul>
-        {% for email in emails %}
-        <li>{{ email.type }}, {{ email.email_address }}, {{ email.label }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-  {% endif %}
-  {% endwith %}
-
 </div>
 
 {% endblock %}

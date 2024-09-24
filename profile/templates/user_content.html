@@ -27,8 +27,18 @@ My Content
         <ul class="list-group list-group-flush">
             {% for email in emails %}
             <li class="list-group-item">
-                <span class="text-muted">{{ email.get_type_display }}</span>
-                <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                {{ email.render|safe }}
+                {% with contents=email.content_related.all %}
+                {% if contents %}
+                <p>
+                    <span class="text-muted">Profiles: </span>
+                    {% for c in contents %}
+                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
+                    {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% endwith %}
                 <a href="{% url 'item_update' 'email' email.pk %}">Edit</a>
                 <form
                     method="post"
@@ -60,8 +70,18 @@ My Content
         <ul class="list-group list-group-flush">
             {% for phone in phones %}
             <li class="list-group-item">
-                <span class="text-muted">{{ phone.get_type_display }}</span>
-                {{ phone.phone_number }}
+                {{ phone.render|safe }}
+                {% with contents=phone.content_related.all %}
+                {% if contents %}
+                <p>
+                    <span class="text-muted">Profiles: </span>
+                    {% for c in contents %}
+                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
+                    {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% endwith %}
                 <a href="{% url 'item_update' 'phone' phone.pk %}">Edit</a>
                 <form
                     method="post"
@@ -93,8 +113,18 @@ My Content
         <ul class="list-group list-group-flush">
             {% for link in links %}
             <li class="list-group-item">
-                <span class="text-muted">{{ link.get_type_display }}</span>
-                <a href="{{ link.url }}">{{ link.url }}</a>
+                {{ link.render|safe }}
+                {% with contents=link.content_related.all %}
+                {% if contents %}
+                <p>
+                    <span class="text-muted">Profiles: </span>
+                    {% for c in contents %}
+                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
+                    {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% endwith %}
                 <a href="{% url 'item_update' 'link' link.pk %}">Edit</a>
                 <form
                     method="post"
@@ -126,25 +156,26 @@ My Content
         <ul class="list-group list-group-flush">
             {% for addr in addrs %}
             <li class="list-group-item">
-                <div class="d-md-flex">
-                    <div class="me-3">
-                        <p class="text-muted">{{ addr.get_type_display }}</p>
-                    </div>
-                    <div class="justify-content-left flex-wrap">
-                        {{ addr.street1 }}<br>
-                        {% if addr.street2 %}{{ addr.street2 }}<br>{% endif %}
-                        {{ addr.city }}, {{ addr.state }} {{ addr.zip }}<br>
-                        {% if addr.country %}{{ addr.country }}{% endif %}
-                        <a href="{% url 'item_update' 'address' addr.pk %}">Edit</a>
-                        <form
-                            method="post"
-                            onsubmit="return confirm('Are you sure you wish to delete this address?');"
-                            action="{% url 'item_delete' 'address' addr.pk %}">
-                            <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-                            {% csrf_token %}
-                        </form>
-                    </div>
-                </div>
+                {{ addr.render|safe }}
+                {% with contents=addr.content_related.all %}
+                {% if contents %}
+                <p>
+                    <span class="text-muted">Profiles: </span>
+                    {% for c in contents %}
+                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
+                    {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% endwith %}
+                <a href="{% url 'item_update' 'address' addr.pk %}">Edit</a>
+                <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete this address?');"
+                    action="{% url 'item_delete' 'address' addr.pk %}">
+                    <button class="btn btn-link" type="submit" value="deleted">Delete</button>
+                    {% csrf_token %}
+                </form>
             </li>
             {% endfor %}
         </ul>
