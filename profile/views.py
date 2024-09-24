@@ -38,6 +38,7 @@ from .forms import (
     UserEditEmailForm,
     ProfileDetailEditForm,
     ProfileImgEditForm,
+    ProfileSelectContentForm,
 )
 
 
@@ -47,6 +48,7 @@ def home(request):
         'index.html',
         {'section': ''},
     )
+
 
 def register(request):
     """depreciated for registration wizard"""
@@ -431,6 +433,37 @@ def item_delete(request, model_name, item_pk):
     )
     item.delete()
     return redirect('content')
+
+
+class ProfileSelectContentView(
+    TemplateResponseMixin,
+    View,
+    UserMixin,
+):
+    template_name = 'profile/manage/profile/select_content.html'
+    user = None
+    profile = None
+    pk = None
+
+    def get_form(self):
+        return ProfileSelectContentForm()
+
+    def dispatch(self, request, profile_pk, model_name, *args, **kwargs):
+        self.user = request.user
+        self.profile = get_object_or_404(
+            Profile,
+            user=request.user,
+            pk=profile_pk,
+        )
+        return super(ProfileSelectContentView, self).dispatch(
+            request, profile_pk, model_name, *args, **kwargs
+        )
+
+    def get(self, request, profile_pk, model_name):
+        form = self.get_form()
+        return self.render_to_response({
+            'form': form,
+        })
 
 
 # class RegisterWizard(SessionWizardView):

@@ -20,6 +20,11 @@ urlpatterns = [
         name='profile_content_create'
     ),
     path(
+        '<profile_pk>/content/<model_name>/select/',
+        views.ProfileSelectContentView.as_view(),
+        name='select_email',
+    ),
+    path(
         '<profile_pk>/content/<model_name>/<content_pk>/',
         views.ContentCreateUpdateView.as_view(),
         name='profile_content_update'

@@ -5,16 +5,8 @@ from django.contrib.auth import password_validation
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
 from .models import (
-    # Card,
-    # Address,
-    # Phone,
-    # Email,
-    # Title,
-    # Role,
-    # Org,
-    # Tag,
-    # Url,
     Profile,
+    Email,
 )
 
 
@@ -155,6 +147,12 @@ class ProfileDetailEditForm(forms.ModelForm):
                 'rows': 3,
             }),
         }
+
+
+class ProfileSelectContentForm(forms.Form):
+    email = forms.ModelMultipleChoiceField(
+        queryset=Email.objects.all()
+    )
 
 
 class ProfileImgEditForm(forms.ModelForm):
