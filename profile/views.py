@@ -274,6 +274,7 @@ def user_content_view(request):
 
 
 class ContentCreateUpdateView(TemplateResponseMixin, View):
+    # todo: the template sends the post request to ItemCreateUpdateView
     profile = None
     model = None
     obj = None
@@ -442,19 +443,35 @@ class ProfileSelectContentView(
 ):
     template_name = 'profile/manage/profile/select_content.html'
     user = None
+    model = None
+    qs = None
     profile = None
-    pk = None
+    initial = None
 
     def get_form(self):
-        return ProfileSelectContentForm()
+        return ProfileSelectContentForm(qs=self.qs, initial=self.initial)
+
+    def get_model_queryset(self):
+        self.qs = self.model.objects.filter(user=self.user)
+
+    def get_initial(self):
+        self.initial = self.model.objects.filter(content_related__profile=self.profile)
+
+    def get_model(self, model_name):
+        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
+            return apps.get_model(app_label='profile', model_name=model_name)
+        return None
 
     def dispatch(self, request, profile_pk, model_name, *args, **kwargs):
         self.user = request.user
+        self.model = self.get_model(model_name)
+        self.get_model_queryset()
         self.profile = get_object_or_404(
             Profile,
-            user=request.user,
+            user=self.user,
             pk=profile_pk,
         )
+        self.get_initial()
         return super(ProfileSelectContentView, self).dispatch(
             request, profile_pk, model_name, *args, **kwargs
         )

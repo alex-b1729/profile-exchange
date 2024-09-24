@@ -9,6 +9,7 @@ Edit profile
 <h2>Select emails to include in profile</h2>
 <form method="post">
     {{ form.as_div }}
+
     {% csrf_token %}
     <input class="btn btn-primary" type="submit" value="Add Emails">
 </form>

@@ -150,9 +150,14 @@ class ProfileDetailEditForm(forms.ModelForm):
 
 
 class ProfileSelectContentForm(forms.Form):
-    email = forms.ModelMultipleChoiceField(
-        queryset=Email.objects.all()
+    model_choice = forms.ModelMultipleChoiceField(
+        queryset=None,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'asdf'})
     )
+
+    def __init__(self, qs, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['model_choice'].queryset = qs
 
 
 class ProfileImgEditForm(forms.ModelForm):
