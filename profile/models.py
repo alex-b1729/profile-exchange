@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
 class Profile(models.Model):
@@ -103,6 +103,7 @@ class ItemBase(models.Model):
         related_name='%(class)s_related',
         on_delete=models.CASCADE,
     )
+    profiles = GenericRelation(Content)
     label = models.CharField(max_length=50, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
