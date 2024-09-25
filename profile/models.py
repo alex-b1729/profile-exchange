@@ -129,7 +129,9 @@ class Email(ItemBase):
     email_address = models.EmailField()
 
     def __str__(self):
-        return str(self.email_address)
+        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+                f'{self.email_address}'
+                f'{", " + self.label if self.label else ""}')
 
 
 class Phone(ItemBase):
@@ -140,6 +142,11 @@ class Phone(ItemBase):
     )
     phone_number = PhoneNumberField()
 
+    def __str__(self):
+        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+                f'{self.phone_number}'
+                f'{", " + self.label if self.label else ""}')
+
 
 class Link(ItemBase):
     type = models.CharField(
@@ -149,6 +156,10 @@ class Link(ItemBase):
     )
     url = models.URLField()
 
+    def __str__(self):
+        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+                f'{self.url}'
+                f'{", " + self.label if self.label else ""}')
 
 class Address(ItemBase):
     type = models.CharField(
@@ -167,7 +178,9 @@ class Address(ItemBase):
         verbose_name_plural = 'Addresses'
 
     def __str__(self):
-        return f'{self.street1}'
+        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+                f'{self.street1}'
+                f'{", " + self.label if self.label else ""}')
 
 
 # class Profile(models.Model):
