@@ -2,6 +2,7 @@ import qrcode
 import datetime as dt
 import qrcode.image.svg
 from profile.utils import vcard, consts
+from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from django.apps import apps
 from django.db.models import Value
@@ -540,6 +541,16 @@ class ProfileSelectContentView(
             'new_form': new_form,
         })
 
+
+class ContentOrderView(
+    CsrfExemptMixin,
+    JsonRequestResponseMixin,
+    View,
+):
+    def post(self, request):
+        for content_pk, order in self.request_json.items():
+            Content.objects.filter(pk=content_pk, profile__user=request.user).update(order=order)
+        return self.render_json_response({'saved': 'OK'})
 
 
 # class RegisterWizard(SessionWizardView):

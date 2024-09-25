@@ -226,20 +226,50 @@
 <div class="container mb-3" id="profile-content">
   <p><i>{{ profile.get_kind_display }}</i></p>
 
-  {% for content in profile.contents.all %}
-  {% with item=content.item %}
-  <div class="card mb-3">
-    <div class="card-header">
-      <h5 class="card-title">{{ item|model_name|title }}</h5>
-    </div>
-    <div class="card-body">
-      {{ item.render|safe }}
-    </div>
-  </div>
-  {% endwith %}
-  {% empty %}
+  {% with contents=profile.contents.all %}
+  {% if contents %}
+  <ul id="contents" class="ps-0">
+    {% for content in contents %}
+    {% with item=content.item %}
+    <li class="card mb-3" data-id="{{ content.pk }}">
+      <div class="card-header">
+        <h5 class="card-title">
+          <span class="text-muted order">{{ content.order|add:1 }}</span>
+          {{ item|model_name|title }}
+        </h5>
+      </div>
+      <div class="card-body">
+        {{ item.render|safe }}
+      </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
+  </ul>
+  {% else %}
   <h4>There's no content in the profile yet</h4>
-  {% endfor %}
+  {% endif %}
+  {% endwith %}
 </div>
 
+{% endblock %}
+
+{% block domready %}
+$('#contents').sortable({
+  stop: function(event, ui) {
+    contents_order = {};
+    $('#contents').children().each(function() {
+      // update order field
+      $(this).find('.order').text($(this).index() + 1);
+      // associate the content's id with its order
+      contents_order[$(this).data('id')] = $(this).index();
+    });
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'content_order' %}',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+        data: JSON.stringify(contents_order)
+    });
+  }
+});
 {% endblock %}
