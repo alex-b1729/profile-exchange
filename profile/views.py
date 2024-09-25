@@ -30,7 +30,8 @@ from django.views.generic.edit import ModelFormMixin
 from .models import (
     Profile,
     Content,
-    ItemBase
+    ItemBase,
+    Email,
 )
 from .forms import (
     UserRegistrationForm,
@@ -218,6 +219,7 @@ def profile(request, pk):
         request,
         'profile/detail.html',
         {
+            'section': 'profiles',
             'entity': 'self',
             'profile': profile,
         }
@@ -448,10 +450,14 @@ class ProfileSelectContentView(
     profile = None
     initial = None
 
-    def get_form(self):
-        return ProfileSelectContentForm(qs=self.qs, initial=self.initial)
+    def get_form(self, data=None):
+        return ProfileSelectContentForm(
+            qs=self.qs,
+            initial={'model_choice': self.initial},
+            data=data,
+        )
 
-    def get_model_queryset(self):
+    def get_model_qs(self):
         self.qs = self.model.objects.filter(user=self.user)
 
     def get_initial(self):
@@ -465,7 +471,7 @@ class ProfileSelectContentView(
     def dispatch(self, request, profile_pk, model_name, *args, **kwargs):
         self.user = request.user
         self.model = self.get_model(model_name)
-        self.get_model_queryset()
+        self.get_model_qs()
         self.profile = get_object_or_404(
             Profile,
             user=self.user,
@@ -479,8 +485,34 @@ class ProfileSelectContentView(
     def get(self, request, profile_pk, model_name):
         form = self.get_form()
         return self.render_to_response({
+            'section': 'profiles',
             'form': form,
         })
+
+    def post(self, request, profile_pk, model_name):
+        form = self.get_form(data=request.POST)
+        if form.is_valid():
+            models_in_form = form.cleaned_data['model_choice']
+            for mod in self.qs:
+                if models_in_form.contains(mod) and not self.initial.contains(mod):
+                    # add new content
+                    c = Content(
+                        profile=self.profile,
+                        item=mod,
+                    )
+                    c.save()
+                elif not models_in_form.contains(mod) and self.initial.contains(mod):
+                    # remove previous content
+                    content_to_remove = mod.content_related.get(profile=self.profile)
+                    content_to_remove.delete()
+                else:
+                    pass
+            return redirect('profile', self.profile.pk)
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+        })
+
 
 
 # class RegisterWizard(SessionWizardView):

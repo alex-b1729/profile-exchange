@@ -152,7 +152,8 @@ class ProfileDetailEditForm(forms.ModelForm):
 class ProfileSelectContentForm(forms.Form):
     model_choice = forms.ModelMultipleChoiceField(
         queryset=None,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'asdf'})
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'asdf'}),
+        required=False,
     )
 
     def __init__(self, qs, *args, **kwargs):

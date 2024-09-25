@@ -6,11 +6,11 @@ Edit profile
 {% endblock %}
 
 {% block content %}
-<h2>Select emails to include in profile</h2>
+<h2>Select content to include in profile</h2>
 <form method="post">
-    {{ form.as_div }}
+    {{ form.model_choice }}
 
     {% csrf_token %}
-    <input class="btn btn-primary" type="submit" value="Add Emails">
+    <input class="btn btn-primary" type="submit" value="Save">
 </form>
 {% endblock %}
