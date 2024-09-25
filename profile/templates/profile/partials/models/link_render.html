@@ -1,3 +1,2 @@
 <span class="text-muted">{{ object.get_type_display }}</span>
-<a href="mailto:{{ object.url }}">{{ object.url }}</a>
-{% if object.label %}, {{ object.label }}{% endif %}
+<a href="mailto:{{ object.url }}">{{ object.url }}</a>{% if object.label %} - {{ object.label }}{% endif %}
