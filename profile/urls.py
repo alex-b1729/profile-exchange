@@ -22,7 +22,7 @@ urlpatterns = [
     path(
         '<profile_pk>/content/<model_name>/select/',
         views.ProfileSelectContentView.as_view(),
-        name='select_email',
+        name='profile_content_select',
     ),
     path(
         '<profile_pk>/content/<model_name>/<content_pk>/',

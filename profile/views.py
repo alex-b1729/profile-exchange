@@ -33,6 +33,8 @@ from .models import (
     ItemBase,
     Email,
 )
+
+from profile import forms
 from .forms import (
     UserRegistrationForm,
     ProfileEditForm,
@@ -450,12 +452,17 @@ class ProfileSelectContentView(
     profile = None
     initial = None
 
-    def get_form(self, data=None):
+    def get_select_form(self, *args, **kwargs):
         return ProfileSelectContentForm(
             qs=self.qs,
             initial={'model_choice': self.initial},
-            data=data,
+            prefix='selectform',
+            *args, **kwargs
         )
+
+    def get_new_form(self, *args, **kwargs):
+        form_class = getattr(forms, f'Create{self.model.__name__.capitalize()}Content')
+        return form_class(prefix='newform', *args, **kwargs)
 
     def get_model_qs(self):
         self.qs = self.model.objects.filter(user=self.user)
@@ -483,34 +490,54 @@ class ProfileSelectContentView(
         )
 
     def get(self, request, profile_pk, model_name):
-        form = self.get_form()
+        select_form = self.get_select_form()
+        new_form = self.get_new_form()
         return self.render_to_response({
             'section': 'profiles',
-            'form': form,
+            'select_form': select_form,
+            'new_form': new_form,
         })
 
     def post(self, request, profile_pk, model_name):
-        form = self.get_form(data=request.POST)
-        if form.is_valid():
-            models_in_form = form.cleaned_data['model_choice']
-            for mod in self.qs:
-                if models_in_form.contains(mod) and not self.initial.contains(mod):
-                    # add new content
-                    c = Content(
-                        profile=self.profile,
-                        item=mod,
-                    )
-                    c.save()
-                elif not models_in_form.contains(mod) and self.initial.contains(mod):
-                    # remove previous content
-                    content_to_remove = mod.content_related.get(profile=self.profile)
-                    content_to_remove.delete()
-                else:
-                    pass
-            return redirect('profile', self.profile.pk)
+        if 'selectform' in request.POST:
+            select_form = self.get_select_form(data=request.POST)
+            if select_form.is_valid():
+                models_in_form = select_form.cleaned_data['model_choice']
+                for mod in self.qs:
+                    if models_in_form.contains(mod) and not self.initial.contains(mod):
+                        # add new content
+                        c = Content(
+                            profile=self.profile,
+                            item=mod,
+                        )
+                        c.save()
+                    elif not models_in_form.contains(mod) and self.initial.contains(mod):
+                        # remove previous content
+                        content_to_remove = mod.content_related.get(profile=self.profile)
+                        content_to_remove.delete()
+                    else:
+                        pass
+                return redirect('profile', self.profile.pk)
+            else:
+                new_form = self.get_new_form()
+        elif 'newform' in request.POST:
+            new_form = self.get_new_form(data=request.POST)
+            if new_form.is_valid():
+                obj = new_form.save(commit=False)
+                obj.user = request.user
+                obj.save()
+                c = Content(
+                    profile=self.profile,
+                    item=obj,
+                )
+                c.save()
+                return redirect('profile_content_select', profile_pk, model_name)
+            else:
+                select_form = self.get_select_form()
         return self.render_to_response({
             'section': 'profiles',
-            'form': form,
+            'select_form': select_form,
+            'new_form': new_form,
         })
 
 

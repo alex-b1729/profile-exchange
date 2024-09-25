@@ -8,9 +8,14 @@ Edit profile
 {% block content %}
 <h2>Select content to include in profile</h2>
 <form method="post">
-    {{ form.model_choice }}
-
     {% csrf_token %}
-    <input class="btn btn-primary" type="submit" value="Save">
+    {{ select_form.model_choice }}
+    <input name="{{ select_form.prefix }}" class="btn btn-primary" type="submit" value="Save">
+</form>
+
+<form method="post">
+    {% csrf_token %}
+    {{ new_form }}
+    <input name="{{ new_form.prefix }}" class="btn btn-primary" type="submit" value="Add New">
 </form>
 {% endblock %}

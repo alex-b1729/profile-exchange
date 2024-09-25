@@ -2,12 +2,10 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.contrib.auth import get_user_model
 from django.contrib.auth import password_validation
+from phonenumber_field.formfields import PhoneNumberField
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
-from .models import (
-    Profile,
-    Email,
-)
+from profile import models
 
 
 class LoginForm(forms.Form):
@@ -57,7 +55,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:
-        model = Profile
+        model = (models.Profile)
         fields = ['title', 'kind', 'description']
         widgets = {
             'title': forms.TextInput(attrs={
@@ -77,7 +75,7 @@ class ProfileEditForm(forms.ModelForm):
 
 class ProfileDetailEditForm(forms.ModelForm):
     class Meta:
-        model = Profile
+        model = models.Profile
         fields = [
             'title',
             'kind',
@@ -163,8 +161,20 @@ class ProfileSelectContentForm(forms.Form):
 
 class ProfileImgEditForm(forms.ModelForm):
     class Meta:
-        model = Profile
+        model = models.Profile
         fields = ('photo',)
+
+
+class BootstrapModelFormMixin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in iter(self.fields):
+            if issubclass(self.fields[field].__class__, forms.SelectMultiple):
+                pass
+            elif issubclass(self.fields[field].__class__, forms.Select):
+                self.fields[field].widget.attrs.update({'class': 'form-select'})
+            else:
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
 
 
 class UserEditEmailForm(forms.ModelForm):
@@ -177,6 +187,84 @@ class UserEditEmailForm(forms.ModelForm):
                 'size': 30,
                 'class': 'form-control'
             }),
+        }
+
+
+class CreateEmailContent(BootstrapModelFormMixin):
+    class Meta:
+        model = models.Email
+        fields = ('email_address', 'label', 'type')
+        widgets = {
+            'email_address': forms.EmailInput(attrs={
+                'autocomplete': 'email',
+                'size': 30,
+            }),
+            'label': forms.TextInput(),
+            'type': forms.Select(),
+        }
+
+
+class CreatePhoneContent(BootstrapModelFormMixin):
+    class Meta:
+        model = models.Phone
+        fields = ('phone_number', 'label', 'type')
+        widgets = {
+            # todo: fix phone input
+            # 'phone_number': PhoneNumberField(
+            # #     attrs={
+            # #     'autocomplete': 'tel',
+            # # }
+            # ),
+            'label': forms.TextInput(),
+            'type': forms.Select(),
+        }
+
+
+class CreateLinkContent(BootstrapModelFormMixin):
+    class Meta:
+        model = models.Link
+        fields = ('url', 'label', 'type')
+        widgets = {
+            'url': forms.URLInput(),
+            'label': forms.TextInput(),
+            'type': forms.Select(),
+        }
+
+
+class CreateAddressContent(BootstrapModelFormMixin):
+    class Meta:
+        model = models.Address
+        fields = (
+            'street1',
+            'street2',
+            'city',
+            'state',
+            'zip',
+            'country',
+            'label',
+            'type',
+        )
+        widgets = {
+            'street1': forms.TextInput(attrs={
+                'autocomplete': 'address-line1',
+            }),
+            'street2': forms.TextInput(attrs={
+                'autocomplete': 'address-line2',
+            }),
+            'city': forms.TextInput(attrs={
+                'autocomplete': 'address-level2',
+            }),
+            'state': forms.TextInput(attrs={
+                'autocomplete': 'address-level1',
+            }),
+            'zip': forms.TextInput(attrs={
+                'autocomplete': 'postal-code',
+            }),
+            'country': forms.TextInput(attrs={
+                'autocomplete': 'country',
+            }),
+            'label': forms.TextInput(),
+            'type': forms.Select(),
         }
 
 
