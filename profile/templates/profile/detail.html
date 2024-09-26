@@ -163,17 +163,17 @@
         </a>
         <ul class="dropdown-menu">
           <li>
-            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'email' %}">
+            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'email' %}">
               Email
             </a>
           </li>
           <li>
-            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'phone' %}">
+            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'phone' %}">
               Phone
             </a>
           </li>
           <li>
-            <a class="dropdown-item" href="{% url 'profile_content_create' profile.pk 'address' %}">
+            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'address' %}">
               Address
             </a>
           </li>
@@ -212,7 +212,7 @@
             </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'link' %}">
               External Link
             </a>
           </li>
