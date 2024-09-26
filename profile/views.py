@@ -289,8 +289,12 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
         self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
 
     def get_model(self, model_name):
-        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
-            return apps.get_model(app_label='profile', model_name=model_name)
+        try:
+            mod = apps.get_model(app_label='profile', model_name=model_name)
+            if issubclass(mod, ItemBase):
+                return mod
+        except LookupError:
+            pass
         return None
 
     def get_form(self, model, *args, **kwargs):
@@ -376,8 +380,12 @@ class ItemCreateUpdateView(TemplateResponseMixin, View):
         self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
 
     def get_model(self, model_name):
-        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
-            return apps.get_model(app_label='profile', model_name=model_name)
+        try:
+            mod = apps.get_model(app_label='profile', model_name=model_name)
+            if issubclass(mod, ItemBase):
+                return mod
+        except LookupError:
+            pass
         return None
 
     def get_form(self, model, *args, **kwargs):
@@ -428,9 +436,11 @@ class ItemCreateUpdateView(TemplateResponseMixin, View):
 @login_required
 @require_POST
 def item_delete(request, model_name, item_pk):
-    if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
+    try:
         model = apps.get_model(app_label='profile', model_name=model_name)
-    else:
+        if not issubclass(model, ItemBase):
+            return page_not_found
+    except LookupError:
         return page_not_found
     item = get_object_or_404(
         model,
@@ -472,8 +482,12 @@ class ProfileSelectContentView(
         self.initial = self.model.objects.filter(content_related__profile=self.profile)
 
     def get_model(self, model_name):
-        if model_name in [s.lower() for s in consts.PROFILE_CONTENTS]:
-            return apps.get_model(app_label='profile', model_name=model_name)
+        try:
+            mod = apps.get_model(app_label='profile', model_name=model_name)
+            if issubclass(mod, ItemBase):
+                return mod
+        except LookupError:
+            pass
         return None
 
     def dispatch(self, request, profile_pk, model_name, *args, **kwargs):

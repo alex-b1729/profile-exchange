@@ -86,7 +86,11 @@ class Content(models.Model):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to={
-            'model__in': consts.PROFILE_CONTENTS
+            'model__in': (
+                'Email',
+                'Phone',
+                'Address',
+            )
         }
     )
     object_id = models.PositiveIntegerField()
@@ -147,19 +151,6 @@ class Phone(ItemBase):
                 f'{self.phone_number}'
                 f'{", " + self.label if self.label else ""}')
 
-
-class Link(ItemBase):
-    type = models.CharField(
-        max_length=1,
-        choices=vcard.WH_TYPE_CHOICES,
-        blank=True
-    )
-    url = models.URLField()
-
-    def __str__(self):
-        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
-                f'{self.url}'
-                f'{", " + self.label if self.label else ""}')
 
 class Address(ItemBase):
     type = models.CharField(

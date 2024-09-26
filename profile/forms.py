@@ -220,17 +220,6 @@ class CreatePhoneContent(BootstrapModelFormMixin):
         }
 
 
-class CreateLinkContent(BootstrapModelFormMixin):
-    class Meta:
-        model = models.Link
-        fields = ('url', 'label', 'type')
-        widgets = {
-            'url': forms.URLInput(),
-            'label': forms.TextInput(),
-            'type': forms.Select(),
-        }
-
-
 class CreateAddressContent(BootstrapModelFormMixin):
     class Meta:
         model = models.Address
