@@ -1,11 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    Address,
-    Phone,
-    Email,
-    Profile,
-)
+from profile import models
 
 
 # @admin.register(Profile)
@@ -14,7 +9,9 @@ from .models import (
 
 
 # what's needed in prod?
-admin.site.register(Address)
-admin.site.register(Phone)
-admin.site.register(Email)
-admin.site.register(Profile)
+admin.site.register(models.Address)
+admin.site.register(models.Phone)
+admin.site.register(models.Email)
+admin.site.register(models.Profile)
+admin.site.register(models.LinkBase)
+admin.site.register(models.Link)

@@ -174,6 +174,26 @@ class Address(ItemBase):
                 f'{", " + self.label if self.label else ""}')
 
 
+class LinkBase(models.Model):
+    """holds primary domains and info for external links
+    E.g. domain: https://github.com/"""
+    title = models.CharField(blank=False, default='Website')
+    domain = models.CharField(blank=True)
+    svg_id = models.CharField(blank=False, default='web')
+
+
+class Link(ItemBase):
+    linkbase = models.ForeignKey(
+        LinkBase,
+        default=1,
+        on_delete=models.SET_DEFAULT,
+    )
+    url = models.CharField(max_length=200)
+    is_independent_url = models.BooleanField(
+        help_text='Indicates url does not require linkbase.domain as the prefix'
+    )
+
+
 # class Profile(models.Model):
 #     """
 #     Users can have many profiles and each profile links to one of the user's Cards.
