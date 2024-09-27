@@ -1,0 +1,20 @@
+[
+{
+  "model": "profile.linkbase",
+  "pk": 1,
+  "fields": {
+    "title": "Website",
+    "domain": "",
+    "svg_id": "web"
+  }
+},
+{
+  "model": "profile.linkbase",
+  "pk": 2,
+  "fields": {
+    "title": "GitHub",
+    "domain": "https://github.com/",
+    "svg_id": "github"
+  }
+}
+]
