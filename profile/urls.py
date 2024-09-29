@@ -13,29 +13,25 @@ urlpatterns = [
     path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
     path('<pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
     path('<pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
+    path('<profile_pk>/content/order/', views.ContentOrderView.as_view(), name='content_order'),
 
     path(
-        '<profile_pk>/content/<model_name>/create/',
+        '<profile_pk>/<model_name>/create/',
         views.ContentCreateUpdateView.as_view(),
         name='profile_content_create'
     ),
     path(
-        '<profile_pk>/content/<model_name>/select/',
+        '<profile_pk>/<model_name>/select/',
         views.ProfileSelectContentView.as_view(),
         name='profile_content_select',
     ),
     path(
-        '<profile_pk>/content/<model_name>/<content_pk>/',
+        '<profile_pk>/<model_name>/<content_pk>/',
         views.ContentCreateUpdateView.as_view(),
         name='profile_content_update'
     ),
     path(
-        '<profile_pk>/content/<model_name>/<content_pk>/',
-        views.ContentCreateUpdateView.as_view(),
-        name='profile_content_update'
-    ),
-    path(
-        '<profile_pk>/content/<int:content_pk>/delete/',
+        '<profile_pk>/<model_name>/<content_pk>/delete/',
         views.profile_content_delete,
         name='profile_content_delete'
     ),

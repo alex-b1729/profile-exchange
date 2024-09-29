@@ -28,19 +28,18 @@ urlpatterns = [
     path('account/register/', prof_views.register, name='register'),
 
     path('content/', prof_views.user_content_view, name='content'),
-    path('content/order/', prof_views.ContentOrderView.as_view(), name='content_order'),
     path(
         'content/<model_name>/create/',
-        prof_views.ItemCreateUpdateView.as_view(),
+        prof_views.ContentCreateUpdateView.as_view(),
         name='item_create'
     ),
     path(
-        'content/<model_name>/<item_pk>/',
-        prof_views.ItemCreateUpdateView.as_view(),
+        'content/<model_name>/<content_pk>/',
+        prof_views.ContentCreateUpdateView.as_view(),
         name='item_update'
     ),
     path(
-        'content/<model_name>/<item_pk>/delete',
+        'content/<model_name>/<content_pk>/delete',
         prof_views.item_delete,
         name='item_delete'
     ),

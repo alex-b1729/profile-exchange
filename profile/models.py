@@ -86,11 +86,7 @@ class Content(models.Model):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to={
-            'model__in': (
-                'Email',
-                'Phone',
-                'Address',
-            )
+            'model__in': consts.CONTENT_TYPES
         }
     )
     object_id = models.PositiveIntegerField()
@@ -181,6 +177,9 @@ class LinkBase(models.Model):
     domain = models.CharField(blank=True)
     svg_id = models.CharField(blank=False, default='web')
 
+    def __str__(self):
+        return str(self.title)
+
 
 class Link(ItemBase):
     linkbase = models.ForeignKey(
@@ -192,6 +191,12 @@ class Link(ItemBase):
     is_independent_url = models.BooleanField(
         help_text='Indicates url does not require linkbase.domain as the prefix'
     )
+
+    def __str__(self):
+        if self.is_independent_url:
+            return str(self.url)
+        else:
+            return f'{self.linkbase.domain}{self.url}/'
 
 
 # class Profile(models.Model):

@@ -1,6 +1,8 @@
 from django import forms
+from urllib.parse import urlparse, urlunparse
 from django.forms import inlineformset_factory
 from django.contrib.auth import get_user_model
+from django.core.validators import URLValidator
 from django.contrib.auth import password_validation
 from phonenumber_field.formfields import PhoneNumberField
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
@@ -190,7 +192,7 @@ class UserEditEmailForm(forms.ModelForm):
         }
 
 
-class CreateEmailContent(BootstrapModelFormMixin):
+class EmailCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Email
         fields = ('email_address', 'label', 'type')
@@ -204,7 +206,7 @@ class CreateEmailContent(BootstrapModelFormMixin):
         }
 
 
-class CreatePhoneContent(BootstrapModelFormMixin):
+class PhoneCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Phone
         fields = ('phone_number', 'label', 'type')
@@ -220,7 +222,7 @@ class CreatePhoneContent(BootstrapModelFormMixin):
         }
 
 
-class CreateAddressContent(BootstrapModelFormMixin):
+class AddressCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Address
         fields = (
@@ -255,6 +257,23 @@ class CreateAddressContent(BootstrapModelFormMixin):
             'label': forms.TextInput(),
             'type': forms.Select(),
         }
+
+
+class LinkCreateUpdateForm(BootstrapModelFormMixin):
+    class Meta:
+        models = models.Link
+        fields = ('linkbase', 'label', 'url',)
+        widgets = {
+            'linkbase': forms.HiddenInput,
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # todo: probs need separate logic for different linkbase's
+        path = cleaned_data['url'].strip('/')
+        validator = URLValidator()
+
+
 
 
 # class CardEditForm(forms.ModelForm):

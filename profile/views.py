@@ -33,6 +33,8 @@ from .models import (
     Content,
     ItemBase,
     Email,
+    LinkBase,
+    Link,
 )
 
 from profile import forms
@@ -100,6 +102,12 @@ class UserMixin(object):
     def get_queryset(self):
         qs = super(UserMixin, self).get_queryset()
         return qs.filter(user=self.request.user)
+
+
+class UserEditMixin(object):
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 @login_required
@@ -278,15 +286,20 @@ def user_content_view(request):
     )
 
 
-class ContentCreateUpdateView(TemplateResponseMixin, View):
+class ContentCreateUpdateView(
+    # UserMixin,
+    UserEditMixin,
+    TemplateResponseMixin,
+    View
+):
     # todo: the template sends the post request to ItemCreateUpdateView
     profile = None
     model = None
     obj = None
-    template_name = None  #'profile/partials/content_edit.html'
+    template_name = None
 
     def set_template(self):
-        self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
+        self.template_name = f'manage/item/{self.model.__name__.lower()}_edit.html'
 
     def get_model(self, model_name):
         try:
@@ -297,21 +310,28 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
             pass
         return None
 
-    def get_form(self, model, *args, **kwargs):
-        form = modelform_factory(
-            model,
-            exclude=('user', 'created', 'updated',)
-        )
-        return form(*args, **kwargs)
+    def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
+        try:
+            form = getattr(forms, f'{self.model.__name__.capitalize()}CreateUpdateForm')
+            return form(instance=instance, data=data, files=files)
+        except AttributeError:
+            pass
+        return None
+        # form = modelform_factory(
+        #     model,
+        #     exclude=('user', 'created', 'updated',)
+        # )
+        # return form(*args, **kwargs)
 
-    def dispatch(self, request, profile_pk, model_name, content_pk=None, *args, **kwargs):
-        self.profile = get_object_or_404(
-            Profile,
-            pk=profile_pk,
-            user=request.user,
-        )
+    def dispatch(self, request, model_name, profile_pk=None, content_pk=None, *args, **kwargs):
         self.model = self.get_model(model_name)
         self.set_template()
+        if profile_pk:
+            self.profile = get_object_or_404(
+                Profile,
+                pk=profile_pk,
+                user=request.user,
+            )
         if content_pk:
             self.obj = get_object_or_404(
                 self.model,
@@ -319,41 +339,43 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
                 user=request.user,
             )
         return super(ContentCreateUpdateView, self).dispatch(
-            request, profile_pk, model_name, content_pk, *args, **kwargs
+            request, model_name, profile_pk, content_pk, *args, **kwargs
         )
 
-    def get(self, request, profile_pk, model_name, content_pk=None):
-        form = self.get_form(self.model, instance=self.obj)
+    def get(self, request, model_name, profile_pk=None, content_pk=None):
+        form = self.get_form(instance=self.obj)
         return self.render_to_response({
             'form': form,
             'model': model_name,
             'profile_pk': profile_pk,
-            'object': self.obj,
+            'content_pk': content_pk,
         })
 
-    def post(self, request, profile_pk, model_name, content_pk=None):
+    def post(self, request, model_name, profile_pk=None, content_pk=None):
         form = self.get_form(
-            self.model,
             instance=self.obj,
             data=request.POST,
             files=request.FILES,
         )
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = request.user
-            obj.save()
-            if not content_pk:
-                # new content
-                Content.objects.create(
-                    profile=self.profile,
-                    item=obj,
-                )
-            return redirect('profile', self.profile.pk)
+            item = form.save(commit=False)
+            item.user = request.user
+            item.save()
+            if profile_pk:
+                if not content_pk:
+                    # if profile and no associated content then create new content
+                    c = Content(
+                        profile=self.profile,
+                        item=item,
+                    )
+                    c.save()
+                return redirect('profile', self.profile.pk)
+            return redirect('content')
         return self.render_to_response({
             'form': form,
             'model': model_name,
             'profile_pk': profile_pk,
-            'object': self.obj
+            'content_pk': content_pk,
         })
 
 
@@ -435,7 +457,7 @@ class ItemCreateUpdateView(TemplateResponseMixin, View):
 
 @login_required
 @require_POST
-def item_delete(request, model_name, item_pk):
+def item_delete(request, model_name, content_pk):
     try:
         model = apps.get_model(app_label='profile', model_name=model_name)
         if not issubclass(model, ItemBase):
@@ -444,7 +466,7 @@ def item_delete(request, model_name, item_pk):
         return page_not_found
     item = get_object_or_404(
         model,
-        pk=item_pk,
+        pk=content_pk,
         user=request.user,
     )
     item.delete()
@@ -565,6 +587,90 @@ class ContentOrderView(
         for content_pk, order in self.request_json.items():
             Content.objects.filter(pk=content_pk, profile__user=request.user).update(order=order)
         return self.render_json_response({'saved': 'OK'})
+
+
+class LinkCreateUpdateView(View, TemplateResponseMixin, UserEditMixin):
+    template_name = 'link_create_edit.html'
+    linkbase = None
+    initial = None
+    profile_obj = None
+    content_obj = None
+    link_obj = None
+
+    def get_form(self, *args, **kwargs):
+        return forms.LinkCreateUpdateForm(
+            initial=self.initial,
+            *args, **kwargs
+        )
+
+    def dispatch(self, request, link_type, link_pk=None, profile_pk=None, *args, **kwargs):
+        # link_type corresponds to LinkBase.svg_id
+        self.linkbase = get_object_or_404(
+            LinkBase,
+            svg_id=link_type,
+        )
+        if profile_pk:
+            self.profile_obj = get_object_or_404(
+                Profile,
+                user=request.user,
+                pk=profile_pk,
+            )
+            self.content_obj = get_object_or_404(
+                Content,
+                user=request.user,
+                profile=self.profile_obj,
+            )
+        if link_pk:
+            self.link_obj = get_object_or_404(
+                Link,
+                pk=link_pk,
+                user=request.user
+            )
+        else:
+            self.initial = self.linkbase
+
+    def get(self, request, link_type, link_pk=None, profile_pk=None, *args, **kwargs):
+        form = self.get_form(instance=self.link_obj)
+        return self.render_to_response({
+            'form': form,
+            'linkbase': self.linkbase,
+            'link_pk': link_pk,
+            'profile_obj': profile_pk,
+        })
+
+    def post(self, request, link_type, link_pk=None, profile_pk=None, *args, **kwargs):
+        form = self.get_form(
+            instance=self.link_obj,
+            data=request.POST,
+        )
+        if form.is_valid():
+            if not self.link_obj:
+                # new link
+                newlink = Link(
+                    user=request.user,
+                    label=form.cleaned_data['label'],
+                    linkbase=self.linkbase,
+                    url=form.cleaned_data['url']
+                )
+                newlink.save()
+                if self.profile_obj:
+                    # new content to go with new link
+                    c = Content(
+                        profile=self.profile_obj,
+                        item=newlink,
+                    )
+                    c.save()
+                    return redirect('profile', profile_pk)
+            else:
+                # update link
+                form.save()
+            return redirect('content')
+        return self.render_to_response({
+            'form': form,
+            'linkbase': self.linkbase,
+            'link_pk': link_pk,
+            'profile_pk': profile_pk,
+        })
 
 
 # class RegisterWizard(SessionWizardView):

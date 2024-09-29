@@ -1,0 +1,8 @@
+{% extends "manage/item_create_update.html" %}
+
+{% block form %}
+
+A new {{ linkbase.title }} link. Starting with {{ linkbase.domain }}
+{{ form.as_div }}
+
+{% endblock %}
