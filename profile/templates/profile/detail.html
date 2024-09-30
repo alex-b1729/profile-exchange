@@ -237,6 +237,13 @@
           <span class="text-muted order">{{ content.order|add:1 }}</span>
           {{ item|model_name|title }}
         </h5>
+        <form
+            method="post"
+            onsubmit="return confirm('Are you sure you wish to delete this {{ item|model_name|title }}?');"
+            action="{% url 'profile_content_delete' profile.pk item|model_name content.pk %}">
+            <button class="btn btn-link" type="submit" value="deleted">Delete</button>
+            {% csrf_token %}
+        </form>
       </div>
       <div class="card-body">
         {{ item.render|safe }}

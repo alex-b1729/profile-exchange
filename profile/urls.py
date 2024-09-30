@@ -32,7 +32,7 @@ urlpatterns = [
     ),
     path(
         '<profile_pk>/<model_name>/<content_pk>/delete/',
-        views.profile_content_delete,
+        views.content_delete,
         name='profile_content_delete'
     ),
 

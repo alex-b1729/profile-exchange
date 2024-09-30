@@ -43,7 +43,7 @@ My Content
                 <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete this email?');"
-                    action="#">
+                    action="{% url 'item_delete' 'email' email.pk %}">
                     <button class="btn btn-link" type="submit" value="deleted">Delete</button>
                     {% csrf_token %}
                 </form>
@@ -86,7 +86,7 @@ My Content
                 <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete this phone number?');"
-                    action="#">
+                    action="{% url 'item_delete' 'phone' phone.pk %}">
                     <button class="btn btn-link" type="submit" value="deleted">Delete</button>
                     {% csrf_token %}
                 </form>
@@ -129,7 +129,7 @@ My Content
                 <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete this address?');"
-                    action="#">
+                    action="{% url 'item_delete' 'address' addr.pk %}">
                     <button class="btn btn-link" type="submit" value="deleted">Delete</button>
                     {% csrf_token %}
                 </form>
@@ -172,7 +172,7 @@ My Content
                 <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete this link?');"
-                    action="#">
+                    action="{% url 'item_delete' link.linkbase.svg_id link.pk %}">
                     <button class="btn btn-link" type="submit" value="deleted">Delete</button>
                     {% csrf_token %}
                 </form>

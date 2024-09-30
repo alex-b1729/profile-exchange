@@ -40,7 +40,7 @@ urlpatterns = [
     ),
     path(
         'content/<model_name>/<content_pk>/delete',
-        prof_views.item_delete,
+        prof_views.content_delete,
         name='item_delete'
     ),
 

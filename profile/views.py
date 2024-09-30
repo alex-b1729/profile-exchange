@@ -396,78 +396,40 @@ class ContentCreateUpdateView(
 
 @login_required
 @require_POST
-def profile_content_delete(request, content_pk):
-    content = get_object_or_404(
-        Content,
-        pk=content_pk,
-        profile__user=request.user,
-    )
-    profile = content.profile
-    content.item.delete()
-    content.delete()
-    return redirect('profile', profile.pk)
-
-
-class ItemCreateUpdateView(TemplateResponseMixin, View):
-    model = None
-    obj = None
-    template_name = None
-
-    def set_template(self):
-        self.template_name = f'profile/manage/item/{self.model.__name__.lower()}_edit.html'
-
-    def get_model(self, model_name):
+def content_delete(request, model_name, content_pk, profile_pk=None):
+    if profile_pk:
+        # delete the content but not the item
+        content = get_object_or_404(
+            Content,
+            pk=content_pk,
+            profile__pk=profile_pk,
+            profile__user=request.user,
+        )
+        content.delete()
+        return redirect('profile', profile_pk)
+    else:
+        # delete the actual item
+        # here content_pk represents the item's pk
         try:
-            mod = apps.get_model(app_label='profile', model_name=model_name)
-            if issubclass(mod, ItemBase):
-                return mod
+            model = apps.get_model(app_label='profile', model_name=model_name)
+            if not issubclass(model, ItemBase):
+                # page not found or just none? Like no response
+                return page_not_found
         except LookupError:
-            pass
-        return None
-
-    def get_form(self, model, *args, **kwargs):
-        form = modelform_factory(
+            # check if model_name is a LinkBase item
+            try:
+                # todo: sanitize model_name!
+                LinkBase.objects.get(svg_id=model_name)
+                model = apps.get_model(app_label='profile', model_name='link')
+            except LinkBase.DoesNotExist:
+                return page_not_found
+        item = get_object_or_404(
             model,
-            exclude=('user', 'created', 'updated',)
+            pk=content_pk,
+            user=request.user,
         )
-        return form(*args, **kwargs)
-
-    def dispatch(self, request, model_name, item_pk=None, *args, **kwargs):
-        self.model = self.get_model(model_name)
-        self.set_template()
-        if item_pk:
-            self.obj = get_object_or_404(
-                self.model,
-                pk=item_pk,
-                user=request.user,
-            )
-        return super(ItemCreateUpdateView, self).dispatch(
-            request, model_name, item_pk, *args, **kwargs
-        )
-
-    def get(self, request, model_name, item_pk=None):
-        form = self.get_form(self.model, instance=self.obj)
-        return self.render_to_response({
-            'form': form,
-            'object': self.obj,
-        })
-
-    def post(self, request, model_name, item_pk=None):
-        form = self.get_form(
-            self.model,
-            instance=self.obj,
-            data=request.POST,
-            files=request.FILES,
-        )
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = request.user
-            obj.save()
-            return redirect('content')
-        return self.render_to_response({
-            'form': form,
-            'object': self.obj
-        })
+        item.delete()
+        return redirect('content')
 
 
 @login_required
