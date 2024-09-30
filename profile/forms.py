@@ -1,8 +1,9 @@
 from django import forms
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urljoin
 from django.forms import inlineformset_factory
 from django.contrib.auth import get_user_model
 from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth import password_validation
 from phonenumber_field.formfields import PhoneNumberField
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
@@ -270,8 +271,15 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
     def clean(self):
         cleaned_data = super().clean()
         # todo: probs need separate logic for different linkbase's
-        path = cleaned_data['url'].strip('/')
+        cleaned_url = cleaned_data['url'].lstrip('/')
+        full_url = cleaned_data['linkbase'].domain + cleaned_url
         validator = URLValidator()
+        try:
+            validator(full_url)
+        except ValidationError as e:
+            raise e
+        cleaned_data['url'] = cleaned_url
+        return cleaned_data
 
 
 

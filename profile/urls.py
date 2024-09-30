@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
     path('', views.profile_list, name='profile_list'),
     path('create/', views.ProfileEditCreateView.as_view(), name='profile_create'),
+    path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
     # consider [Sqids](https://sqids.org/) instead of pks
     path('<pk>/', views.profile, name='profile'),
     path('<pk>/edit/', views.ProfileEditCreateView.as_view(), name='profile_edit'),
@@ -13,7 +14,6 @@ urlpatterns = [
     path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
     path('<pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
     path('<pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
-    path('<profile_pk>/content/order/', views.ContentOrderView.as_view(), name='content_order'),
 
     path(
         '<profile_pk>/<model_name>/create/',
