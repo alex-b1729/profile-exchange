@@ -297,6 +297,8 @@ class ContentCreateUpdateView(
     model = None
     obj = None
     template_name = None
+    initial = dict()
+    context = dict()
 
     def set_template(self):
         self.template_name = f'manage/item/{self.model.__name__.lower()}_edit.html'
@@ -307,21 +309,33 @@ class ContentCreateUpdateView(
             if issubclass(mod, ItemBase):
                 return mod
         except LookupError:
-            pass
+            # check if model_name is a LinkBase item
+            try:
+                # todo: sanitize model_name!
+                linkbase = LinkBase.objects.get(svg_id=model_name)
+                self.initial.update({'linkbase': linkbase})
+                self.context.update({'linkbase': linkbase})
+                return apps.get_model(app_label='profile', model_name='link')
+            except LinkBase.DoesNotExist:
+                pass
         return None
 
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
         try:
             form = getattr(forms, f'{self.model.__name__.capitalize()}CreateUpdateForm')
-            return form(instance=instance, data=data, files=files)
+            return form(
+                instance=instance,
+                initial=self.initial,
+                data=data,
+                files=files
+            )
         except AttributeError:
             pass
         return None
-        # form = modelform_factory(
-        #     model,
-        #     exclude=('user', 'created', 'updated',)
-        # )
-        # return form(*args, **kwargs)
+
+    def set_context(self, **kwargs):
+        for k, v in kwargs.items():
+            self.context[k] = v
 
     def dispatch(self, request, model_name, profile_pk=None, content_pk=None, *args, **kwargs):
         self.model = self.get_model(model_name)
@@ -338,18 +352,20 @@ class ContentCreateUpdateView(
                 pk=content_pk,
                 user=request.user,
             )
+        self.set_context(
+            section='profiles' if profile_pk else 'content',
+            model_name=model_name,
+            profile_pk=profile_pk,
+            content_pk=content_pk,
+        )
         return super(ContentCreateUpdateView, self).dispatch(
             request, model_name, profile_pk, content_pk, *args, **kwargs
         )
 
     def get(self, request, model_name, profile_pk=None, content_pk=None):
         form = self.get_form(instance=self.obj)
-        return self.render_to_response({
-            'form': form,
-            'model': model_name,
-            'profile_pk': profile_pk,
-            'content_pk': content_pk,
-        })
+        self.context.update({'form': form})
+        return self.render_to_response(self.context)
 
     def post(self, request, model_name, profile_pk=None, content_pk=None):
         form = self.get_form(
@@ -357,6 +373,7 @@ class ContentCreateUpdateView(
             data=request.POST,
             files=request.FILES,
         )
+        self.context.update({'form': form})
         if form.is_valid():
             item = form.save(commit=False)
             item.user = request.user
@@ -371,12 +388,7 @@ class ContentCreateUpdateView(
                     c.save()
                 return redirect('profile', self.profile.pk)
             return redirect('content')
-        return self.render_to_response({
-            'form': form,
-            'model': model_name,
-            'profile_pk': profile_pk,
-            'content_pk': content_pk,
-        })
+        return self.render_to_response(self.context)
 
 
 @login_required

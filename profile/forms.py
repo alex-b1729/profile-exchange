@@ -262,7 +262,7 @@ class AddressCreateUpdateForm(BootstrapModelFormMixin):
 
 class LinkCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
-        models = models.Link
+        model = models.Link
         fields = ('linkbase', 'label', 'url',)
         widgets = {
             'linkbase': forms.HiddenInput,
@@ -270,8 +270,8 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
 
     def clean(self):
         cleaned_data = super().clean()
-        # todo: probs need separate logic for different linkbase's
-        cleaned_url = cleaned_data['url'].lstrip('/')
+        # todo: separate logic for generic web link
+        cleaned_url = cleaned_data['url'].strip('/') + '/'
         full_url = cleaned_data['linkbase'].domain + cleaned_url
         validator = URLValidator()
         try:

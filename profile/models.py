@@ -192,6 +192,10 @@ class Link(ItemBase):
         help_text='Indicates url does not require linkbase.domain as the prefix'
     )
 
+    def save(self, commit=True, *args, **kwargs):
+        self.is_independent_url = self.linkbase == 1
+        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.is_independent_url:
             return str(self.url)

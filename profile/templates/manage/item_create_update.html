@@ -2,40 +2,22 @@
 
 {% block title %}
 {% if content_pk %}
-Edit {{ model_name|capitalize }}
+Edit {{ model_name|title }}
 {% else %}
-New {{ model_name|capitalize }}
+New {{ model_name|title }}
 {% endif %}
 {% endblock %}
 
 {% block content %}
 <h1>
     {% if content_pk %}
-    Edit {{ model_name|capitalize }}
+    Edit {{ model_name|title }}
     {% else %}
-    New {{ model_name|capitalize }}
+    New {{ model_name|title }}
     {% endif %}
 </h1>
 
-<form
-        {# in profile urls #}
-        {% if profile_pk %}
-        {% if content_pk %}
-        action="{% url 'profile_content_update' profile_pk model_name content_pk %}"
-        {% else %}
-        action="{% url 'profile_content_create' profile_pk model_name %}"
-        {% endif %}
-        {% endif %}
-
-        {# in content urls #}
-        {% if content_pk %}
-        action="{% url 'item_update' model_name content_pk %}"
-        {% else %}
-        action="{% url 'item_create' model_name %}"
-        {% endif %}
-
-        method="post"
-        enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
     {% block form %}
