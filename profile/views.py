@@ -124,6 +124,7 @@ def profile_list(request):
 
 
 class ProfileEditCreateView(
+    LoginRequiredMixin,
     TemplateResponseMixin,
     View,
     UserMixin,
@@ -171,6 +172,7 @@ class ProfileEditCreateView(
 
 
 class ProfileDetailEditView(
+    LoginRequiredMixin,
     TemplateResponseMixin,
     View,
     UserMixin,
@@ -237,6 +239,7 @@ def profile(request, pk):
     )
 
 
+@login_required
 def update_profile_img(request, pk):
     user = request.user
     user_profile = get_object_or_404(
@@ -287,7 +290,7 @@ def user_content_view(request):
 
 
 class ContentCreateUpdateView(
-    # UserMixin,
+    LoginRequiredMixin,
     UserEditMixin,
     TemplateResponseMixin,
     View
