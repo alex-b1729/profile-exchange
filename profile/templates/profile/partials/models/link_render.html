@@ -1,0 +1,11 @@
+{% load static %}
+<div class="d-flex">
+    <div class="me-3">
+        <svg width="24" height="24">
+            <use href="{% static 'svg_spiritsheet.svg' %}#{{ object.linkbase.svg_id }}"></use>
+        </svg>
+    </div>
+    <div class="justify-content-left">
+        <a href="{{ object }}">{{ object }}</a>{% if object.label %} - {{ object.label }}{% endif %}
+    </div>
+</div>
