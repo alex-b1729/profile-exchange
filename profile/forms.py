@@ -1,3 +1,4 @@
+import re
 from django import forms
 from urllib.parse import urljoin
 from django.forms import inlineformset_factory
@@ -265,23 +266,32 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
         model = models.Link
         fields = ('linkbase', 'label', 'url',)
         widgets = {
+            'url': forms.TextInput(attrs={
+                'aria-describedby': 'basic-addon3 basic-addon4', 
+            }),
             'linkbase': forms.HiddenInput,
         }
 
     def clean(self):
         cleaned_data = super().clean()
         # todo: separate logic for generic web link
-        cleaned_url = cleaned_data['url'].strip('/') + '/'
-        full_url = cleaned_data['linkbase'].domain + cleaned_url
+        cleaned_url = cleaned_data['url'].lstrip('/')
+        if cleaned_data['linkbase'].pk == 1:
+            if re.search('\w+://', cleaned_url):
+                full_url = cleaned_url
+            else:
+                full_url = 'https://' + cleaned_url
+        else:
+            # todo: will still accept stuff like https://github.com/https://asdf.com/
+            full_url = cleaned_data['linkbase'].domain + cleaned_url
         validator = URLValidator()
         try:
             validator(full_url)
         except ValidationError as e:
-            raise e
+            msg = f'{full_url} is not a valid url.'
+            self.add_error('url', msg)
         cleaned_data['url'] = cleaned_url
         return cleaned_data
-
-
 
 
 # class CardEditForm(forms.ModelForm):

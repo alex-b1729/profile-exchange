@@ -1,8 +1,38 @@
 {% extends "manage/item_create_update.html" %}
 
 {% block form %}
+{{ form.linkbase }} {# hidden #}
 
-A new {{ linkbase.title }} link. Starting with {{ linkbase.domain }}
-{{ form.as_div }}
+<div class="mb-3">
+
+    <label for="{{ form.url.id_for_label }}" class="form-label">
+        {{ linkbase.title }}
+        {% if linkbase.pk != 1 %}
+        username
+        {% endif %}
+    </label>
+    <div class="input-group">
+        {% if linkbase.pk != 1 %}
+        <span class="input-group-text" id="basic-addon3">
+            {{ linkbase.domain }}
+        </span>
+        {% endif %}
+        {{ form.url }}
+    </div>
+    {% if form.url.errors %}
+    <div>
+        {{ form.url.errors }}
+    </div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ form.label.label }}
+    {{ form.label }}
+</div>
+{% if form.non_field_errors %}
+<div class="mb-3">
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
 
 {% endblock %}

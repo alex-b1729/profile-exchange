@@ -193,7 +193,8 @@ class Link(ItemBase):
     )
 
     def save(self, commit=True, *args, **kwargs):
-        self.is_independent_url = self.linkbase == 1
+        if self.is_independent_url is None:
+            self.is_independent_url = self.linkbase == 1
         super().save(*args, **kwargs)
 
     def __str__(self):

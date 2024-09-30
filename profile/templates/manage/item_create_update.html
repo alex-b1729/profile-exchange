@@ -9,13 +9,6 @@ New {{ model_name|title }}
 {% endblock %}
 
 {% block content %}
-<h1>
-    {% if content_pk %}
-    Edit {{ model_name|title }}
-    {% else %}
-    New {{ model_name|title }}
-    {% endif %}
-</h1>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -33,6 +26,7 @@ New {{ model_name|title }}
             class="btn btn-secondary">
         Cancel
     </a>
+    {# todo: add link test button #}
 </form>
 
 {% endblock %}
