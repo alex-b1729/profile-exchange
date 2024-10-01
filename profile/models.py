@@ -61,7 +61,7 @@ class Profile(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def get_absolute_url(self):
-        return reverse('profile', kwargs={'pk': self.pk})
+        return reverse('profile', kwargs={'profile_pk': self.pk})
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
@@ -191,6 +191,9 @@ class Link(ItemBase):
     is_independent_url = models.BooleanField(
         help_text='Indicates url does not require linkbase.domain as the prefix'
     )
+
+    class Meta:
+        ordering = ['linkbase']
 
     def save(self, commit=True, *args, **kwargs):
         if self.is_independent_url is None:

@@ -10,180 +10,42 @@ My Content
 
 <h1>My Content</h1>
 <p>Hey {{ request.user.username }}, here's all your content.</p>
-<p>Mix and match this in your <a href="{% url 'profile_list' %}">profiles</a>.</p>
+<p>Mix and match these items in your <a href="{% url 'profile_list' %}">profiles</a>.</p>
 
 <hr />
 
-{% with emails=request.user.email_related.all %}
+{% for content_type, objs in content_dict.items %}
 <div class="card mb-3">
     <div class="card-header">
-        Email
+        {{ content_type|title }}
         <a href="#" class="btn btn-primary">
             New
         </a>
     </div>
     <div class="card-body">
-        {% if emails %}
         <ul class="list-group list-group-flush">
-            {% for email in emails %}
+            {% for obj in objs %}
             <li class="list-group-item">
-                {{ email.render|safe }}
-                {% with contents=email.content_related.all %}
-                {% if contents %}
+                {{ obj.render|safe }}
+                {% with related=obj.content_related.all %}
+                {% if related %}
                 <p>
                     <span class="text-muted">Profiles: </span>
-                    {% for c in contents %}
-                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
+                    {% for r in related %}
+                    <a href="{{ r.profile.get_absolute_url }}">{{ r.profile.title }}</a>
                     {% if not forloop.last %} | {% endif %}
                     {% endfor %}
                 </p>
                 {% endif %}
                 {% endwith %}
                 <a href="#">Edit</a>
-                <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this email?');"
-                    action="{% url 'item_delete' 'email' email.pk %}">
-                    <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-                    {% csrf_token %}
-                </form>
             </li>
             {% endfor %}
         </ul>
-        {% else %}
-        Add an email to include in your profiles
-        {% endif %}
     </div>
 </div>
-{% endwith %}
-
-{% with phones=request.user.phone_related.all %}
-<div class="card mb-3">
-    <div class="card-header">
-        Phone
-        <a href="#" class="btn btn-primary">
-            New
-        </a>
-    </div>
-    <div class="card-body">
-        {% if phones %}
-        <ul class="list-group list-group-flush">
-            {% for phone in phones %}
-            <li class="list-group-item">
-                {{ phone.render|safe }}
-                {% with contents=phone.content_related.all %}
-                {% if contents %}
-                <p>
-                    <span class="text-muted">Profiles: </span>
-                    {% for c in contents %}
-                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
-                    {% if not forloop.last %} | {% endif %}
-                    {% endfor %}
-                </p>
-                {% endif %}
-                {% endwith %}
-                <a href="#">Edit</a>
-                <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this phone number?');"
-                    action="{% url 'item_delete' 'phone' phone.pk %}">
-                    <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-                    {% csrf_token %}
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        Add a phone number to include in your profiles
-        {% endif %}
-    </div>
-</div>
-{% endwith %}
-
-{% with addrs=request.user.address_related.all %}
-<div class="card mb-3">
-    <div class="card-header">
-        Mailing
-        <a href="#" class="btn btn-primary">
-            New
-        </a>
-    </div>
-    <div class="card-body">
-        {% if addrs %}
-        <ul class="list-group list-group-flush">
-            {% for addr in addrs %}
-            <li class="list-group-item">
-                {{ addr.render|safe }}
-                {% with contents=addr.content_related.all %}
-                {% if contents %}
-                <p>
-                    <span class="text-muted">Profiles: </span>
-                    {% for c in contents %}
-                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
-                    {% if not forloop.last %} | {% endif %}
-                    {% endfor %}
-                </p>
-                {% endif %}
-                {% endwith %}
-                <a href="#">Edit</a>
-                <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this address?');"
-                    action="{% url 'item_delete' 'address' addr.pk %}">
-                    <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-                    {% csrf_token %}
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        Add an address to include in your profiles
-        {% endif %}
-    </div>
-</div>
-{% endwith %}
-
-{% with links=request.user.link_related.all %}
-<div class="card mb-3">
-    <div class="card-header">
-        Links
-        <a href="#" class="btn btn-primary">
-            New
-        </a>
-    </div>
-    <div class="card-body">
-        {% if links %}
-        <ul class="list-group list-group-flush">
-            {% for link in links %}
-            <li class="list-group-item">
-                {{ link.render|safe }}
-                {% with contents=link.content_related.all %}
-                {% if contents %}
-                <p>
-                    <span class="text-muted">Profiles: </span>
-                    {% for c in contents %}
-                    <a href="{{ c.profile.get_absolute_url }}">{{ c.profile.title }}</a>
-                    {% if not forloop.last %} | {% endif %}
-                    {% endfor %}
-                </p>
-                {% endif %}
-                {% endwith %}
-                <a href="#">Edit</a>
-                <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this link?');"
-                    action="{% url 'item_delete' link.linkbase.svg_id link.pk %}">
-                    <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-                    {% csrf_token %}
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        Add links to include in your profiles
-        {% endif %}
-    </div>
-</div>
-{% endwith %}
+{% empty %}
+<a href="#">Add content!</a>
+{% endfor %}
 
 {% endblock %}

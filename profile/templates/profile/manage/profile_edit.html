@@ -1,0 +1,40 @@
+{% extends "center_card.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block card %}
+<div class="card-header">
+    <h5 class="card-text">
+        {% if profile %}Edit {% else %}New {% endif %}Profile
+    </h5>
+</div>
+<div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.title.label }}{{ form.title }}{{ form.title.errors }}
+            {{ form.kind.label }}{{ form.kind }}{{ form.kind.errors }}
+            {{ form.description.label }}{{ form.description }}{{ form.description.errors }}
+        </div>
+        <input class="btn btn-primary" type="submit" value="Save" />
+        <a class="btn btn-secondary" href="{% url 'profile_list' %}">Cancel</a>
+        {{ form.non_field_errors }}
+    </form>
+</div>
+<div class="card-footer d-flex flex-column">
+    <p class="fs-7 text-muted">
+        <svg fill="currentColor" width="16" height="16" viewBox="0 0 16 16">
+            <use xlink:href="{% static 'svg_spiritsheet.svg' %}#not-visible"></use>
+        </svg>
+        These details are private and are not displayed to others.
+    </p>
+    {% if form.non_field_errors %}
+    <ul>
+        {% for e in form.non_field_errors %}
+        <li class="text-danger">{{ e }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

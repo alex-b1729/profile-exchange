@@ -7,11 +7,14 @@
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom">
     <h2>My Profiles</h2>
+    <a href="{% url 'profile_create' %}" class="btn btn-primary">
+        New Profile
+    </a>
 </div>
 
-<div class="d-md-inline-flex g-3">
+<div class="d-flex flex-column g-3">
     {% for p in profiles %}
-    <div id="profile-{{ forloop.counter0 }}" class="card me-3 mb-3" style="width: 18rem;">
+    <div id="profile-{{ forloop.counter0 }}" class="card me-3 mb-3 w-75">
         {% with photo=p.photo %}
         {% if photo %}
         {% thumbnail photo "200x150" crop="center" as im %}
@@ -24,12 +27,9 @@
 
         <div class="card-body">
             <div id="profile-{{ forloop.counter0 }}-description">
-                <button
-                  hx-get="{% url 'profile_edit' p.pk %}"
-                  hx-target="#profile-{{ forloop.counter0 }}-description"
-                  hx-trigger="click">
+                <a href="{% url 'profile_edit' p.pk %}">
                     Edit Profile
-                </button>
+                </a>
                 <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
                     <h5 class="card-title">
                         {{ p.title }}
@@ -62,7 +62,6 @@
             </p>
             {% endif %}
             {% endwith %}
-            <a href="{% url 'profile_detail_edit' p.pk %}" class="card-link">Edit profile content</a>
             <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
@@ -73,6 +72,8 @@
         </div>
     </div>
     {% endfor %}
+
+    {% comment %}
     <div id="profile-{{ profiles|length }}" class="card me-3 mb-3" style="width: 18rem;">
         <div class="card-body align-content-center" id="new-profile">
             <div class="text-center">
@@ -100,6 +101,7 @@
             </p>
         </div>
     </div>
+    {% endcomment %}
 </div>
 
 {% endblock %}

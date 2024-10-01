@@ -5,15 +5,15 @@ from . import views
 
 urlpatterns = [
     path('', views.profile_list, name='profile_list'),
-    path('create/', views.ProfileEditCreateView.as_view(), name='profile_create'),
+    path('create/', views.ProfileCreateUpdateView.as_view(), name='profile_create'),
     path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
     # consider [Sqids](https://sqids.org/) instead of pks
-    path('<pk>/', views.profile, name='profile'),
-    path('<pk>/edit/', views.ProfileEditCreateView.as_view(), name='profile_edit'),
-    path('<pk>/delete/', views.profile_delete, name='profile_delete'),
-    path('<pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
-    path('<pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
-    path('<pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
+    path('<profile_pk>/', views.profile, name='profile'),
+    path('<profile_pk>/edit/', views.ProfileCreateUpdateView.as_view(), name='profile_edit'),
+    path('<profile_pk>/delete/', views.profile_delete, name='profile_delete'),
+    path('<profile_pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
+    path('<profile_pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
+    path('<profile_pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
 
     path(
         '<profile_pk>/<model_name>/create/',

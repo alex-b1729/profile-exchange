@@ -123,16 +123,15 @@ def profile_list(request):
     )
 
 
-class ProfileEditCreateView(
+class ProfileCreateUpdateView(
     LoginRequiredMixin,
+    UserMixin,
     TemplateResponseMixin,
     View,
-    UserMixin,
 ):
-    template_name = 'profile/partials/profile_edit.html'
+    template_name = 'profile/manage/profile_edit.html'
     user = None
     profile = None
-    pk = None
 
     def get_form(self, data=None, files=None):
         return ProfileEditForm(
@@ -140,20 +139,25 @@ class ProfileEditCreateView(
             data=data,
         )
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, profile_pk=None, *args, **kwargs):
         self.user = request.user
-        if 'pk' in kwargs:
-            self.pk = kwargs['pk']
+        if profile_pk:
             self.profile = get_object_or_404(
                 Profile,
-                pk=self.pk,
+                pk=profile_pk,
                 user=self.user,
             )
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(
+            request, *args, **kwargs
+        )
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
-        return self.render_to_response({'form': form, 'pk': self.pk})
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile': self.profile,
+        })
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(data=request.POST)
@@ -168,7 +172,11 @@ class ProfileEditCreateView(
                 p.user = self.user
                 p.save()
                 return redirect('profile_detail_edit', p.pk)
-        return self.render_to_response({'form': form, 'pk': self.pk})
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile': self.profile,
+        })
 
 
 class ProfileDetailEditView(
@@ -215,37 +223,41 @@ class ProfileDetailEditView(
 
 @login_required
 @require_POST
-def profile_delete(request, pk):
+def profile_delete(request, profile_pk):
     p = get_object_or_404(
         Profile,
         user=request.user,
-        pk=pk
+        pk=profile_pk,
     )
     p.delete()
     return redirect('profile_list')
 
 
 @login_required
-def profile(request, pk):
-    profile = get_object_or_404(Profile, user=request.user, pk=pk)
+def profile(request, profile_pk):
+    p = get_object_or_404(
+        Profile,
+        user=request.user,
+        pk=profile_pk,
+    )
     return render(
         request,
         'profile/detail.html',
         {
             'section': 'profiles',
             'entity': 'self',
-            'profile': profile,
+            'profile': p,
         }
     )
 
 
 @login_required
-def update_profile_img(request, pk):
+def update_profile_img(request, profile_pk):
     user = request.user
     user_profile = get_object_or_404(
         Profile,
         user=user,
-        pk=pk,
+        pk=profile_pk,
     )
     if request.method == 'POST':
         form = ProfileImgEditForm(
@@ -255,7 +267,7 @@ def update_profile_img(request, pk):
         )
         if form.is_valid():
             form.save()
-            return redirect('profile', pk=pk)
+            return redirect('profile', profile_pk)
     else:
         form = ProfileImgEditForm(instance=user_profile)
     return render(
@@ -263,29 +275,38 @@ def update_profile_img(request, pk):
         'profile/partials/update_profile_img.html',
         {
             'form': form,
-            'pk': pk,
+            'pk': profile_pk,
         }
     )
 
 
 @login_required
 @require_POST
-def profile_img_delete(request, pk):
+def profile_img_delete(request, profile_pk):
     p = get_object_or_404(
         Profile,
         user=request.user,
-        pk=pk
+        pk=profile_pk
     )
     p.photo.delete(save=True)
-    return redirect('profile', pk)
+    return redirect('profile', profile_pk)
 
 
 @login_required
 def user_content_view(request):
+    c = dict()
+    for content_type in consts.CONTENT_TYPES:
+        mod = apps.get_model(app_label='profile', model_name=content_type)
+        objs = mod.objects.filter(user=request.user)
+        if objs:
+            c[content_type] = objs
     return render(
         request,
         'user_content.html',
-        {'section': 'content'}
+        {
+            'section': 'content',
+            'content_dict': c,
+        }
     )
 
 

@@ -260,6 +260,7 @@
 
 {% endblock %}
 
+{% if entity == 'self' %}
 {% block domready %}
 $('#contents').sortable({
   stop: function(event, ui) {
@@ -280,3 +281,4 @@ $('#contents').sortable({
   }
 });
 {% endblock %}
+{% endif %}
