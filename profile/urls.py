@@ -11,6 +11,11 @@ urlpatterns = [
     path('<profile_pk>/', views.profile, name='profile'),
     path('<profile_pk>/edit/', views.ProfileCreateUpdateView.as_view(), name='profile_edit'),
     path('<profile_pk>/delete/', views.profile_delete, name='profile_delete'),
+    path(
+        '<profile_pk>/select/',
+        views.ProfileSelectContentView.as_view(),
+        name='profile_content_select',
+    ),
     path('<profile_pk>/editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
     path('<profile_pk>/editdetail/profileimg/', views.update_profile_img, name='update_profile_img'),
     path('<profile_pk>/editdetail/profileimg/delete/', views.profile_img_delete, name='profile_img_delete'),
@@ -19,11 +24,6 @@ urlpatterns = [
         '<profile_pk>/<model_name>/create/',
         views.ContentCreateUpdateView.as_view(),
         name='profile_content_create'
-    ),
-    path(
-        '<profile_pk>/<model_name>/select/',
-        views.ProfileSelectContentView.as_view(),
-        name='profile_content_select',
     ),
     path(
         '<profile_pk>/<model_name>/<content_pk>/',

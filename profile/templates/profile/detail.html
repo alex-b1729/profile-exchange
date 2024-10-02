@@ -155,7 +155,7 @@
 
 <div class="card" id="profile-content">
   <div class="card-header">
-    <a href="#" class="btn btn-secondary">Add Content</a>
+    <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary">Add Content</a>
   </div>
   {% with contents=profile.contents.all %}
   {% if contents %}

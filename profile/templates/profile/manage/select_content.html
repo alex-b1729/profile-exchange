@@ -9,13 +9,26 @@ Edit profile
 <h2>Select content to include in profile</h2>
 <form method="post">
     {% csrf_token %}
-    {{ select_form.model_choice }}
-    <input name="{{ select_form.prefix }}" class="btn btn-primary" type="submit" value="Save">
-</form>
+    <div class="mb-3">
+        <input class="btn btn-primary" type="submit" value="Save">
+        <a href="{% url 'profile' profile_pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ new_form }}
-    <input name="{{ new_form.prefix }}" class="btn btn-primary" type="submit" value="Add New">
+    {% for form in forms %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <p class="fs-5 card-text">{{ form.model_choice.label }}</p>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for c in form.model_choice %}
+            <li class="list-group-item">
+                {{ c }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
 </form>
+<a href="#" class="btn btn-primary">Create New Content</a>
 {% endblock %}

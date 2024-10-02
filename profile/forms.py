@@ -144,9 +144,11 @@ class ProfileSelectContentForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, qs, *args, **kwargs):
+    def __init__(self, qs, label=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['model_choice'].queryset = qs
+        if label:
+            self.fields['model_choice'].label = label
 
 
 class ProfileImgEditForm(forms.ModelForm):

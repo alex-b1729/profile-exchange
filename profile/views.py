@@ -490,107 +490,83 @@ def item_delete(request, model_name, content_pk):
 
 
 class ProfileSelectContentView(
+    LoginRequiredMixin,
+    UserMixin,
     TemplateResponseMixin,
     View,
-    UserMixin,
 ):
-    template_name = 'profile/manage/profile/select_content.html'
+    template_name = 'profile/manage/select_content.html'
     user = None
-    model = None
-    qs = None
     profile = None
-    initial = None
+    qs_dict = dict()
+    initial_dict = dict()
+    form_dict = dict()
 
-    def get_select_form(self, *args, **kwargs):
-        return ProfileSelectContentForm(
-            qs=self.qs,
-            initial={'model_choice': self.initial},
-            prefix='selectform',
-            *args, **kwargs
-        )
+    def set_forms(self, data=None):
+        for content_type in self.qs_dict:
+            self.form_dict[content_type] = ProfileSelectContentForm(
+                qs=self.qs_dict[content_type],
+                label=content_type.capitalize(),
+                prefix=f'{content_type}form',
+                initial={'model_choice': self.initial_dict[content_type]},
+                data=data,
+            )
 
-    def get_new_form(self, *args, **kwargs):
-        form_class = getattr(forms, f'Create{self.model.__name__.capitalize()}Content')
-        return form_class(prefix='newform', *args, **kwargs)
+    def set_qs_and_initial(self):
+        """gets all items associated with user for all item models"""
+        for content_type in consts.CONTENT_TYPES:
+            mod = apps.get_model(app_label='profile', model_name=content_type)
+            user_objs = mod.objects.filter(user=self.user)
+            if user_objs.exists():
+                self.qs_dict[content_type] = user_objs
+                self.initial_dict[content_type] = user_objs.filter(content_related__profile=self.profile)
 
-    def get_model_qs(self):
-        self.qs = self.model.objects.filter(user=self.user)
-
-    def get_initial(self):
-        self.initial = self.model.objects.filter(content_related__profile=self.profile)
-
-    def get_model(self, model_name):
-        try:
-            mod = apps.get_model(app_label='profile', model_name=model_name)
-            if issubclass(mod, ItemBase):
-                return mod
-        except LookupError:
-            pass
-        return None
-
-    def dispatch(self, request, profile_pk, model_name, *args, **kwargs):
+    def dispatch(self, request, profile_pk, *args, **kwargs):
         self.user = request.user
-        self.model = self.get_model(model_name)
-        self.get_model_qs()
         self.profile = get_object_or_404(
             Profile,
             user=self.user,
             pk=profile_pk,
         )
-        self.get_initial()
+        self.set_qs_and_initial()
         return super(ProfileSelectContentView, self).dispatch(
-            request, profile_pk, model_name, *args, **kwargs
+            request, profile_pk, *args, **kwargs
         )
 
-    def get(self, request, profile_pk, model_name):
-        select_form = self.get_select_form()
-        new_form = self.get_new_form()
+    def get(self, request, profile_pk, *args, **kwargs):
+        self.set_forms()
         return self.render_to_response({
             'section': 'profiles',
-            'select_form': select_form,
-            'new_form': new_form,
+            'forms': self.form_dict.values(),
+            'profile_pk': profile_pk,
         })
 
-    def post(self, request, profile_pk, model_name):
-        if 'selectform' in request.POST:
-            select_form = self.get_select_form(data=request.POST)
-            if select_form.is_valid():
-                models_in_form = select_form.cleaned_data['model_choice']
-                for mod in self.qs:
-                    if models_in_form.contains(mod) and not self.initial.contains(mod):
+    def post(self, request, profile_pk, *args, **kwargs):
+        self.set_forms(data=request.POST)
+        print(request.POST)
+        if all(form.is_valid() for form in self.form_dict.values()):
+            for content_type, form in self.form_dict.items():
+                models_in_form = form.cleaned_data['model_choice']
+                initial_models = self.initial_dict[content_type]
+                for mod in self.qs_dict[content_type]:
+                    if models_in_form.contains(mod) and not initial_models.contains(mod):
                         # add new content
                         c = Content(
                             profile=self.profile,
                             item=mod,
                         )
                         c.save()
-                    elif not models_in_form.contains(mod) and self.initial.contains(mod):
+                    elif not models_in_form.contains(mod) and initial_models.contains(mod):
                         # remove previous content
                         content_to_remove = mod.content_related.get(profile=self.profile)
                         content_to_remove.delete()
                     else:
                         pass
-                return redirect('profile', self.profile.pk)
-            else:
-                new_form = self.get_new_form()
-        elif 'newform' in request.POST:
-            new_form = self.get_new_form(data=request.POST)
-            if new_form.is_valid():
-                obj = new_form.save(commit=False)
-                obj.user = request.user
-                obj.save()
-                c = Content(
-                    profile=self.profile,
-                    item=obj,
-                )
-                c.save()
-                return redirect('profile_content_select', profile_pk, model_name)
-            else:
-                select_form = self.get_select_form()
+            return redirect('profile', profile_pk)
         return self.render_to_response({
             'section': 'profiles',
-            'select_form': select_form,
-            'new_form': new_form,
+            'forms': self.form_dict.values(),
+            'profile_pk': profile_pk,
         })
 
 
