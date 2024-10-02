@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load thumbnail %}
 
 {% block title %}
 Edit profile
@@ -8,17 +9,10 @@ Edit profile
 {% block content %}
 <form method="post" id="form-container">
     {% csrf_token %}
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom">
-        <div class="column mb-3">
-            <div class="d-flex flex-row justify-content-start">
-                {{ form.title.label }}{{ form.title }}
-                {{ form.kind.label }}{{ form.kind }}
-            </div>
-            <div class="d-flex flex-row">
-                {{ form.description.label }}{{ form.description }}
-            </div>
-        </div>
-        <p><input class="btn btn-primary" type="submit" value="Save changes"></p>
+
+    <div class="container d-flex justify-content-end">
+        <input class="btn btn-primary me-2" type="submit" value="Save changes">
+        <a href="{% url 'profile' profile_pk %}" class="btn btn-secondary me-2">Cancel</a>
     </div>
 
     {% if form.non_field_errors %}
@@ -29,48 +23,55 @@ Edit profile
     </ul>
     {% endif %}
 
-    <div class="container mb-3 d-md-flex border-bottom">
-      <div class="me-5 mb-3">
-          <img id="PHOTO" class="rounded" src="/media/users/no_image.png" width="200" height="200" alt="profile photo">
-      </div>
-      <div class="justify-content-left flex-wrap">
-        <div class="row align-items-left g-1 mb-3">
-          <div class="col-auto">{{ form.prefix.label }}{{ form.prefix }}{{ form.prefix.errors }}</div>
-          <div class="col-auto d-flex">
-            <div>{{ form.first_name.label }}{{ form.first_name }}{{ form.first_name.errors }}</div>
-            <div class="px-1">{{ form.middle_name.label }}{{ form.middle_name }}{{ form.middle_name.errors }}</div>
-            <div>{{ form.last_name.label }}{{ form.last_name }}{{ form.last_name.errors }}</div>
-          </div>
-          <div class="col-auto mb-1">{{ form.suffix.label }}{{ form.suffix }}{{ form.suffix.errors }}</div>
+    <div class="container mb-3 d-md-flex">
+        <div class="me-5 mb-3 d-flex flex-column">
+            {% thumbnail profile_pic "200x200" crop="center" as im %}
+            <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+            {% empty %}
+            <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="200" height="200" fill="gray" />
+            </svg>
+            {% endthumbnail %}
         </div>
 
-        <div class="mb-3">
-          {{ form.headline.label }}
-          {{ form.headline }}
-          {{ form.headline.errors }}
-        </div>
-
-        <div class="row align-items-left mb-3">
-          <div class="row">
-            <div class="col-auto">
-              {{ form.location.label }}
-              {{ form.location }}
-              {{ form.location.errors }}
+        <div class="justify-content-left flex-wrap">
+            <div class="row align-items-left g-1 mb-3">
+                <div class="col-auto">{{ form.prefix.label }}{{ form.prefix }}{{ form.prefix.errors }}</div>
+                    <div class="col-auto d-flex">
+                        <div>{{ form.first_name.label }}{{ form.first_name }}{{ form.first_name.errors }}</div>
+                        <div class="px-1">{{ form.middle_name.label }}{{ form.middle_name }}{{ form.middle_name.errors }}</div>
+                        <div>{{ form.last_name.label }}{{ form.last_name }}{{ form.last_name.errors }}</div>
+                    </div>
+                <div class="col-auto mb-1">{{ form.suffix.label }}{{ form.suffix }}{{ form.suffix.errors }}</div>
             </div>
-            <div class="col-auto">
-              {{ form.nickname.label }}
-              {{ form.nickname }}
-              {{ form.nickname.errors }}
-            </div>
-          </div>
-        </div>
 
-        <div class="d-flex flex-wrap mb-3">
-          {{ form.about.label }}
-          {{ form.about }}
-          {{ form.about.errors }}
+            <div class="mb-1">
+                {{ form.headline.label }}
+                {{ form.headline }}
+                {{ form.headline.errors }}
+            </div>
+
+            <div class="row align-items-left mb-3">
+                <div class="row">
+                    <div class="col-auto mb-1">
+                      {{ form.location.label }}
+                      {{ form.location }}
+                      {{ form.location.errors }}
+                    </div>
+                    <div class="col-auto mb-1">
+                        {{ form.nickname.label }}
+                        {{ form.nickname }}
+                        {{ form.nickname.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap mb-1">
+                {{ form.about.label }}
+                {{ form.about }}
+                {{ form.about.errors }}
+            </div>
         </div>
-      </div>
     </div>
 </form>
 {% endblock %}

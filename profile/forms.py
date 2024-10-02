@@ -81,9 +81,6 @@ class ProfileDetailEditForm(forms.ModelForm):
     class Meta:
         model = models.Profile
         fields = [
-            'title',
-            'kind',
-            'description',
             'prefix',
             'first_name',
             'middle_name',
@@ -95,19 +92,6 @@ class ProfileDetailEditForm(forms.ModelForm):
             'about',
         ]
         widgets = {
-            'title': forms.TextInput(attrs={
-                'placeholder': 'Profile title',
-                'class': 'form-control mb-3'
-            }),
-            'kind': forms.Select(attrs={
-                'class': 'form-select mb-3'
-            }),
-            'description': forms.Textarea(attrs={
-                'placeholder': 'Profile description',
-                'rows': 2,
-                'columns': 10,
-                'class': 'form-control'
-            }),
             'prefix': forms.TextInput(attrs={
                 'autocomplete': 'honorific-prefix',
                 'size': 6,
@@ -138,7 +122,8 @@ class ProfileDetailEditForm(forms.ModelForm):
                 'class': 'form-control'
             }),
             'headline': forms.TextInput(attrs={
-                'class': 'form-control'
+                'class': 'form-control',
+                'placeholder': 'You in a sentence',
             }),
             'location': forms.TextInput(attrs={
                 'size': 30,
@@ -146,7 +131,8 @@ class ProfileDetailEditForm(forms.ModelForm):
             }),
             'about': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,
+                'rows': 5,
+                'placeholder': 'You in a paragraph',
             }),
         }
 

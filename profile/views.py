@@ -179,48 +179,6 @@ class ProfileCreateUpdateView(
         })
 
 
-class ProfileDetailEditView(
-    LoginRequiredMixin,
-    TemplateResponseMixin,
-    View,
-    UserMixin,
-):
-    template_name = 'profile/manage/profile/edit_detail.html'
-    user = None
-    profile = None
-    pk = None
-
-    def get_form(self, data=None, files=None):
-        return ProfileDetailEditForm(
-            instance=self.profile,
-            data=data,
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        self.user = request.user
-        if 'pk' in kwargs:
-            self.pk = kwargs['pk']
-            self.profile = get_object_or_404(
-                Profile,
-                pk=self.pk,
-                user=self.user,
-            )
-        else:
-            return page_not_found
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        return self.render_to_response({'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(data=request.POST)
-        if form.is_valid():
-            p = form.save(commit=True)
-            return redirect('profile', pk=p.pk)
-        return self.render_to_response({'form': form})
-
-
 @login_required
 @require_POST
 def profile_delete(request, profile_pk):
@@ -249,6 +207,56 @@ def profile(request, profile_pk):
             'profile': p,
         }
     )
+
+
+class ProfileDetailEditView(
+    LoginRequiredMixin,
+    UserMixin,
+    TemplateResponseMixin,
+    View,
+):
+    template_name = 'profile/manage/edit_detail.html'
+    user = None
+    profile = None
+    profile_pic = None
+
+    def get_form(self, data=None):
+        return forms.ProfileDetailEditForm(
+            instance=self.profile,
+            data=data,
+        )
+
+    def dispatch(self, request, profile_pk, *args, **kwargs):
+        self.user = request.user
+        self.profile = get_object_or_404(
+            Profile,
+            pk=profile_pk,
+            user=self.user,
+        )
+        if self.profile.photo:
+            self.profile_pic = self.profile.photo
+        return super().dispatch(request, profile_pk, *args, **kwargs)
+
+    def get(self, request, profile_pk, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile_pic': self.profile_pic,
+            'profile_pk': self.profile.pk,
+        })
+
+    def post(self, request, profile_pk, *args, **kwargs):
+        form = self.get_form(data=request.POST)
+        if form.is_valid():
+            p = form.save(commit=True)
+            return redirect('profile', p.pk)
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile_pic': self.profile_pic,
+            'profile_pk': self.profile.pk,
+        })
 
 
 @login_required

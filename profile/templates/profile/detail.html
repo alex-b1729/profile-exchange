@@ -64,7 +64,7 @@
 </div>
 {% endif %}
 
-<div class="container p-3 mb-3 d-md-flex border-bottom">
+<div class="container p-3 mb-3 d-md-flex">
   <div class="me-5 mb-3 d-flex flex-column">
     <div class="position-relative">
       {% with profimg=profile.photo %}
@@ -154,6 +154,9 @@
 </div>
 
 <div class="card" id="profile-content">
+  <div class="card-header">
+    <a href="#" class="btn btn-secondary">Add Content</a>
+  </div>
   {% with contents=profile.contents.all %}
   {% if contents %}
 
@@ -169,7 +172,9 @@
   </ul>
 
   {% else %}
-  <h4>There's no content in the profile yet</h4>
+  <div class="card-body">
+    <p class="card-text">There's no content in this profile yet</p>
+  </div>
   {% endif %}
   {% endwith %}
 </div>
