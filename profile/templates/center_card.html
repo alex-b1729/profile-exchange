@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-center mb-3">
       <img src="{% static 'images/favicon.webp' %}" alt="Contacts Logo" width="48" height="48" class="">
     </div>
-    <div class="card shadow" style="width: 18rem;">
+    <div class="card shadow" style="width: {{ card_width|default:18 }}rem;">
       {% block card %}{% endblock %}
     </div>
   </div>
