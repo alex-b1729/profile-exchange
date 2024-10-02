@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Add Content
+{% endblock %}
+
+{% block content %}
+
+<div class="container mb-3 pb-3 border-bottom">
+    <h4>Add Content</h4>
+    <a href="{% url 'content' %}" class="btn btn-secondary">Cancel</a>
+</div>
+<div class="container">
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="card-text">Contact Info</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <a href="{% url 'item_create' 'email' %}" class="text-decoration-none text-reset">
+                    <div>Email</div>
+                </a>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'item_create' 'phone' %}" class="text-decoration-none text-reset">
+                    <div>Phone</div>
+                </a>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'item_create' 'address' %}" class="text-decoration-none text-reset">
+                    <div>Address</div>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="card-text">Link</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <a href="{% url 'item_create' 'web' %}" class="text-decoration-none text-reset">
+                    <div>
+                        <span>
+                            <svg width="22" height="22">
+                                <use href="{% static 'svg_spiritsheet.svg' %}#web"></use>
+                            </svg>
+                        </span>
+                        Website
+                    </div>
+                </a>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'item_create' 'github' %}" class="text-decoration-none text-reset">
+                    <div>
+                        <span>
+                            <svg width="22" height="22">
+                                <use href="{% static 'svg_spiritsheet.svg' %}#github"></use>
+                            </svg>
+                        </span>
+                        GitHub
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

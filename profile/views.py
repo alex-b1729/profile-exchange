@@ -310,13 +310,23 @@ def user_content_view(request):
     )
 
 
+@login_required
+def add_item(request):
+    return render(
+        request,
+        'manage/add_item.html',
+        {
+            'section': 'content',
+        }
+    )
+
+
 class ContentCreateUpdateView(
     LoginRequiredMixin,
     UserEditMixin,
     TemplateResponseMixin,
     View
 ):
-    # todo: the template sends the post request to ItemCreateUpdateView
     profile = None
     model = None
     obj = None

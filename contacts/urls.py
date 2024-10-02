@@ -28,6 +28,7 @@ urlpatterns = [
     path('account/register/', prof_views.register, name='register'),
 
     path('content/', prof_views.user_content_view, name='content'),
+    path('content/new/', prof_views.add_item, name='add_item'),
     path(
         'content/<model_name>/create/',
         prof_views.ContentCreateUpdateView.as_view(),

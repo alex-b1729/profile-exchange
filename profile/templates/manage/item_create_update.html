@@ -21,7 +21,7 @@ New {{ model_name|title }}
             {% if profile_pk %}
             href="{% url 'profile' profile_pk %}"
             {% else %}
-            href="{% url 'content' %}"
+            href="{% url 'add_item' %}"
             {% endif %}
             class="btn btn-secondary">
         Cancel

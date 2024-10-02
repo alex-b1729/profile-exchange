@@ -11,16 +11,13 @@ My Content
 <h1>My Content</h1>
 <p>Hey {{ request.user.username }}, here's all your content.</p>
 <p>Mix and match these items in your <a href="{% url 'profile_list' %}">profiles</a>.</p>
-
+<a href="{% url 'add_item' %}" class="btn btn-primary">Add Content</a>
 <hr />
 
 {% for content_type, objs in content_dict.items %}
 <div class="card mb-3">
     <div class="card-header">
         {{ content_type|title }}
-        <a href="#" class="btn btn-primary">
-            New
-        </a>
     </div>
     <div class="card-body">
         <ul class="list-group list-group-flush">
