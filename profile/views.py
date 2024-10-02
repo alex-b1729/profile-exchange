@@ -399,6 +399,7 @@ class ContentCreateUpdateView(
             model_name=model_name,
             profile_pk=profile_pk,
             content_pk=content_pk,
+            card_width=28,
         )
         return super(ContentCreateUpdateView, self).dispatch(
             request, model_name, profile_pk, content_pk, *args, **kwargs

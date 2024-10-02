@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends "center_card.html" %}
+{% load static %}
 
 {% block title %}
 {% if content_pk %}
@@ -8,25 +9,46 @@ New {{ model_name|title }}
 {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block card %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    {% block form %}
-    {% endblock %}
-
-    <input type="submit" value="Save" class="btn btn-primary"/>
-    <a
-            {% if profile_pk %}
-            href="{% url 'profile' profile_pk %}"
+<div class="card-header">
+    <div class="d-flex align-items-center justify-content-between">
+        <p class="fs-4 mb-0">
+            {% if content_pk %}
+            Edit {{ model_name|title }}
             {% else %}
-            href="{% url 'add_item' %}"
+            New {{ model_name|title }}
             {% endif %}
-            class="btn btn-secondary">
-        Cancel
-    </a>
-    {# todo: add link test button #}
-</form>
+        </p>
+        {# todo: update svg %}
+        <svg width="48" height="48" class="float-end">
+            <use href="{% static 'svg_spiritsheet.svg' %}#github"></use>
+        </svg>
+    </div>
+</div>
+
+<div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {% block form %}
+            {% endblock %}
+        </div>
+
+        <div class="">
+            <input type="submit" value="Save" class="btn btn-primary"/>
+            <a
+                    {% if profile_pk %}
+                    href="{% url 'profile' profile_pk %}"
+                    {% else %}
+                    href="{% url 'add_item' %}"
+                    {% endif %}
+                    class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
 
 {% endblock %}
