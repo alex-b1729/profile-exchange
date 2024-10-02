@@ -2,6 +2,7 @@ import uuid
 import os.path
 import vobject
 import datetime as dt
+from urllib.parse import urlparse
 
 from .fields import OrderField
 from .utils import consts, vcard
@@ -205,6 +206,14 @@ class Link(ItemBase):
             return str(self.url)
         else:
             return f'{self.linkbase.domain}{self.url}/'
+
+    @property
+    def pretty_url(self):
+        if self.is_independent_url:
+            url = urlparse(str(self.url))
+        else:
+            url = urlparse(f'{self.linkbase.domain}{self.url}/')
+        return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
 
 # class Profile(models.Model):

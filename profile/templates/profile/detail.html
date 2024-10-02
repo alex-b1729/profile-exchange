@@ -50,6 +50,20 @@
 </div>
 {% endif %}
 
+{% if profile.user == request.user %}
+<div class="container d-flex flex-row justify-content-end">
+  <button
+    hx-get="#" {# url share #}
+    hx-target="#modals-here"
+    hx-trigger="click"
+    data-bs-toggle="modal"
+    data-bs-target="#modals-here"
+    class="btn btn-dark me-3">Share</button>
+  <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
+  <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
+</div>
+{% endif %}
+
 <div class="container p-3 mb-3 d-md-flex border-bottom">
   <div class="me-5 mb-3 d-flex flex-column">
     <div class="position-relative">
@@ -139,119 +153,21 @@
   </div>
 </div>
 
-{% if profile.user == request.user %}
-<div class="container mb-3 d-inline-flex">
-  <button
-    hx-get="#" {# url share #}
-    hx-target="#modals-here"
-    hx-trigger="click"
-    data-bs-toggle="modal"
-    data-bs-target="#modals-here"
-    class="btn btn-dark me-3">Share</button>
-  <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
-  <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
-  {# {% include "partials/add_content.html" %} #}
-
-  <div class="btn-group">
-    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-      Add Content
-    </button>
-    <ul class="dropdown-menu">
-      <li class="dropend">
-        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
-          Contact Info
-        </a>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'email' %}">
-              Email
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'phone' %}">
-              Phone
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{% url 'profile_content_select' profile.pk 'address' %}">
-              Address
-            </a>
-          </li>
-        </ul>
-      </li>
-      <li class="dropend">
-        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
-          Documents
-        </a>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="#">
-              Resume | CV
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              Manuscript
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              Certificate
-            </a>
-          </li>
-        </ul>
-      </li>
-      <li class="dropend">
-        <a class="dropdown-item btn btn-link dropdown-toggle dropend" data-bs-toggle="dropdown" aria-expanded="false">
-          Media
-        </a>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="#">
-              Image
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">
-              External Link
-            </a>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</div>
-{% endif %}
-
-<div class="container mb-3" id="profile-content">
-  <p><i>{{ profile.get_kind_display }}</i></p>
-
+<div class="card" id="profile-content">
   {% with contents=profile.contents.all %}
   {% if contents %}
-  <ul id="contents" class="ps-0">
+
+  <ul id="contents" class="list-group list-group-flush">
     {% for content in contents %}
     {% with item=content.item %}
-    <li class="card mb-3" data-id="{{ content.pk }}">
-      <div class="card-header">
-        <h5 class="card-title">
-          <span class="text-muted order">{{ content.order|add:1 }}</span>
-          {{ item|model_name|title }}
-        </h5>
-        <form
-            method="post"
-            onsubmit="return confirm('Are you sure you wish to delete this {{ item|model_name|title }}?');"
-            action="{% url 'profile_content_delete' profile.pk item|model_name content.pk %}">
-            <button class="btn btn-link" type="submit" value="deleted">Delete</button>
-            {% csrf_token %}
-        </form>
-      </div>
-      <div class="card-body">
-        {{ item.render|safe }}
-      </div>
+    <li class="list-group-item" data-id="{{ content.pk }}">
+      <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
+      {{ item.render|safe }}
     </li>
     {% endwith %}
     {% endfor %}
   </ul>
+
   {% else %}
   <h4>There's no content in the profile yet</h4>
   {% endif %}
