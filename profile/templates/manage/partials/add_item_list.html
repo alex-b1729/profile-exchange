@@ -1,0 +1,31 @@
+{% load static %}
+
+{% for category, contents in content_categories.items %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="card-text">{{ category }}</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for content in contents %}
+        <li class="list-group-item">
+            <a
+                    {% if profile_pk %}
+                    href="{% url 'profile_content_create' profile_pk content|lower %}"
+                    {% else %}
+                    href="{% url 'item_create' content|lower %}"
+                    {% endif %}
+                    class="text-decoration-none text-reset">
+                <div>
+                    <span>
+                        <svg width="22" height="22">
+                            <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|lower }}"></use>
+                        </svg>
+                    </span>
+                    {{ content }}
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfor %}

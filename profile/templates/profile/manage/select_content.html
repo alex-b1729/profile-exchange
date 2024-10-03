@@ -2,33 +2,42 @@
 {% load static %}
 
 {% block title %}
-Edit profile
+Select profile content - {{ profile.title }}
 {% endblock %}
 
 {% block content %}
-<h2>Select content to include in profile</h2>
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <input class="btn btn-primary" type="submit" value="Save">
-        <a href="{% url 'profile' profile_pk %}" class="btn btn-secondary">Cancel</a>
-    </div>
+<h2>Select content to include in you <span class="fst-italic">{{ profile.title }}</span> profile.</h2>
 
-    {% for form in forms %}
-    <div class="card mb-3">
-        <div class="card-header">
-            <p class="fs-5 card-text">{{ form.model_choice.label }}</p>
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input class="btn btn-primary" type="submit" value="Save">
+            <a href="{% url 'profile' profile.pk %}" class="btn btn-secondary">Cancel</a>
         </div>
-        <ul class="list-group list-group-flush">
-            {% for c in form.model_choice %}
-            <li class="list-group-item">
-                {{ c }}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
 
-</form>
-<a href="#" class="btn btn-primary">Create New Content</a>
+        <h4 class="mb-3">Existing</h4>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                {% for form in forms %}
+                <p class="card-text fs-5 mb-1">{{ form.model_choice.label }}</p>
+                <ul class="list-group list-group-flush {% if not forloop.last %}border-bottom mb-3{% endif %}">
+                    {% for c in form.model_choice %}
+                    <li class="list-group-item">
+                        {{ c }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    <h4 class="mb-3">New</h4>
+    {% include 'manage/partials/add_item_list.html' with content_categories=content_categories profile_pk=profile.pk %}
+</div>
+
 {% endblock %}

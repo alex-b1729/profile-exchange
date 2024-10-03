@@ -430,7 +430,7 @@ class ContentCreateUpdateView(
                         item=item,
                     )
                     c.save()
-                return redirect('profile', self.profile.pk)
+                return redirect('profile_content_select', self.profile.pk)
             return redirect('content')
         return self.render_to_response(self.context)
 
@@ -540,12 +540,12 @@ class ProfileSelectContentView(
         return self.render_to_response({
             'section': 'profiles',
             'forms': self.form_dict.values(),
-            'profile_pk': profile_pk,
+            'profile': self.profile,
+            'content_categories': consts.CONTENT_CATEGORIES,
         })
 
     def post(self, request, profile_pk, *args, **kwargs):
         self.set_forms(data=request.POST)
-        print(request.POST)
         if all(form.is_valid() for form in self.form_dict.values()):
             for content_type, form in self.form_dict.items():
                 models_in_form = form.cleaned_data['model_choice']
@@ -568,7 +568,8 @@ class ProfileSelectContentView(
         return self.render_to_response({
             'section': 'profiles',
             'forms': self.form_dict.values(),
-            'profile_pk': profile_pk,
+            'profile': self.profile,
+            'content_categories': consts.CONTENT_CATEGORIES,
         })
 
 

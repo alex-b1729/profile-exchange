@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block title %}
 Add Content
@@ -13,29 +12,7 @@ Add Content
 </div>
 
 <div class="container">
-    {% for category, contents in content_categories.items %}
-    <div class="card mb-3">
-        <div class="card-header">
-            <h5 class="card-text">{{ category }}</h5>
-        </div>
-        <ul class="list-group list-group-flush">
-            {% for content in contents %}
-            <li class="list-group-item">
-                <a href="{% url 'item_create' content %}" class="text-decoration-none text-reset">
-                    <div>
-                        <span>
-                            <svg width="22" height="22">
-                                <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|lower }}"></use>
-                            </svg>
-                        </span>
-                        {{ content }}
-                    </div>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
+    {% include 'manage/partials/add_item_list.html' with content_categories=content_categories %}
 </div>
 
 {% endblock %}
