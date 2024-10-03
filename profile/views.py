@@ -459,7 +459,7 @@ def content_delete(request, model_name, content_pk, profile_pk=None):
         except LookupError:
             # check if model_name is a LinkBase item
             try:
-                # todo: sanitize model_name!
+                # todo: sanitize model_name! ??
                 LinkBase.objects.get(svg_id=model_name)
                 model = apps.get_model(app_label='profile', model_name='link')
             except LinkBase.DoesNotExist:
@@ -471,24 +471,6 @@ def content_delete(request, model_name, content_pk, profile_pk=None):
         )
         item.delete()
         return redirect('content')
-
-
-@login_required
-@require_POST
-def item_delete(request, model_name, content_pk):
-    try:
-        model = apps.get_model(app_label='profile', model_name=model_name)
-        if not issubclass(model, ItemBase):
-            return page_not_found
-    except LookupError:
-        return page_not_found
-    item = get_object_or_404(
-        model,
-        pk=content_pk,
-        user=request.user,
-    )
-    item.delete()
-    return redirect('content')
 
 
 class ProfileSelectContentView(

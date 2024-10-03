@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load thumbnail %}
 {% load static %}
+{% load profile_extras %}
 
 {% block title %}
 My Content
@@ -35,14 +36,38 @@ My Content
                 </p>
                 {% endif %}
                 {% endwith %}
-                <a href="#">Edit</a>
+
+                <div class="d-flex flex-row">
+                    {% with mod_name=obj|model_name|lower %}
+                    <a
+                        {% if mod_name == 'link' %}
+                        href="{% url 'item_update' obj.linkbase.svg_id obj.pk %}"
+                        {% else %}
+                        href="{% url 'item_update' mod_name obj.pk %}"
+                        {% endif %}
+                        class="btn btn-secondary btn-sm me-1">
+                        Edit
+                    </a>
+                    <form
+                            method="post"
+                            onsubmit="return confirm('Are you sure you wish to delete?\nThis {{ mod_name }} will be removed from any profiles it appears in.');"
+                            {% if mod_name == 'link' %}
+                            action="{% url 'item_delete' obj.linkbase.svg_id obj.pk %}">
+                            {% else %}
+                            action="{% url 'item_delete' mod_name obj.pk %}">
+                            {% endif %}
+                      <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
+                      {% csrf_token %}
+                    </form>
+                    {% endwith %}
+                </div>
             </li>
             {% endfor %}
         </ul>
     </div>
 </div>
 {% empty %}
-<a href="#">Add content!</a>
+You don't have any content yet.
 {% endfor %}
 
 {% endblock %}
