@@ -10,3 +10,15 @@ CONTENT_TYPES = (
     'address',
     'link',
 )
+
+CONTENT_CATEGORIES = {
+    'Contact Info': [
+        'Email',
+        'Phone',
+        'Address',
+    ],
+    'Link': [
+        'Website',
+        'GitHub'
+    ],
+}

@@ -325,6 +325,7 @@ def add_item(request):
         'manage/add_item.html',
         {
             'section': 'content',
+            'content_categories': consts.CONTENT_CATEGORIES,
         }
     )
 
