@@ -2,21 +2,23 @@
 {% load static %}
 
 {% block title %}
-Select profile content - {{ profile.title }}
+Select Content - {{ profile.title }} Profile
 {% endblock %}
 
 {% block content %}
-<h2>Select content to include in you <span class="fst-italic">{{ profile.title }}</span> profile.</h2>
+<h2>Select content for your <span class="fst-italic">{{ profile.title }}</span> profile.</h2>
 
 <div class="container">
     <form method="post">
         {% csrf_token %}
-        <div class="mb-3">
-            <input class="btn btn-primary" type="submit" value="Save">
-            <a href="{% url 'profile' profile.pk %}" class="btn btn-secondary">Cancel</a>
+        <div class="container fixed-bottom">
+            <div class="p-3 rounded bg-dark">
+                <input class="btn btn-primary" type="submit" value="Save">
+                <a href="{% url 'profile' profile.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
         </div>
 
-        <h4 class="mb-3">Existing</h4>
+        <h4 class="mt-4 mb-3">Existing</h4>
 
         <div class="card mb-3">
             <div class="card-body">
@@ -36,7 +38,7 @@ Select profile content - {{ profile.title }}
 </div>
 
 <div class="container">
-    <h4 class="mb-3">New</h4>
+    <h4 class="mt-4 mb-3">New</h4>
     {% include 'manage/partials/add_item_list.html' with content_categories=content_categories profile_pk=profile.pk %}
 </div>
 

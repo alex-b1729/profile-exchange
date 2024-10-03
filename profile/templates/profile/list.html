@@ -5,7 +5,7 @@
 {% block title %}My Profiles{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <h2>My Profiles</h2>
     <a href="{% url 'profile_create' %}" class="btn btn-primary">
         New Profile
@@ -14,7 +14,7 @@
 
 <div class="d-flex flex-column g-3">
     {% for p in profiles %}
-    <div id="profile-{{ forloop.counter0 }}" class="card me-3 mb-3 w-75">
+    <div class="card me-3 mb-3" style="width:18rem">
         {% with photo=p.photo %}
         {% if photo %}
         {% thumbnail photo "200x150" crop="center" as im %}
@@ -26,49 +26,51 @@
         {% endwith %}
 
         <div class="card-body">
-            <div id="profile-{{ forloop.counter0 }}-description">
-                <a href="{% url 'profile_edit' p.pk %}">
+            <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
+                <div class="card-text">
+                    <p class="fw-bold mb-1">{{ p.fn }}</p>
+                    {% if p.headline %}<p class="mb-2">{{ p.headline }}</p>{% endif %}
+                    {% with nick=p.nickname loc=p.location %}
+                    {% if nick or loc %}
+                    <p class="text-muted">
+                        {% if loc %}
+                        {{ loc }}
+                        {% endif %}
+
+                        {% if nick and loc %}
+                        &#x2022;
+                        {% endif %}
+
+                        {% if nick %}
+                        "{{ nick }}"
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <hr />
+
+                <div class="card-text mb-3">
+                    <p class="fs-4 fw-bold mb-1">{{ p.title }} Profile</p>
+                    {% if p.description %}
+                    {{ p.description }}
+                    {% endif %}
+                </div>
+            </a>
+
+            <div class="d-flex flex-row card-text">
+                <a href="{% url 'profile_edit' p.pk %}" class="btn btn-secondary btn-sm m-1">
                     Edit Profile
                 </a>
-                <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
-                    <h5 class="card-title">
-                        {{ p.title }}
-                    </h5>
-                    <p class="card-text text-muted fs-6"><i>{{ p.get_kind_display }} Profile</i></p>
-                </a>
-
-                {% if p.description %}
-                <p class="card-text">{{ p.description }}</p>
-                {% endif %}
+                <form
+                        method="post"
+                        onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
+                        action="{% url 'profile_delete' p.pk %}">
+                  <button class="btn btn-danger btn-sm m-1" type="submit" value="deleted">Delete</button>
+                  {% csrf_token %}
+                </form>
             </div>
-
-            <hr />
-            <p class="card-text fw-bold mb-1">{{ p.fn }}</p>
-            <p class="card-text mb-2">{{ p.headline }}</p>
-            {% with nick=p.nickname loc=p.location %}
-            {% if nick or loc %}
-            <p class="card-text text-muted">
-                {% if loc %}
-                {{ loc }}
-                {% endif %}
-
-                {% if nick and loc %}
-                &#x2022;
-                {% endif %}
-
-                {% if nick %}
-                "{{ nick }}"
-                {% endif %}
-            </p>
-            {% endif %}
-            {% endwith %}
-            <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
-                    action="{% url 'profile_delete' p.pk %}">
-              <button class="btn btn-danger" type="submit" value="deleted">Delete</button>
-              {% csrf_token %}
-            </form>
         </div>
     </div>
     {% endfor %}
