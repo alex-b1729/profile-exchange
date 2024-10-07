@@ -167,17 +167,28 @@
       <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
       {{ item.render|safe }}
       {% with mod_name=item|model_name|lower %}
-      <form
-              method="post"
-              onsubmit="return confirm('Are you sure you wish to delete this {{ mod_name }} from this profile?');"
-              {% if mod_name == 'link' %}
-              action="{% url 'profile_content_delete' profile.pk item.linkbase.svg_id content.pk %}">
-              {% else %}
-              action="{% url 'profile_content_delete' profile.pk mod_name content.pk %}">
-              {% endif %}
-        <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
-        {% csrf_token %}
-      </form>
+      <div class="d-flex flex-row">
+        <form
+                method="post"
+                onsubmit="return confirm('Are you sure you wish to delete this {{ mod_name }} from this profile?');"
+                {% if mod_name == 'link' %}
+                action="{% url 'profile_content_delete' profile.pk item.linkbase.svg_id content.pk %}">
+                {% else %}
+                action="{% url 'profile_content_delete' profile.pk mod_name content.pk %}">
+                {% endif %}
+          <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
+          {% csrf_token %}
+        </form>
+        <a
+                {% if mod_name == 'link' %}
+                href="{% url 'profile_content_update' profile.pk item.linkbase.svg_id item.pk %}"
+                {% else %}
+                href="{% url 'profile_content_update' profile.pk mod_name item.pk %}"
+                {% endif %}
+                class="btn btn-secondary btn-sm me-1">
+          Edit
+        </a>
+      </div>
       {% endwith %}
     </li>
     {% endwith %}
