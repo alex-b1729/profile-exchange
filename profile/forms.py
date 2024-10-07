@@ -282,6 +282,17 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
         return cleaned_data
 
 
+class MediaCreateUpdateForm(BootstrapModelFormMixin):
+    class Meta:
+        model = models.Media
+        fields = ('label', 'media_type', 'url', 'file',)
+        widgets = {
+            'media_type': forms.HiddenInput,
+        }
+
+    # todo: def save where only allow one of url or file
+
+
 # class CardEditForm(forms.ModelForm):
 #     class Meta:
 #         model = Card

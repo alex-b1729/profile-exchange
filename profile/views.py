@@ -28,6 +28,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
 
+import profile.models as models
 from .models import (
     Profile,
     Content,
@@ -352,15 +353,23 @@ class ContentCreateUpdateView(
             if issubclass(mod, ItemBase):
                 return mod
         except LookupError:
-            # check if model_name is a LinkBase item
-            try:
-                # todo: sanitize model_name!
-                linkbase = LinkBase.objects.get(svg_id=model_name)
-                self.initial.update({'linkbase': linkbase})
-                self.context.update({'linkbase': linkbase})
-                return apps.get_model(app_label='profile', model_name='link')
-            except LinkBase.DoesNotExist:
-                pass
+            if model_name.capitalize() in consts.CONTENT_CATEGORIES['Link']:
+                # check if model_name is a LinkBase item
+                try:
+                    linkbase = LinkBase.objects.get(svg_id=model_name)
+                    self.initial.update({'linkbase': linkbase})
+                    self.context.update({'linkbase': linkbase})
+                    return apps.get_model(app_label='profile', model_name='link')
+                except LinkBase.DoesNotExist:
+                    pass
+            elif model_name.capitalize() in consts.CONTENT_CATEGORIES['Media']:
+                try:
+                    media_init = getattr(models.Media, model_name.upper())
+                except AttributeError:
+                    pass
+                else:
+                    self.initial.update({'media_type': media_init})
+                    return apps.get_model(app_label='profile', model_name='media')
         return None
 
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):

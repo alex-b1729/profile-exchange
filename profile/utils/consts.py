@@ -12,6 +12,7 @@ CONTENT_TYPES = (
     'phone',
     'address',
     'link',
+    'media',
 )
 
 CONTENT_CATEGORIES = {

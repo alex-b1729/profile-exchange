@@ -237,6 +237,9 @@ class Media(ItemBase):
         blank=True,
     )
 
+    def __str__(self):
+        return f'{self.MEDIA_TYPE_CHOICES[self.media_type]}: {self.url if self.url else self.file}'
+
 
 class PostBase(ItemBase):
     title = models.CharField(max_length=200, blank=False)

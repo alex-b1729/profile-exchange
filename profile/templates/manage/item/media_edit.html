@@ -1,0 +1,21 @@
+{% extends "manage/item_create_update.html" %}
+
+{% block form %}
+
+{{ form.media_type }}
+{{ form.url.label }}{{ form.url }}{{ form.url.errors }}
+{% if form.media_type.initial == 'AUD' or form.media_type.initial == 'VID' %}
+{{ form.file.as_hidden }}
+{% else %}
+{{ form.file.label }}{{ form.file }}{{ form.file.errors }}
+{% endif %}
+{{ form.label.label }}{{ form.label }}{{ form.label.errors }}
+
+{% if form.non_field_errors %}
+<ul>
+    {% for e in form.non_field_errors %}
+    <li>{{ e }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

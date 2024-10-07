@@ -55,14 +55,15 @@ New {{ model_name|title }}
     </form>
 </div>
 
+{% if content_pk %}
 <div class="card-footer">
     <div class="">
-        {# todo: why doesn't this work?? #}
         <svg width="24" height="24" fill="currentColor"> {#  style="font-color: black;"> #}
             <use href="{% static 'svg_spiritsheet.svg' %}#info"></use>
         </svg>
         This content will be updated on all associated profiles.
     </div>
 </div>
+{% endif %}
 
 {% endblock %}
