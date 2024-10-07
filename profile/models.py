@@ -216,6 +216,38 @@ class Link(ItemBase):
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
 
+class Media(ItemBase):
+    DOCUMENT = 'DOC'
+    IMAGE = 'IMG'
+    AUDIO = 'AUD'
+    VIDEO = 'VID'
+    MEDIA_TYPE_CHOICES = {
+        DOCUMENT: 'Document',
+        IMAGE: 'Image',
+        AUDIO: 'Audio',
+        VIDEO: 'Video',
+    }
+    media_type = models.CharField(
+        max_length=3,
+        choices=MEDIA_TYPE_CHOICES,
+    )
+    url = models.URLField(blank=True, null=True)
+    file = models.FileField(
+        upload_to=consts.MEDIA_MODEL_DIR,
+        blank=True,
+    )
+
+
+class PostBase(ItemBase):
+    title = models.CharField(max_length=200, blank=False)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    external_link = models.URLField(blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
 # class Profile(models.Model):
 #     """
 #     Users can have many profiles and each profile links to one of the user's Cards.
