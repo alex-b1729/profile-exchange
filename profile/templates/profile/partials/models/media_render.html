@@ -1,6 +1,7 @@
 {% load thumbnail %}
-{% if object.media_type == 'IMG' %}
 {% with lab=object.label %}
+{% with mt=object.media_type %}
+{% if mt == 'IMG' %}
 {% if object.url %}
 {% thumbnail object.url '200x200' crop='center' as im %}
 <figure>
@@ -16,7 +17,20 @@
 </figure>
 {% endthumbnail %}
 {% endif %}
-{% endwith %}
+
+{% elif mt == 'DOC' %}
+{% if object.file %}
+<a href="{{ object.file.url }}" target="_blank">
+    {% if lab %}{{ lab }}{% else %}{{ object.file }}{% endif %}
+</a>
+{% else %}
+<a href="{{ object.url }}" target="_blank">
+    {% if lab %}{{ lab }}{% else %}{{ object.url }}{% endif %}
+</a>
+{% endif %}
+
 {% else %}
 {{ object.get_media_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
 {% endif %}
+{% endwith %}
+{% endwith %}
