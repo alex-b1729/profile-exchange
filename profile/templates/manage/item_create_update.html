@@ -40,7 +40,7 @@ New {{ model_name|title }}
             <input type="submit" value="Save" class="btn btn-primary"/>
             <a
                     {% if profile_pk %}
-                    href="{% url 'profile' profile_pk %}"
+                    href="{% url 'profile_content_select' profile_pk %}"
                     {% else %}
                     {% if content_pk %}
                     href="{% url 'content' %}"

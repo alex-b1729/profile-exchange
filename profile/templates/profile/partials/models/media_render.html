@@ -19,6 +19,7 @@
 {% endif %}
 
 {% elif mt == 'DOC' %}
+Document:
 {% if object.file %}
 <a href="{{ object.file.url }}" target="_blank">
     {% if lab %}{{ lab }}{% else %}{{ object.file }}{% endif %}

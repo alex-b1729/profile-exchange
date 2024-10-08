@@ -3,5 +3,5 @@
     <svg width="24" height="24">
         <use href="{% static 'svg_spiritsheet.svg' %}#{{ object.linkbase.svg_id }}"></use>
     </svg>
-    <a href="{{ object }}">{{ object.pretty_url }}</a>{% if object.label %} - {{ object.label }}{% endif %}
+    {{ object|urlize }}{% if object.label %} - {{ object.label }}{% endif %}
 </span>

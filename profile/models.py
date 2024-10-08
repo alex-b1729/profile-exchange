@@ -205,7 +205,7 @@ class Link(ItemBase):
         if self.is_independent_url:
             return str(self.url)
         else:
-            return f'{self.linkbase.domain}{self.url}/'
+            return f'{self.linkbase.domain}{self.url}'
 
     @property
     def pretty_url(self):
@@ -238,7 +238,8 @@ class Media(ItemBase):
     )
 
     def __str__(self):
-        return f'{self.MEDIA_TYPE_CHOICES[self.media_type]}: {self.url if self.url else self.file}'
+        return (f'{self.MEDIA_TYPE_CHOICES[self.media_type]}: '
+                f'{self.url if self.url else self.file.name}')
 
 
 class PostBase(ItemBase):

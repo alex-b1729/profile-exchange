@@ -353,7 +353,7 @@ class ContentCreateUpdateView(
             if issubclass(mod, ItemBase):
                 return mod
         except LookupError:
-            if model_name.capitalize() in consts.CONTENT_CATEGORIES['Link']:
+            if model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Link']]:
                 # check if model_name is a LinkBase item
                 try:
                     linkbase = LinkBase.objects.get(svg_id=model_name)
@@ -362,7 +362,7 @@ class ContentCreateUpdateView(
                     return apps.get_model(app_label='profile', model_name='link')
                 except LinkBase.DoesNotExist:
                     pass
-            elif model_name.capitalize() in consts.CONTENT_CATEGORIES['Media']:
+            elif model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Media']]:
                 try:
                     media_init = getattr(models.Media, model_name.upper())
                 except AttributeError:

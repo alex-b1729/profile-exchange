@@ -165,9 +165,9 @@
     {% with item=content.item %}
     <li class="list-group-item" data-id="{{ content.pk }}">
       <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
-      {{ item.render|safe }}
       {% with mod_name=item|model_name|lower %}
       <div class="d-flex flex-row">
+        <p class="card-text">{{ item.render|safe }}</p>
         <form
                 method="post"
                 onsubmit="return confirm('Are you sure you wish to delete this {{ mod_name }} from this profile?');"
@@ -176,18 +176,20 @@
                 {% else %}
                 action="{% url 'profile_content_delete' profile.pk mod_name content.pk %}">
                 {% endif %}
-          <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
+          <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
           {% csrf_token %}
         </form>
-        <a
-                {% if mod_name == 'link' %}
-                href="{% url 'profile_content_update' profile.pk item.linkbase.svg_id item.pk %}"
-                {% else %}
-                href="{% url 'profile_content_update' profile.pk mod_name item.pk %}"
-                {% endif %}
-                class="btn btn-secondary btn-sm me-1">
-          Edit
-        </a>
+        <div>
+          <a
+                  {% if mod_name == 'link' %}
+                  href="{% url 'profile_content_update' profile.pk item.linkbase.svg_id item.pk %}"
+                  {% else %}
+                  href="{% url 'profile_content_update' profile.pk mod_name item.pk %}"
+                  {% endif %}
+                  class="btn btn-secondary btn-sm me-1">
+            Edit
+          </a>
+        </div>
       </div>
       {% endwith %}
     </li>
@@ -205,7 +207,7 @@
 
 {% endblock %}
 
-{% if entity == 'self' %}
+{% if request.user == profile.user %}
 {% block domready %}
 $('#contents').sortable({
   stop: function(event, ui) {

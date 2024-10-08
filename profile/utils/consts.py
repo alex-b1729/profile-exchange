@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 PROFILE_PHOTO_DIR = os.path.join('users', 'profile', 'photo')
 MEDIA_MODEL_DIR = os.path.join('users', 'models', 'media')
-VCARD_DIR = os.path.join('users', 'vcard')
 
 CONTENT_TYPES = (
     'email',

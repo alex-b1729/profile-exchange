@@ -1,12 +1,2 @@
-<div class="d-flex">
-    {% if object.type %}
-    <div class="me-3">
-        <span class="text-muted">{{ object.get_type_display }}</span>
-    </div>
-    <div class="justify-content-left">
-        <a href="mailto:{{ object.email_address }}">{{ object.email_address }}</a>{% if object.label %} - {{ object.label }}{% endif %}
-    </div>
-    {% else %}
-    <a href="mailto:{{ object.email_address }}">{{ object.email_address }}</a>{% if object.label %} - {{ object.label }}{% endif %}
-    {% endif %}
-</div>
+{% if object.type %}<span class="text-muted">{{ object.get_type_display }}</span>{% endif %}
+{{ object.email_address|urlize }}{% if object.label %} - {{ object.label }}{% endif %}
