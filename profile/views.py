@@ -432,14 +432,16 @@ class ContentCreateUpdateView(
             item.user = request.user
             item.save()
             if profile_pk:
-                if not content_pk:
+                if content_pk:
+                    return redirect('profile', self.profile.pk)
+                else:
                     # if profile and no associated content then create new content
                     c = Content(
                         profile=self.profile,
                         item=item,
                     )
                     c.save()
-                return redirect('profile_content_select', self.profile.pk)
+                    return redirect('profile_content_select', self.profile.pk)
             return redirect('content')
         return self.render_to_response(self.context)
 

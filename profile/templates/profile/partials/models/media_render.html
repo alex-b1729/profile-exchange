@@ -1,1 +1,22 @@
+{% load thumbnail %}
+{% if object.media_type == 'IMG' %}
+{% with lab=object.label %}
+{% if object.url %}
+{% thumbnail object.url '200x200' crop='center' as im %}
+<figure>
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ lab }}" class="rounded"/>
+    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+</figure>
+{% endthumbnail %}
+{% else %}
+{% thumbnail object.file '200x200' crop='center' as im %}
+<figure>
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ object.label }}" class="rounded"/>
+    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+</figure>
+{% endthumbnail %}
+{% endif %}
+{% endwith %}
+{% else %}
 {{ object.get_media_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
+{% endif %}

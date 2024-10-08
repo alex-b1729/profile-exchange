@@ -50,7 +50,7 @@ My Content
                     </a>
                     <form
                             method="post"
-                            onsubmit="return confirm('Are you sure you wish to delete?\nThis {{ mod_name }} will be removed from any profiles it appears in.');"
+                            onsubmit="return confirm('This {{ mod_name }} will be removed from any profiles it appears in.\nAre you sure you wish to delete?');"
                             {% if mod_name == 'link' %}
                             action="{% url 'item_delete' obj.linkbase.svg_id obj.pk %}">
                             {% else %}
