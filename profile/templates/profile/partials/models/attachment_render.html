@@ -1,37 +1,39 @@
 {% load thumbnail %}
-{% with lab=object.label %}
-{% with mt=object.attachment_type %}
-{% if mt == 'IMG' %}
-{% if object.url %}
-{% thumbnail object.url '200x200' crop='center' as im %}
-<figure>
-    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ lab }}" class="rounded"/>
-    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
-</figure>
-{% endthumbnail %}
-{% else %}
-{% thumbnail object.file '200x200' crop='center' as im %}
-<figure>
-    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ object.label }}" class="rounded"/>
-    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
-</figure>
-{% endthumbnail %}
-{% endif %}
+<div class="overflow-auto">
+    {% with lab=object.label %}
+    {% with mt=object.attachment_type %}
+    {% if mt == 'IMG' %}
+    {% if object.url %}
+    {% thumbnail object.url '200x200' crop='center' as im %}
+    <figure>
+        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ lab }}" class="rounded"/>
+        {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+    </figure>
+    {% endthumbnail %}
+    {% else %}
+    {% thumbnail object.file '200x200' crop='center' as im %}
+    <figure>
+        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ object.label }}" class="rounded"/>
+        {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+    </figure>
+    {% endthumbnail %}
+    {% endif %}
 
-{% elif mt == 'DOC' %}
-Document:
-{% if object.file %}
-<a href="{{ object.file.url }}" target="_blank">
-    {% if lab %}{{ lab }}{% else %}{{ object.file }}{% endif %}
-</a>
-{% else %}
-<a href="{{ object.url }}" target="_blank">
-    {% if lab %}{{ lab }}{% else %}{{ object.url }}{% endif %}
-</a>
-{% endif %}
+    {% elif mt == 'DOC' %}
+    Document:
+    {% if object.file %}
+    <a href="{{ object.file.url }}" target="_blank">
+        {% if lab %}{{ lab }}{% else %}{{ object.file }}{% endif %}
+    </a>
+    {% else %}
+    <a href="{{ object.url }}" target="_blank">
+        {% if lab %}{{ lab }}{% else %}{{ object.url }}{% endif %}
+    </a>
+    {% endif %}
 
-{% else %}
-{{ object.get_attachment_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
-{% endif %}
-{% endwith %}
-{% endwith %}
+    {% else %}
+    {{ object.get_attachment_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
+    {% endif %}
+    {% endwith %}
+    {% endwith %}
+</div>

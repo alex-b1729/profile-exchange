@@ -1,7 +1,7 @@
 {% load static %}
-<span>
+<div class="d-flex flex-row">
     <svg width="24" height="24">
         <use href="{% static 'svg_spiritsheet.svg' %}#{{ object.linkbase.svg_id }}"></use>
     </svg>
     {{ object|urlize }}{% if object.label %} - {{ object.label }}{% endif %}
-</span>
+</div>
