@@ -1,6 +1,6 @@
 {% load thumbnail %}
 {% with lab=object.label %}
-{% with mt=object.media_type %}
+{% with mt=object.attachment_type %}
 {% if mt == 'IMG' %}
 {% if object.url %}
 {% thumbnail object.url '200x200' crop='center' as im %}
@@ -31,7 +31,7 @@ Document:
 {% endif %}
 
 {% else %}
-{{ object.get_media_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
+{{ object.get_attachment_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
 {% endif %}
 {% endwith %}
 {% endwith %}

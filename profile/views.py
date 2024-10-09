@@ -362,14 +362,14 @@ class ContentCreateUpdateView(
                     return apps.get_model(app_label='profile', model_name='link')
                 except LinkBase.DoesNotExist:
                     pass
-            elif model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Media']]:
+            elif model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Attachment']]:
                 try:
-                    media_init = getattr(models.Media, model_name.upper())
+                    attachment_init = getattr(models.Attachment, model_name.upper())
                 except AttributeError:
                     pass
                 else:
-                    self.initial.update({'media_type': media_init})
-                    return apps.get_model(app_label='profile', model_name='media')
+                    self.initial.update({'attachment_type': attachment_init})
+                    return apps.get_model(app_label='profile', model_name='attachment')
         return None
 
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):

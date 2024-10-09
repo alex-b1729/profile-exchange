@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 
 PROFILE_PHOTO_DIR = os.path.join('users', 'profile', 'photo')
-MEDIA_MODEL_DIR = os.path.join('users', 'models', 'media')
+ATTACHMENT_MODEL_DIR = os.path.join('users', 'models', 'attachment')
 
 CONTENT_TYPES = (
     'email',
     'phone',
     'address',
     'link',
-    'media',
+    'attachment',
 )
 
 CONTENT_CATEGORIES = {
@@ -24,11 +24,9 @@ CONTENT_CATEGORIES = {
         'Website',
         'GitHub'
     ],
-    'Media': [
+    'Attachment': [
         'Document',
         'Image',
-        'Audio',
-        'Video',
     ]
 }
 

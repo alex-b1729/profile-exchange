@@ -282,14 +282,20 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
         return cleaned_data
 
 
-class MediaCreateUpdateForm(BootstrapModelFormMixin):
+class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
-        model = models.Media
-        fields = ('label', 'media_type', 'url', 'file',)
+        model = models.Attachment
+        fields = ('label', 'attachment_type', 'url', 'file',)
         widgets = {
-            'media_type': forms.HiddenInput,
+            'attachment_type': forms.HiddenInput,
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.initial['attachment_type'] == models.Attachment.DOCUMENT:
+            self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/document.pdf'})
+        elif self.initial['attachment_type'] == models.Attachment.IMAGE:
+            self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/image.png'})
     # todo: def save where only allow one of url or file
 
 

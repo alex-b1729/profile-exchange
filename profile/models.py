@@ -13,6 +13,7 @@ from django.conf import settings
 from django.db.models import Value
 from django.http import HttpResponse
 from django.utils.text import slugify
+from embed_video.fields import EmbedVideoField
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
@@ -216,29 +217,25 @@ class Link(ItemBase):
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
 
-class Media(ItemBase):
+class Attachment(ItemBase):
     DOCUMENT = 'DOC'
     IMAGE = 'IMG'
-    AUDIO = 'AUD'
-    VIDEO = 'VID'
-    MEDIA_TYPE_CHOICES = {
+    ATTACHMENT_TYPE_CHOICES = {
         DOCUMENT: 'Document',
         IMAGE: 'Image',
-        AUDIO: 'Audio',
-        VIDEO: 'Video',
     }
-    media_type = models.CharField(
+    attachment_type = models.CharField(
         max_length=3,
-        choices=MEDIA_TYPE_CHOICES,
+        choices=ATTACHMENT_TYPE_CHOICES,
     )
     url = models.URLField(blank=True, null=True)
     file = models.FileField(
-        upload_to=consts.MEDIA_MODEL_DIR,
+        upload_to=consts.ATTACHMENT_MODEL_DIR,
         blank=True,
     )
 
     def __str__(self):
-        return (f'{self.MEDIA_TYPE_CHOICES[self.media_type]}: '
+        return (f'{self.ATTACHMENT_TYPE_CHOICES[self.attachment_type]}: '
                 f'{self.url if self.url else self.file.name}')
 
 

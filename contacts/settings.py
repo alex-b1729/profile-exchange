@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "sorl.thumbnail",
     "django.contrib.sites",
     "django.contrib.sitemaps",
+    "embed_video",
 ]
 
 MIDDLEWARE = [
@@ -77,6 +78,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "contacts.wsgi.application"
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Database
