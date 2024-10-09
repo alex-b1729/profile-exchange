@@ -247,6 +247,126 @@ class PostBase(ItemBase):
 
     class Meta:
         abstract = True
+        ordering = ['-date']
+
+    def __str__(self):
+        return f'{self.title}{str(self.date) + " - " if self.date else ""}'
+
+
+class Experience(PostBase):
+    organization = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+    )
+    location = models.CharField(max_length=200, blank=True, null=True)
+    # todo: dates should be more generic to allow just month and/or year
+    end_date = models.DateField(blank=True, null=True)
+    current = models.BooleanField(
+        default=False,
+        blank=True,
+        null=True,
+        help_text='Current position',
+    )
+
+    class Meta(PostBase.Meta):
+        abstract = True
+        ordering = ['-end_date', '-date', 'title']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title.help_text = 'Title or position'
+        self.date.help_text = 'Start date'
+        self.external_link.help_text = 'Link to organization'
+
+
+class WorkExperience(Experience):
+    IN_PERSON = 'i'
+    HYBRID = 'h'
+    REMOTE = 'r'
+    SETTING_TYPE_CHOICES = {
+        IN_PERSON: 'In-person',
+        HYBRID: 'Hybrid',
+        REMOTE: 'Remote',
+    }
+    work_setting = models.CharField(
+        max_length=1,
+        choices=SETTING_TYPE_CHOICES,
+        blank=True,
+    )
+    # todo: this should be more generic to allow just month and/or year
+    date = models.DateField(
+        blank=False,
+        help_text='Start date',
+    )
+    end_date = models.DateField(blank=True, null=True)
+    current = models.BooleanField(
+        default=False,
+        help_text='Current position',
+    )
+
+    class Meta(Experience.Meta):
+        ordering = ['-end_date', '-date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization.help_text = 'Company or organization'
+        self.external_link.help_text = 'Link to company'
+
+    def save(self, *args, **kwargs):
+        if not self.end_date:
+            self.current = True
+        super().save(*args, **kwargs)
+
+
+class VolunteerExperience(Experience):
+    pass
+
+
+class Project(PostBase):
+    contributors = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text='Contributors or co-authors',
+    )
+    source = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text='Publication, journal, publisher, etc.',
+    )
+
+
+class Education(PostBase):
+    location = models.CharField(max_length=200, blank=True, null=True)
+    gpa = models.FloatField(
+        blank=True,
+        null=True,
+    )
+    graduation_date = models.DateField(
+        blank=True,
+        null=True,
+        help_text='Graduation or expected graduation date',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title.help_text = 'Degree or diploma'
+        self.date.help_text = 'Start date'
+
+
+class Award(PostBase):
+    organization = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text='Awarding organization or body',
+    )
+
+    class Meta(PostBase.Meta):
+        verbose_name = 'Honor or Award'
+        verbose_name_plural = 'Honors and Awards'
 
 
 # class Profile(models.Model):
