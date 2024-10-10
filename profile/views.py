@@ -307,7 +307,7 @@ def user_content_view(request):
     for content_type in consts.CONTENT_TYPES:
         mod = apps.get_model(app_label='profile', model_name=content_type)
         objs = mod.objects.filter(user=request.user)
-        if objs:
+        if objs.exists():
             c[content_type] = objs
     return render(
         request,

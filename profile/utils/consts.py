@@ -32,7 +32,7 @@ CONTENT_CATEGORIES = {
     ],
     'Link': [
         'Website',
-        'GitHub', 
+        'GitHub',
     ],
     'Attachment': [
         'Document',
@@ -45,8 +45,10 @@ CONTENT_CATEGORIES = {
         'License',
         'Certificate',
     ],
-    'Education': [
+    'Educational': [
         'Education',
+        'Project',
+        'Membership',
     ],
     'Achievements': [
         'Published Work',
