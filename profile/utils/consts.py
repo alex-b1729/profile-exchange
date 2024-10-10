@@ -12,6 +12,16 @@ CONTENT_TYPES = (
     'address',
     'link',
     'attachment',
+    'award',
+    'certificate',
+    'license',
+    'membership',
+    'workexperience',
+    'volunteerwork',
+    'education',
+    'project',
+    'publishedwork',
+    'patent',
 )
 
 CONTENT_CATEGORIES = {
@@ -22,12 +32,30 @@ CONTENT_CATEGORIES = {
     ],
     'Link': [
         'Website',
-        'GitHub'
+        'GitHub', 
     ],
     'Attachment': [
         'Document',
         'Image',
-    ]
+    ],
+    'Professional': [
+        'Work Experience',
+        'Project',
+        'Membership',
+        'License',
+        'Certificate',
+    ],
+    'Education': [
+        'Education',
+    ],
+    'Achievements': [
+        'Published Work',
+        'Award',
+        'Patent',
+    ],
+    'Interests': [
+        'Volunteer Work',
+    ],
 }
 
 
