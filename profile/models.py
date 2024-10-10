@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from .fields import OrderField
 from .utils import consts, vcard
 
+from django.apps import apps
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
@@ -17,6 +18,7 @@ from embed_video.fields import EmbedVideoField
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
 from djangoyearlessdate.models import YearlessDateField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.contenttypes.models import ContentType
@@ -24,6 +26,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 
 
 class Profile(models.Model):
+    class Kind(models.TextChoices):
+        INDIVIDUAL = 'ID', _('Individual')
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
@@ -31,42 +36,49 @@ class Profile(models.Model):
 
     # individual, group, org...
     kind = models.CharField(
-        max_length=1,
-        choices=vcard.KIND_CHOICES,
-        default=vcard.INDIVIDUAL_KIND
+        max_length=2,
+        choices=Kind,
+        default=Kind.INDIVIDUAL,
+        blank=False,
+        verbose_name='kind',
     )
 
     # -------- local info for the user --------
-    title = models.CharField(max_length=50, blank=False)
-    description = models.CharField(blank=True, null=True)
+    title = models.CharField(max_length=50, blank=False, verbose_name='kind')
+    description = models.CharField(blank=True, verbose_name='description')
 
     # -------- info displayed on profile --------
     # todo: update for non-individual self.kind
-    prefix = models.CharField(max_length=50, blank=True)
-    first_name = models.CharField(max_length=50, blank=True)
-    middle_name = models.CharField(max_length=50, blank=True)
+    prefix = models.CharField(max_length=50, blank=True, verbose_name='prefix')
+    first_name = models.CharField(max_length=50, blank=True, verbose_name='first name')
+    middle_name = models.CharField(max_length=50, blank=True, verbose_name='middle name')
     # last name serves as name if kind is not individual
-    last_name = models.CharField(max_length=50, blank=True)
-    suffix = models.CharField(max_length=50, blank=True)
-    nickname = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True, verbose_name='last name')
+    suffix = models.CharField(max_length=50, blank=True, verbose_name='suffix')
+    nickname = models.CharField(max_length=50, blank=True, verbose_name='nickname')
 
     photo = models.ImageField(
         upload_to=consts.PROFILE_PHOTO_DIR,
-        blank=True
+        blank=True,
+        verbose_name='photo',
     )
 
-    headline = models.CharField(max_length=120, blank=True, null=True)
-    location = models.CharField(max_length=50, blank=True, null=True)
-    about = models.TextField(blank=True, null=True)
+    headline = models.CharField(max_length=120, blank=True, verbose_name='headline')
+    location = models.CharField(max_length=50, blank=True, verbose_name='location')
+    about = models.TextField(blank=True, verbose_name='about')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def get_absolute_url(self):
-        return reverse('profile', kwargs={'profile_pk': self.pk})
+    class Meta:
+        verbose_name = 'profile'
+        verbose_name_plural = 'profiles'
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
+
+    def get_absolute_url(self):
+        return reverse('profile', kwargs={'profile_pk': self.pk})
 
     @property
     def fn(self):
@@ -82,13 +94,18 @@ class Content(models.Model):
     profile = models.ForeignKey(
         Profile,
         related_name='contents',
+        related_query_name='content',
         on_delete=models.CASCADE,
     )
+
+    def item_subclass_choices(self):
+        return [m.__name__ for m in apps.get_models() if issubclass(m, ItemBase)]
+
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to={
-            'model__in': consts.CONTENT_TYPES
+            'model__in': item_subclass_choices()
         }
     )
     object_id = models.PositiveIntegerField()
@@ -97,6 +114,8 @@ class Content(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name = 'content'
+        verbose_name_plural = 'contents'
 
 
 class ItemBase(models.Model):
@@ -106,7 +125,7 @@ class ItemBase(models.Model):
         on_delete=models.CASCADE,
     )
     content_related = GenericRelation(Content)
-    label = models.CharField(max_length=50, blank=True)
+    label = models.CharField(max_length=50, blank=True, verbose_name='label')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -122,52 +141,63 @@ class ItemBase(models.Model):
 
 
 # todo: validate all Items
-class Email(ItemBase):
-    type = models.CharField(
+class ContactInfoBase(ItemBase):
+    class InfoTypes(models.TextChoices):
+        WORK = 'W', _('Work')
+        HOME = 'H', _('Home')
+        OTHER = 'O', _('Other')
+
+    info_type = models.CharField(
         max_length=1,
-        choices=vcard.WH_TYPE_CHOICES,
-        blank=True
+        choices=InfoTypes,
+        blank=True,
+        verbose_name='type',
     )
-    email_address = models.EmailField()
+
+    class Meta(ItemBase.Meta):
+        abstract = True
+
+
+class Email(ContactInfoBase):
+    email_address = models.EmailField(verbose_name='email')
+
+    class Meta(ContactInfoBase.Meta):
+        verbose_name = 'email'
+        verbose_name_plural = 'emails'
 
     def __str__(self):
-        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+        return (f'{self.info_type.label + ": " if self.info_type else ""}'
                 f'{self.email_address}'
                 f'{", " + self.label if self.label else ""}')
 
 
-class Phone(ItemBase):
-    type = models.CharField(
-        max_length=1,
-        choices=vcard.WH_TYPE_CHOICES,
-        blank=True
-    )
-    phone_number = PhoneNumberField()
+class Phone(ContactInfoBase):
+    phone_number = PhoneNumberField(verbose_name='phone number')
+
+    class Meta(ContactInfoBase.Meta):
+        verbose_name = 'phone'
+        verbose_name_plural = 'phones'
 
     def __str__(self):
-        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+        return (f'{self.info_type.label + ": " if self.info_type else ""}'
                 f'{self.phone_number}'
                 f'{", " + self.label if self.label else ""}')
 
 
-class Address(ItemBase):
-    type = models.CharField(
-        max_length=1,
-        choices=vcard.WH_TYPE_CHOICES,
-        blank=True
-    )
-    street1 = models.CharField(blank=False)
-    street2 = models.CharField(blank=True)
-    city = models.CharField(blank=False)
-    state = models.CharField(blank=False)
-    zip = models.CharField(max_length=10, blank=False)
-    country = models.CharField(blank=True)
+class Address(ContactInfoBase):
+    street1 = models.CharField(blank=False, verbose_name='street')
+    street2 = models.CharField(blank=True, verbose_name='street line 2')
+    city = models.CharField(blank=False, verbose_name='city')
+    state = models.CharField(blank=False, verbose_name='state')
+    zip = models.CharField(max_length=10, blank=False, verbose_name='zip code')
+    country = models.CharField(blank=True, verbose_name='country')
 
-    class Meta(ItemBase.Meta):
-        verbose_name_plural = 'Addresses'
+    class Meta(ContactInfoBase.Meta):
+        verbose_name = 'address'
+        verbose_name_plural = 'addresses'
 
     def __str__(self):
-        return (f'{vcard.WH_TYPE_CHOICES[self.type] + ": " if self.type else ""}'
+        return (f'{self.info_type.label + ": " if self.info_type else ""}'
                 f'{self.street1}'
                 f'{", " + self.label if self.label else ""}')
 
