@@ -30,17 +30,17 @@ urlpatterns = [
     path('content/', prof_views.user_content_view, name='content'),
     path('content/new/', prof_views.add_item, name='add_item'),
     path(
-        'content/<model_name>/create/',
+        'content/new/<slug:content_type>/<slug:model_name>/',
         prof_views.ContentCreateUpdateView.as_view(),
-        name='item_create'
+        name='item_create',
     ),
     path(
-        'content/<model_name>/<content_pk>/',
+        'content/<slug:content_type>/<slug:model_name>/<int:content_pk>/',
         prof_views.ContentCreateUpdateView.as_view(),
         name='item_update'
     ),
     path(
-        'content/<model_name>/<content_pk>/delete',
+        'content/<slug:content_type>/<slug:model_name>/<int:content_pk>/delete',
         prof_views.content_delete,
         name='item_delete'
     ),
