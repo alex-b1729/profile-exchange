@@ -23,26 +23,22 @@ from profile import views as prof_views
 
 urlpatterns = [
     path('', prof_views.home, name='home'),
-    path('account/', prof_views.account, name='account'),
     path('account/', include('django.contrib.auth.urls')),
     path('account/register/', prof_views.register, name='register'),
-
-    path('content/', prof_views.user_content_view, name='content'),
-    path('content/new/', prof_views.add_item, name='add_item'),
     path(
-        'content/new/<slug:content_type>/<slug:model_name>/',
-        prof_views.ContentCreateUpdateView.as_view(),
-        name='item_create',
-    ),
-    path(
-        'content/<slug:content_type>/<slug:model_name>/<int:content_pk>/',
-        prof_views.ContentCreateUpdateView.as_view(),
-        name='item_update'
-    ),
-    path(
-        'content/<slug:content_type>/<slug:model_name>/<int:content_pk>/delete',
-        prof_views.content_delete,
-        name='item_delete'
+        'content/',
+        include([
+            path('', prof_views.user_content_view, name='content'),
+            path('new/', prof_views.add_item, name='add_item'),
+            path(
+                '<slug:content_type>/<slug:model_name>/',
+                include([
+                    path('new/', prof_views.ContentCreateUpdateView.as_view(), name='item_create'),
+                    path('<int:content_pk>/', prof_views.ContentCreateUpdateView.as_view(), name='item_update'),
+                    path('<int:content_pk>/delete', prof_views.content_delete, name='item_delete'),
+                ])
+            ),
+        ]),
     ),
 
     path('admin/', admin.site.urls),
