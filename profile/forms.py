@@ -59,7 +59,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:
-        model = (models.Profile)
+        model = models.Profile
         fields = ['title', 'kind', 'description']
         widgets = {
             'title': forms.TextInput(attrs={

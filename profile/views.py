@@ -28,17 +28,8 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
 
-from profile import models
-
 from profile import forms
-from .forms import (
-    UserRegistrationForm,
-    ProfileEditForm,
-    UserEditEmailForm,
-    ProfileDetailEditForm,
-    ProfileImgEditForm,
-    ProfileSelectContentForm,
-)
+from profile import models
 
 
 def home(request):
@@ -52,7 +43,7 @@ def home(request):
 def register(request):
     """depreciated for registration wizard"""
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = forms.UserRegistrationForm(request.POST)
         if form.is_valid():
             new_user = form.save(commit=False)
             new_user.set_password(form.cleaned_data['password'])
@@ -64,7 +55,7 @@ def register(request):
                 {'new_user': new_user},
             )
     else:
-        form = UserRegistrationForm()
+        form = forms.UserRegistrationForm()
     return render(
         request,
         'profile/register.html',
@@ -75,7 +66,7 @@ def register(request):
 @login_required
 def account(request):
     if request.method == 'POST':
-        user_form = UserEditEmailForm(
+        user_form = forms.UserEditEmailForm(
             instance=request.user,
             data=request.POST
         )
@@ -83,7 +74,7 @@ def account(request):
             user_form.save()
             # return redirect('profile')
     else:
-        user_form = UserEditEmailForm(instance=request.user)
+        user_form = forms.UserEditEmailForm(instance=request.user)
     return render(
         request,
         'profile/account.html',
@@ -127,7 +118,7 @@ class ProfileCreateUpdateView(
     profile = None
 
     def get_form(self, data=None, files=None):
-        return ProfileEditForm(
+        return forms.ProfileEditForm(
             instance=self.profile,
             data=data,
         )
@@ -261,7 +252,7 @@ def update_profile_img(request, profile_pk):
         pk=profile_pk,
     )
     if request.method == 'POST':
-        form = ProfileImgEditForm(
+        form = forms.ProfileImgEditForm(
             instance=user_profile,
             data=request.POST,
             files=request.FILES
@@ -270,7 +261,7 @@ def update_profile_img(request, profile_pk):
             form.save()
             return redirect('profile', profile_pk)
     else:
-        form = ProfileImgEditForm(instance=user_profile)
+        form = forms.ProfileImgEditForm(instance=user_profile)
     return render(
         request,
         'profile/partials/update_profile_img.html',
@@ -491,7 +482,7 @@ class ProfileSelectContentView(
 
     def set_forms(self, data=None):
         for content_type in self.qs_dict:
-            self.form_dict[content_type] = ProfileSelectContentForm(
+            self.form_dict[content_type] = forms.ProfileSelectContentForm(
                 qs=self.qs_dict[content_type],
                 label=content_type.capitalize(),
                 prefix=f'{content_type}form',
@@ -506,7 +497,9 @@ class ProfileSelectContentView(
             user_objs = mod.objects.filter(user=self.user)
             if user_objs.exists():
                 self.qs_dict[content_type] = user_objs
-                self.initial_dict[content_type] = user_objs.filter(content_related__profile=self.profile)
+                self.initial_dict[content_type] = user_objs.filter(
+                    content_related__profile=self.profile,
+                )
 
     def dispatch(self, request, profile_pk, *args, **kwargs):
         self.user = request.user
