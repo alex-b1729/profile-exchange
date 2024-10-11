@@ -28,15 +28,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
 
-import profile.models as models
-from .models import (
-    Profile,
-    Content,
-    ItemBase,
-    Email,
-    LinkBase,
-    Link,
-)
+from profile import models
 
 from profile import forms
 from .forms import (
@@ -144,7 +136,7 @@ class ProfileCreateUpdateView(
         self.user = request.user
         if profile_pk:
             self.profile = get_object_or_404(
-                Profile,
+                models.Profile,
                 pk=profile_pk,
                 user=self.user,
             )
@@ -184,7 +176,7 @@ class ProfileCreateUpdateView(
 @require_POST
 def profile_delete(request, profile_pk):
     p = get_object_or_404(
-        Profile,
+        models.Profile,
         user=request.user,
         pk=profile_pk,
     )
@@ -195,7 +187,7 @@ def profile_delete(request, profile_pk):
 @login_required
 def profile(request, profile_pk):
     p = get_object_or_404(
-        Profile,
+        models.Profile,
         user=request.user,
         pk=profile_pk,
     )
@@ -230,7 +222,7 @@ class ProfileDetailEditView(
     def dispatch(self, request, profile_pk, *args, **kwargs):
         self.user = request.user
         self.profile = get_object_or_404(
-            Profile,
+            models.Profile,
             pk=profile_pk,
             user=self.user,
         )
@@ -264,7 +256,7 @@ class ProfileDetailEditView(
 def update_profile_img(request, profile_pk):
     user = request.user
     user_profile = get_object_or_404(
-        Profile,
+        models.Profile,
         user=user,
         pk=profile_pk,
     )
@@ -293,7 +285,7 @@ def update_profile_img(request, profile_pk):
 @require_POST
 def profile_img_delete(request, profile_pk):
     p = get_object_or_404(
-        Profile,
+        models.Profile,
         user=request.user,
         pk=profile_pk
     )
@@ -350,17 +342,17 @@ class ContentCreateUpdateView(
     def get_model(self, model_name):
         try:
             mod = apps.get_model(app_label='profile', model_name=model_name)
-            if issubclass(mod, ItemBase):
+            if issubclass(mod, models.ItemBase):
                 return mod
         except LookupError:
             if model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Link']]:
                 # check if model_name is a LinkBase item
                 try:
-                    linkbase = LinkBase.objects.get(svg_id=model_name)
+                    linkbase = models.LinkBase.objects.get(svg_id=model_name)
                     self.initial.update({'linkbase': linkbase})
                     self.context.update({'linkbase': linkbase})
                     return apps.get_model(app_label='profile', model_name='link')
-                except LinkBase.DoesNotExist:
+                except models.LinkBase.DoesNotExist:
                     pass
             elif model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Attachment']]:
                 try:
@@ -394,7 +386,7 @@ class ContentCreateUpdateView(
         self.set_template()
         if profile_pk:
             self.profile = get_object_or_404(
-                Profile,
+                models.Profile,
                 pk=profile_pk,
                 user=request.user,
             )
@@ -436,7 +428,7 @@ class ContentCreateUpdateView(
                     return redirect('profile', self.profile.pk)
                 else:
                     # if profile and no associated content then create new content
-                    c = Content(
+                    c = models.Content(
                         profile=self.profile,
                         item=item,
                     )
@@ -452,7 +444,7 @@ def content_delete(request, model_name, content_pk, profile_pk=None):
     if profile_pk:
         # delete the content but not the item
         content = get_object_or_404(
-            Content,
+            models.Content,
             pk=content_pk,
             profile__pk=profile_pk,
             profile__user=request.user,
@@ -464,16 +456,16 @@ def content_delete(request, model_name, content_pk, profile_pk=None):
         # here content_pk represents the item's pk
         try:
             model = apps.get_model(app_label='profile', model_name=model_name)
-            if not issubclass(model, ItemBase):
+            if not issubclass(model, models.ItemBase):
                 # page not found or just none? Like no response
                 return page_not_found
         except LookupError:
             # check if model_name is a LinkBase item
             try:
                 # todo: sanitize model_name! ??
-                LinkBase.objects.get(svg_id=model_name)
+                models.LinkBase.objects.get(svg_id=model_name)
                 model = apps.get_model(app_label='profile', model_name='link')
-            except LinkBase.DoesNotExist:
+            except models.LinkBase.DoesNotExist:
                 return page_not_found
         item = get_object_or_404(
             model,
@@ -519,7 +511,7 @@ class ProfileSelectContentView(
     def dispatch(self, request, profile_pk, *args, **kwargs):
         self.user = request.user
         self.profile = get_object_or_404(
-            Profile,
+            models.Profile,
             user=self.user,
             pk=profile_pk,
         )
@@ -546,7 +538,7 @@ class ProfileSelectContentView(
                 for mod in self.qs_dict[content_type]:
                     if models_in_form.contains(mod) and not initial_models.contains(mod):
                         # add new content
-                        c = Content(
+                        c = models.Content(
                             profile=self.profile,
                             item=mod,
                         )
@@ -573,7 +565,10 @@ class ContentOrderView(
 ):
     def post(self, request):
         for content_pk, order in self.request_json.items():
-            Content.objects.filter(pk=content_pk, profile__user=request.user).update(order=order)
+            models.Content.objects.filter(
+                pk=content_pk,
+                profile__user=request.user,
+            ).update(order=order)
         return self.render_json_response({'saved': 'OK'})
 
 
