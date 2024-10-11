@@ -75,6 +75,27 @@ class Link(profile_models.ItemBase):
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
 
+# proxy models as outlined in this SO answer
+# https://stackoverflow.com/a/60853449
+# todo: consider adding model manager?
+class Website(Link):
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.linkbase = LinkBase.objects.get(title='website')
+        return super().save(*args, **kwargs)
+
+
+class Github(Link):
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        self.linkbase = LinkBase.objects.get(title='GitHub')
+        return super().save(*args, **kwargs)
+
+
 class Attachment(profile_models.ItemBase):
     class AttachmentTypes(models.TextChoices):
         DOCUMENT = 'D', _('Document')
