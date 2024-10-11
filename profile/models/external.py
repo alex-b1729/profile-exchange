@@ -12,6 +12,7 @@ class LinkBase(models.Model):
     E.g. netloc: https://github.com/"""
     title = models.CharField(
         blank=False,
+        unique=True,
         default='Website',
         verbose_name='title',
     )
@@ -77,22 +78,47 @@ class Link(profile_models.ItemBase):
 
 # proxy models as outlined in this SO answer
 # https://stackoverflow.com/a/60853449
-# todo: consider adding model manager?
+class WebsiteManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            linkbase=LinkBase.objects.get(title='Website').pk
+        )
+
+    def create(self, *args, **kwargs):
+        kwargs.update({'linkbase': LinkBase.objects.get(title='Website').pk})
+        return super().create(*args, **kwargs)
+
+
 class Website(Link):
+    objects = WebsiteManager()
+
     class Meta:
         proxy = True
 
     def save(self, *args, **kwargs):
-        self.linkbase = LinkBase.objects.get(title='website')
+        self.linkbase = LinkBase.objects.get(title='Website').pk
         return super().save(*args, **kwargs)
 
 
+class GithubManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            linkbase=LinkBase.objects.get(title='GitHub').pk
+        )
+
+    def create(self, *args, **kwargs):
+        kwargs.update({'linkbase': LinkBase.objects.get(title='GitHub').pk})
+        return super().create(*args, **kwargs)
+
+
 class Github(Link):
+    objects = GithubManager()
+
     class Meta:
         proxy = True
 
     def save(self, *args, **kwargs):
-        self.linkbase = LinkBase.objects.get(title='GitHub')
+        self.linkbase = LinkBase.objects.get(title='GitHub').pk
         return super().save(*args, **kwargs)
 
 
