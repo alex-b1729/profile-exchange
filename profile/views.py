@@ -336,23 +336,7 @@ class ContentCreateUpdateView(
             if issubclass(mod, models.ItemBase):
                 return mod
         except LookupError:
-            if model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Link']]:
-                # check if model_name is a LinkBase item
-                try:
-                    linkbase = models.LinkBase.objects.get(svg_id=model_name)
-                    self.initial.update({'linkbase': linkbase})
-                    self.context.update({'linkbase': linkbase})
-                    return apps.get_model(app_label='profile', model_name='link')
-                except models.LinkBase.DoesNotExist:
-                    pass
-            elif model_name in [c.lower() for c in consts.CONTENT_CATEGORIES['Attachment']]:
-                try:
-                    attachment_init = getattr(models.Attachment, model_name.upper())
-                except AttributeError:
-                    pass
-                else:
-                    self.initial.update({'attachment_type': attachment_init})
-                    return apps.get_model(app_label='profile', model_name='attachment')
+            pass
         return None
 
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
@@ -362,7 +346,7 @@ class ContentCreateUpdateView(
                 instance=instance,
                 initial=self.initial,
                 data=data,
-                files=files
+                files=files,
             )
         except AttributeError:
             pass
@@ -372,8 +356,22 @@ class ContentCreateUpdateView(
         for k, v in kwargs.items():
             self.context[k] = v
 
-    def dispatch(self, request, model_name, profile_pk=None, content_pk=None, *args, **kwargs):
+    def set_initial(self, **kwargs):
+        for k, v in kwargs.items():
+            self.initial[k] = v
+
+    def dispatch(
+            self,
+            request,
+            model_name,
+            model_type=None,
+            profile_pk=None,
+            content_pk=None,
+            *args, **kwargs
+    ):
         self.model = self.get_model(model_name)
+        if model_type:
+            self.set_initial(model_type=model_type)
         self.set_template()
         if profile_pk:
             self.profile = get_object_or_404(
@@ -395,15 +393,31 @@ class ContentCreateUpdateView(
             card_width=28,
         )
         return super(ContentCreateUpdateView, self).dispatch(
-            request, model_name, profile_pk, content_pk, *args, **kwargs
+            request, model_name, model_type, profile_pk, content_pk, *args, **kwargs
         )
 
-    def get(self, request, model_name, profile_pk=None, content_pk=None):
+    def get(
+            self,
+            request,
+            model_name,
+            model_type=None,
+            profile_pk=None,
+            content_pk=None,
+            *args, **kwargs
+    ):
         form = self.get_form(instance=self.obj)
         self.context.update({'form': form})
         return self.render_to_response(self.context)
 
-    def post(self, request, model_name, profile_pk=None, content_pk=None):
+    def post(
+            self,
+            request,
+            model_name,
+            model_type=None,
+            profile_pk=None,
+            content_pk=None,
+            *args, **kwargs
+    ):
         form = self.get_form(
             instance=self.obj,
             data=request.POST,
@@ -431,7 +445,7 @@ class ContentCreateUpdateView(
 
 @login_required
 @require_POST
-def content_delete(request, model_name, content_pk, profile_pk=None):
+def content_delete(request, model_name, content_pk, profile_pk=None, model_choice=None):
     if profile_pk:
         # delete the content but not the item
         content = get_object_or_404(
@@ -451,13 +465,7 @@ def content_delete(request, model_name, content_pk, profile_pk=None):
                 # page not found or just none? Like no response
                 return page_not_found
         except LookupError:
-            # check if model_name is a LinkBase item
-            try:
-                # todo: sanitize model_name! ??
-                models.LinkBase.objects.get(svg_id=model_name)
-                model = apps.get_model(app_label='profile', model_name='link')
-            except models.LinkBase.DoesNotExist:
-                return page_not_found
+            return page_not_found
         item = get_object_or_404(
             model,
             pk=content_pk,

@@ -30,7 +30,7 @@ class LinkBase(models.Model):
 
 
 class Link(profile_models.ItemBase):
-    linkbase = models.ForeignKey(
+    model_type = models.ForeignKey(
         LinkBase,
         default=1,
         blank=False,
@@ -127,7 +127,7 @@ class Attachment(profile_models.ItemBase):
         DOCUMENT = 'D', _('Document')
         IMAGE = 'I', _('Image')
 
-    attachment_type = models.CharField(
+    model_type = models.CharField(
         max_length=1,
         choices=AttachmentTypes,
         blank=False,

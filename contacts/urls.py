@@ -30,12 +30,20 @@ urlpatterns = [
         include([
             path('', prof_views.user_content_view, name='content'),
             path('new/', prof_views.add_item, name='add_item'),
-            path(
-                '<slug:content_type>/<slug:model_name>/',
+            path(  # for single models like Email or WorkExperience
+                '<slug:model_name>/',
                 include([
                     path('new/', prof_views.ContentCreateUpdateView.as_view(), name='item_create'),
                     path('<int:content_pk>/', prof_views.ContentCreateUpdateView.as_view(), name='item_update'),
-                    path('<int:content_pk>/delete', prof_views.content_delete, name='item_delete'),
+                    path('<int:content_pk>/delete/', prof_views.content_delete, name='item_delete'),
+                ])
+            ),
+            path(  # for models with a choice variable like Link, GitHub
+                '<slug:model_name>/<slug:model_type>/',
+                include([
+                    path('new/', prof_views.ContentCreateUpdateView.as_view(), name='item_create'),
+                    path('<int:content_pk>/', prof_views.ContentCreateUpdateView.as_view(), name='item_update'),
+                    path('<int:content_pk>/delete/', prof_views.content_delete, name='item_delete'),
                 ])
             ),
         ]),

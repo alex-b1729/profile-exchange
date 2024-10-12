@@ -18,7 +18,15 @@ urlpatterns = [
             path('img/', views.update_profile_img, name='update_profile_img'),
             path('img/delete/', views.profile_img_delete, name='profile_img_delete'),
             path(
-                '<slug:content_type>/<slug:model_name>/',
+                '<slug:model_name>/',
+                include([
+                    path('new/', views.ContentCreateUpdateView.as_view(), name='profile_content_create'),
+                    path('<int:content_pk>/', views.ContentCreateUpdateView.as_view(), name='profile_content_update'),
+                    path('<int:content_pk>/delete/', views.content_delete, name='profile_content_delete'),
+                ]),
+            ),
+            path(
+                '<slug:model_name>/<slug:model_type>/',
                 include([
                     path('new/', views.ContentCreateUpdateView.as_view(), name='profile_content_create'),
                     path('<int:content_pk>/', views.ContentCreateUpdateView.as_view(), name='profile_content_update'),
