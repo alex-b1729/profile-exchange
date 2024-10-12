@@ -4,8 +4,7 @@
   "pk": 1,
   "fields": {
     "title": "Website",
-    "domain": "",
-    "svg_id": "web"
+    "netloc": ""
   }
 },
 {
@@ -13,8 +12,7 @@
   "pk": 2,
   "fields": {
     "title": "GitHub",
-    "domain": "https://github.com/",
-    "svg_id": "github"
+    "netloc": "https://github.com/"
   }
 }
 ]
