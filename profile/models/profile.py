@@ -84,7 +84,10 @@ class Content(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def item_subclass_choices(self):
+    # can't migrate dt this function
+    # this SO answer may help
+    # https://stackoverflow.com/a/38896959
+    def item_subclass_choices():
         return [m.__name__ for m in apps.get_models() if issubclass(m, ItemBase)]
 
     content_type = models.ForeignKey(
