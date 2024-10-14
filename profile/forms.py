@@ -292,11 +292,10 @@ class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.initial['model_type'] == models.Attachment.DOCUMENT:
-            self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/document.pdf'})
-        elif self.initial['model_type'] == models.Attachment.IMAGE:
-            self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/image.png'})
-    # todo: def save where only allow one of url or file
+        if self.initial['model_type'] == models.Attachment.AttachmentTypes.DOCUMENT.lower():
+            self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/document.pdf'
+        elif self.initial['model_type'] == models.Attachment.AttachmentTypes.IMAGE.lower():
+            self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/image.png'
 
 
 # class CardEditForm(forms.ModelForm):
