@@ -1,3 +1,5 @@
+import inspect
+
 from django.apps import apps
 from django.db import models
 from django.urls import reverse
@@ -84,17 +86,14 @@ class Content(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # can't migrate dt this function
-    # this SO answer may help
+    # could also get model__in dynamically using this SO answer
+    # although I haven't tested that it works here
     # https://stackoverflow.com/a/38896959
-    def item_subclass_choices():
-        return [m.__name__ for m in apps.get_models() if issubclass(m, ItemBase)]
-
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to={
-            'model__in': item_subclass_choices()
+            'model__in': consts.CONTENT_TYPES,
         }
     )
     object_id = models.PositiveIntegerField()
