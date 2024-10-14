@@ -65,6 +65,11 @@ class ContentCategories:
     categories = [
         'ContactInfo',
         'Link',
+        'Attachment',
+        'Professional',
+        'Educational',
+        'Achievements',
+        'Interests',
     ]
 
     @dataclass
@@ -75,7 +80,7 @@ class ContentCategories:
 
         @property
         def name(self):
-            return ''.join(self.display_name.split())
+            return ''.join(d.lower() for d in self.display_name.split())
 
         def __iter__(self):
             return iter(self.contents)
@@ -104,3 +109,57 @@ class ContentCategories:
             'GitHub',
         ]
     )
+
+    Attachment = Category(
+        display_name='Attachment',
+        is_app=True,
+        contents=[
+            'Document',
+            'Image',
+        ]
+    )
+
+    Professional = Category(
+        display_name='Professional',
+        is_app=False,
+        contents=[
+            'Work Experience',
+            'Project',
+            'Membership',
+            'License',
+            'Certificate',
+        ]
+    )
+
+    Educational = Category(
+        display_name='Educational',
+        is_app=False,
+        contents=[
+            'Education',
+        ]
+    )
+
+    Achievements = Category(
+        display_name='Achievements',
+        is_app=False,
+        contents=[
+            'Published Work',
+            'Award',
+            'Patent',
+        ]
+    )
+
+    Interests = Category(
+        display_name='Interests',
+        is_app=False,
+        contents=[
+            'Volunteer Work',
+        ]
+    )
+
+if __name__ == '__main__':
+    cc = ContentCategories()
+    for category in cc:
+        print(category)
+        for c in category:
+            print(c)
