@@ -48,11 +48,11 @@ class Link(profile_models.ItemBase):
         default=True,
         blank=False,
         verbose_name='independent url',
-        help_text='Indicates url does not require linkbase.netlock as the prefix',
+        help_text='Indicates url does not require model_type.netlock as the prefix',
     )
 
     class Meta(profile_models.ItemBase.Meta):
-        ordering = ['linkbase']
+        ordering = ['model_type']
         verbose_name = 'link'
         verbose_name_plural = 'links'
 
@@ -60,11 +60,11 @@ class Link(profile_models.ItemBase):
         if self.is_independent_url:
             return str(self.url)
         else:
-            return f'{self.linkbase.domain}{self.url}'
+            return f'{self.model_type.domain}{self.url}'
 
     def save(self, *args, **kwargs):
         if not self.is_independent_url:
-            self.is_independent_url = self.linkbase == 1
+            self.is_independent_url = self.model_type == 1
         super().save(*args, **kwargs)
 
     @property
@@ -74,52 +74,6 @@ class Link(profile_models.ItemBase):
         else:
             url = urlparse(f'{self.linkbase.domain}{self.url}')
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
-
-
-# proxy models as outlined in this SO answer
-# https://stackoverflow.com/a/60853449
-class WebsiteManager(models.Manager):
-    def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(
-            linkbase=LinkBase.objects.get(title='Website').pk
-        )
-
-    def create(self, *args, **kwargs):
-        kwargs.update({'linkbase': LinkBase.objects.get(title='Website').pk})
-        return super().create(*args, **kwargs)
-
-
-class Website(Link):
-    objects = WebsiteManager()
-
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        self.linkbase = LinkBase.objects.get(title='Website').pk
-        return super().save(*args, **kwargs)
-
-
-class GithubManager(models.Manager):
-    def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(
-            linkbase=LinkBase.objects.get(title='GitHub').pk
-        )
-
-    def create(self, *args, **kwargs):
-        kwargs.update({'linkbase': LinkBase.objects.get(title='GitHub').pk})
-        return super().create(*args, **kwargs)
-
-
-class Github(Link):
-    objects = GithubManager()
-
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        self.linkbase = LinkBase.objects.get(title='GitHub').pk
-        return super().save(*args, **kwargs)
 
 
 class Attachment(profile_models.ItemBase):

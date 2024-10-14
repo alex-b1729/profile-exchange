@@ -185,21 +185,21 @@ class UserEditEmailForm(forms.ModelForm):
 class EmailCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Email
-        fields = ('email_address', 'label', 'type')
+        fields = ('email_address', 'label', 'info_type')
         widgets = {
             'email_address': forms.EmailInput(attrs={
                 'autocomplete': 'email',
                 'size': 30,
             }),
             'label': forms.TextInput(),
-            'type': forms.Select(),
+            'info_type': forms.Select(),
         }
 
 
 class PhoneCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Phone
-        fields = ('phone_number', 'label', 'type')
+        fields = ('phone_number', 'label', 'info_type')
         widgets = {
             # todo: fix phone input
             # 'phone_number': PhoneNumberField(
@@ -208,7 +208,7 @@ class PhoneCreateUpdateForm(BootstrapModelFormMixin):
             # # }
             # ),
             'label': forms.TextInput(),
-            'type': forms.Select(),
+            'info_type': forms.Select(),
         }
 
 
@@ -223,7 +223,7 @@ class AddressCreateUpdateForm(BootstrapModelFormMixin):
             'zip',
             'country',
             'label',
-            'type',
+            'info_type',
         )
         widgets = {
             'street1': forms.TextInput(attrs={
@@ -245,33 +245,33 @@ class AddressCreateUpdateForm(BootstrapModelFormMixin):
                 'autocomplete': 'country',
             }),
             'label': forms.TextInput(),
-            'type': forms.Select(),
+            'info_type': forms.Select(),
         }
 
 
 class LinkCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Link
-        fields = ('linkbase', 'label', 'url',)
+        fields = ('model_type', 'label', 'url',)
         widgets = {
             'url': forms.TextInput(attrs={
                 'aria-describedby': 'basic-addon3 basic-addon4', 
             }),
-            'linkbase': forms.HiddenInput,
+            'model_type': forms.HiddenInput,
         }
 
     def clean(self):
         cleaned_data = super().clean()
         # todo: separate logic for generic web link
         cleaned_url = cleaned_data['url'].lstrip('/')
-        if cleaned_data['linkbase'].pk == 1:
+        if cleaned_data['model_type'].pk == 1:
             if re.search('\w+://', cleaned_url):
                 full_url = cleaned_url
             else:
                 full_url = 'https://' + cleaned_url
         else:
             # todo: will still accept stuff like https://github.com/https://asdf.com/
-            full_url = cleaned_data['linkbase'].domain + cleaned_url
+            full_url = cleaned_data['model_type'].domain + cleaned_url
         validator = URLValidator()
         try:
             validator(full_url)
@@ -285,16 +285,16 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
 class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Attachment
-        fields = ('label', 'attachment_type', 'url', 'file',)
+        fields = ('label', 'model_type', 'url', 'file',)
         widgets = {
-            'attachment_type': forms.HiddenInput,
+            'model_type': forms.HiddenInput,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.initial['attachment_type'] == models.Attachment.DOCUMENT:
+        if self.initial['model_type'] == models.Attachment.DOCUMENT:
             self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/document.pdf'})
-        elif self.initial['attachment_type'] == models.Attachment.IMAGE:
+        elif self.initial['model_type'] == models.Attachment.IMAGE:
             self.fields['url'].widget.attrs.update({'placeholder': 'https://example.com/image.png'})
     # todo: def save where only allow one of url or file
 

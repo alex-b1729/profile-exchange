@@ -42,7 +42,7 @@ class Email(ContactInfoBase):
 class Phone(ContactInfoBase):
     # todo: international?
     phone_number = PhoneNumberField(
-        balnk=False,
+        blank=False,
         verbose_name='phone number',
     )
 
