@@ -1,11 +1,12 @@
 import re
 from django import forms
 from urllib.parse import urljoin
-from django.forms import inlineformset_factory
+from django.forms import modelform_factory
 from django.contrib.auth import get_user_model
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth import password_validation
+from django.views.generic.edit import ModelFormMixin
 from phonenumber_field.formfields import PhoneNumberField
 from djangoyearlessdate.forms import YearlessDateField, YearlessDateSelect
 
@@ -249,17 +250,7 @@ class AddressCreateUpdateForm(BootstrapModelFormMixin):
         }
 
 
-class LinkCreateUpdateForm(BootstrapModelFormMixin):
-    class Meta:
-        model = models.Link
-        fields = ('model_type', 'label', 'url',)
-        widgets = {
-            'url': forms.TextInput(attrs={
-                'aria-describedby': 'basic-addon3 basic-addon4', 
-            }),
-            'model_type': forms.HiddenInput,
-        }
-
+class LinkCreateUpdateCleanForm(BootstrapModelFormMixin):
     def clean(self):
         cleaned_data = super().clean()
         # todo: separate logic for generic web link
@@ -280,6 +271,24 @@ class LinkCreateUpdateForm(BootstrapModelFormMixin):
             self.add_error('url', msg)
         cleaned_data['url'] = cleaned_url
         return cleaned_data
+
+
+def link_modelform_factory(mod) -> forms.ModelForm:
+    return modelform_factory(
+        model=mod,
+        # form=LinkCreateUpdateCleanForm,  # untested
+        fields=('model_type', 'label', 'url',),
+        widgets={
+            'url': forms.TextInput(attrs={
+                'aria-describedby': 'basic-addon3 basic-addon4',
+            }),
+            'model_type': forms.HiddenInput,
+        },
+    )
+
+
+WebsiteCreateUpdateForm = link_modelform_factory(models.Website)
+GiHubCreateUpdateForm = link_modelform_factory(models.GitHub)
 
 
 class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
