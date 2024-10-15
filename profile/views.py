@@ -309,9 +309,14 @@ def add_item(request):
         'manage/add_item.html',
         {
             'section': 'content',
-            'content_categories': consts.CONTENT_CATEGORIES,
+            'content_categories': consts.ContentCategories(),
         }
     )
+
+
+def deslugify(s: str) -> str:
+    """replace '-' with space and capitalize"""
+    return ' '.join(d.capitalize() for d in s.split('-'))
 
 
 class ContentCreateUpdateView(
@@ -352,6 +357,13 @@ class ContentCreateUpdateView(
             pass
         return None
 
+    def resolve_model_type(self, model_type: str):
+        mt = None
+        for category in consts.ContentCategories():
+            if category.is_app and category.name == self.model._meta.model_name:
+                mt = category.contents[deslugify(model_type)]
+        return mt
+
     def set_context(self, **kwargs):
         for k, v in kwargs.items():
             self.context[k] = v
@@ -369,9 +381,11 @@ class ContentCreateUpdateView(
             content_pk=None,
             *args, **kwargs
     ):
-        self.model = self.get_model(model_name)
+        model_name = deslugify(model_name)
+        self.model = self.get_model(''.join(model_name.split(' ')))
         if model_type:
-            self.set_initial(model_type=model_type)
+            mt = self.resolve_model_type(model_type)
+            self.set_initial(model_type=mt)
         self.set_template()
         if profile_pk:
             self.profile = get_object_or_404(
@@ -446,6 +460,7 @@ class ContentCreateUpdateView(
 @login_required
 @require_POST
 def content_delete(request, model_name, content_pk, profile_pk=None, model_choice=None):
+    model_name = deslugify(model_name)
     if profile_pk:
         # delete the content but not the item
         content = get_object_or_404(

@@ -292,9 +292,9 @@ class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.initial['model_type'] == models.Attachment.AttachmentTypes.DOCUMENT.lower():
+        if self.initial['model_type'] == models.Attachment.AttachmentTypes.DOCUMENT:
             self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/document.pdf'
-        elif self.initial['model_type'] == models.Attachment.AttachmentTypes.IMAGE.lower():
+        elif self.initial['model_type'] == models.Attachment.AttachmentTypes.IMAGE:
             self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/image.png'
 
 
