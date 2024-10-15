@@ -76,7 +76,7 @@ class ContentCategories:
     class Category:
         display_name: str
         is_app: bool
-        contents: list
+        contents: dict
 
         @property
         def name(self):
@@ -94,72 +94,65 @@ class ContentCategories:
     ContactInfo = Category(
         display_name='Contact Info',
         is_app=False,
-        contents=[
-            'Email',
-            'Phone',
-            'Address',
-        ],
+        contents={
+            'Email': None,
+            'Phone': None,
+            'Address': None,
+        },
     )
 
     Link = Category(
         display_name='Link',
         is_app=True,
-        contents=[
-            'Website',
-            'GitHub',
-        ]
+        contents={
+            'Website': 1,
+            'GitHub': 2,
+        }
     )
 
     Attachment = Category(
         display_name='Attachment',
         is_app=True,
-        contents=[
-            'Document',
-            'Image',
-        ]
+        contents={
+            'Document': 'D',
+            'Image': 'I',
+        }
     )
 
     Professional = Category(
         display_name='Professional',
         is_app=False,
-        contents=[
-            'Work Experience',
-            'Project',
-            'Membership',
-            'License',
-            'Certificate',
-        ]
+        contents={
+            'Work Experience': None,
+            'Project': None,
+            'Membership': None,
+            'License': None,
+            'Certificate': None,
+        }
     )
 
     Educational = Category(
         display_name='Educational',
         is_app=False,
-        contents=[
-            'Education',
-        ]
+        contents={
+            'Education': None,
+        }
     )
 
     Achievements = Category(
         display_name='Achievements',
         is_app=False,
-        contents=[
-            'Published Work',
-            'Award',
-            'Patent',
-        ]
+        contents={
+            'Published Work': None,
+            'Award': None,
+            'Patent': None,
+        }
     )
 
     Interests = Category(
         display_name='Interests',
         is_app=False,
-        contents=[
-            'Volunteer Work',
-        ]
+        contents={
+            'Volunteer Work': None,
+        }
     )
-
-if __name__ == '__main__':
-    cc = ContentCategories()
-    for category in cc:
-        print(category)
-        for c in category:
-            print(c)
