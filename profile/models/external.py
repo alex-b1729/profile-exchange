@@ -63,10 +63,16 @@ class Link(profile_models.ItemBase):
             return f'{self.model_type.netloc}{self.url}'
 
     def save(self, *args, **kwargs):
-        try:
-            self.model_type = getattr(self, 'model_type_to_set')
-        except AttributeError:
-            pass
+        if not self.pk:
+            try:
+                model_type_title = getattr(self, 'model_type_title')
+            except AttributeError:
+                pass
+            else:
+                try:
+                    self.model_type = LinkBase.objects.get(title=model_type_title)
+                except LinkBase.DoesNotExist:
+                    pass
 
         # always recheck and set is_indepenedent_url
         self.is_independent_url = self.model_type.pk == 1
@@ -83,16 +89,19 @@ class Link(profile_models.ItemBase):
 
 
 def create_link_proxy_model(linkbase_title: str):
-    linkbase_obj = LinkBase.objects.get(title=linkbase_title)
-
     class CustomManager(models.Manager):
         def get_queryset(self, *args, **kwargs):
             return super().get_queryset(*args, **kwargs).filter(
-                model_type=linkbase_obj
+                model_type__title=linkbase_title
             )
 
+        # create isn't called on proxy model initiation so
+        # LinkBase.objects.get() doesn't raise any warnings
+        # when used within `ProxyModel = type(...)` I get this warning
+        # RuntimeWarning: Accessing the database during app initialization is discouraged
+        # see https://django.readthedocs.io/en/latest/ref/applications.html
         def create(self, *args, **kwargs):
-            kwargs.update({'model_type': linkbase_obj})
+            kwargs.update({'model_type': LinkBase.objects.get(title=linkbase_title)})
             return super().create(*args, **kwargs)
 
     # dynamic proxy model
@@ -108,7 +117,7 @@ def create_link_proxy_model(linkbase_title: str):
             # within Link.save()
             # This is the only way I was able to get the model_type saved
             # when calling ProxyModel.save()
-            'model_type_to_set': linkbase_obj,
+            'model_type_title': linkbase_title,
 
             'Meta': type('Meta', (), {'proxy': True}),
         }
@@ -142,10 +151,11 @@ class Attachment(profile_models.ItemBase):
         return f'{"url: " + str(self.url) if self.url else self.file.name}'
 
     def save(self, *args, **kwargs):
-        try:
-            self.model_type = getattr(self, 'model_type_to_set')
-        except AttributeError:
-            pass
+        if not self.pk:
+            try:
+                self.model_type = getattr(self, 'model_type_to_set')
+            except AttributeError:
+                pass
         super().save(*args, **kwargs)
 
 
