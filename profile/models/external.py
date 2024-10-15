@@ -76,10 +76,35 @@ class Link(profile_models.ItemBase):
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
 
+def create_link_proxy_model(linkbase_title: str):
+    class CustomManager(models.Manager):
+        def get_queryset(self, *args, **kwargs):
+            return super().get_queryset(*args, **kwargs).filter(
+                linkbase=LinkBase.objects.get(title=linkbase_title).pk
+            )
+
+        def create(self, *args, **kwargs):
+            kwargs.update({'linkbase': LinkBase.objects.get(title=linkbase_title).pk})
+            return super().create(*args, **kwargs)
+
+    # dynamic proxy model
+    ProxyModel = type(
+        f'{linkbase_title}',  # name of proxy model
+        (Link,),              # base class
+        {
+            'objects': CustomManager(),
+            '__module__': __name__,
+            'Meta': type('Meta', (), {'proxy': True}),
+        }
+    )
+
+    return ProxyModel
+
+
 class Attachment(profile_models.ItemBase):
     class AttachmentTypes(models.TextChoices):
-        DOCUMENT = 'D', _('Document')
-        IMAGE = 'I', _('Image')
+        DOCUMENT = 'd', _('Document')
+        IMAGE = 'i', _('Image')
 
     model_type = models.CharField(
         max_length=1,
@@ -100,3 +125,39 @@ class Attachment(profile_models.ItemBase):
     def __str__(self):
         return (f'{self.attachment_type.label}: '
                 f'{self.url if self.url else self.file.name}')
+
+
+def create_attachment_proxy_model(attachment_type):
+    class CustomManager(models.Manager):
+        def get_queryset(self, *args, **kwargs):
+            return super().get_queryset(*args, **kwargs).filter(model_type=attachment_type)
+
+        def create(self, *args, **kwargs):
+            kwargs.update({'model_type': attachment_type})
+            return super().create(*args, **kwargs)
+
+    # dynamic proxy model
+    ProxyModel = type(
+        f'{Attachment.AttachmentTypes(attachment_type).label}',
+        (Attachment,),
+        {
+            'objects': CustomManager(),
+            '__module__': __name__,
+            'Meta': type('Meta', (), {'proxy': True}),
+        }
+    )
+
+    return ProxyModel
+
+
+# ---------------------------------------------------------------------
+# Proxy models all go below this --------------------------------------
+# ---------------------------------------------------------------------
+
+# Links
+Website = create_link_proxy_model('Website')
+GitHub = create_link_proxy_model('GitHub')
+
+# Attachments
+Document = create_attachment_proxy_model(Attachment.AttachmentTypes.DOCUMENT)
+Image = create_attachment_proxy_model(Attachment.AttachmentTypes.IMAGE)
