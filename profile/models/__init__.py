@@ -14,6 +14,12 @@ from .external import (
     LinkBase,
     Link,
     Attachment,
+
+    Website,
+    GitHub,
+
+    Document,
+    Image,
 )
 from .posts import (
     PostBase,
