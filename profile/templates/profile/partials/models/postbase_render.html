@@ -1,0 +1,24 @@
+<div class="mb-3">
+    <h4 class="card-title">{{ object.label }}</h4>
+    {% if object.date or object.end_date %}
+    <h5 class="card-text">
+        {{ object.date }}
+        {% block dateblock %}
+        {% endblock %}
+        {% if object.end_date %}
+        - {{ object.end_date }}
+        {% else %}
+        {% if object.current %}
+        - Present
+        {% endif %}
+        {% endif %}
+    </h5>
+    {% endif %}
+
+    {% block postcontent %}{% endblock %}
+
+    {% if object.description %}
+    <hr />
+    <p class="card-text">{{ object.description }}</p>
+    {% endif %}
+</div>

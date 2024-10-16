@@ -1,0 +1,18 @@
+{% extends "profile/partials/models/postbase_render.html" %}
+
+{% block postcontent %}
+
+{% with org=object.organization link=object.external_link %}
+{% if org or link %}
+<p class="card-text">
+    {% if org and link %}
+    <a href="{{ link }}">{{ org }}</a>
+    {% else %}
+    {% if org %}{{ org }}{% endif %}
+    {% if link %}{{ link|urlize }}{% endif %}
+    {% endif %}
+</p>
+{% endif %}
+{% endwith %}
+
+{% endblock %}
