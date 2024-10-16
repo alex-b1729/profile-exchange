@@ -39,14 +39,6 @@ urlpatterns = [
                     path('<int:content_pk>/delete/', prof_views.content_delete, name='item_delete'),
                 ])
             ),
-            path(  # for models with a choice variable like Link, GitHub
-                '<slug:model_name>/<slug:model_type>/',
-                include([
-                    path('new/', prof_views.ContentCreateUpdateView.as_view(), name='item_create'),
-                    path('<int:content_pk>/', prof_views.ContentCreateUpdateView.as_view(), name='item_update'),
-                    path('<int:content_pk>/delete/', prof_views.content_delete, name='item_delete'),
-                ])
-            ),
         ]),
     ),
 
