@@ -1,4 +1,5 @@
 import qrcode
+import inspect
 import datetime as dt
 import qrcode.image.svg
 from profile.utils import vcard, consts
@@ -309,7 +310,7 @@ def add_item(request):
         'manage/add_item.html',
         {
             'section': 'content',
-            'content_categories': consts.ContentCategories(),
+            'content_categories': consts.CONTENT_CATEGORIES,
         }
     )
 
@@ -333,7 +334,12 @@ class ContentCreateUpdateView(
     context = dict()
 
     def set_template(self):
-        self.template_name = f'manage/item/{self.model.__name__.lower()}_edit.html'
+        if self.model._meta.proxy:
+            # for proxy models use the parent class name
+            model_name = inspect.getmro(self.model)[1].__name__.lower()
+        else:
+            model_name = self.model.__name__.lower()
+        self.template_name = f'manage/item/{model_name}_edit.html'
 
     def get_model(self, model_name):
         try:
@@ -344,9 +350,16 @@ class ContentCreateUpdateView(
             pass
         return None
 
+    def set_initial_model_type(self):
+        """for proxy models, sets initial for the model_type field"""
+        if self.model._meta.proxy:
+            mt_name = self.model.model_type_title
+            mt_initial = self.model.model_type_initial(mt_name)
+            self.initial.update({'model_type': mt_initial})
+
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
         try:
-            form = getattr(forms, f'{self.model.__name__.capitalize()}CreateUpdateForm')
+            form = getattr(forms, f'{self.model.__name__}CreateUpdateForm')
             return form(
                 instance=instance,
                 initial=self.initial,
@@ -356,13 +369,6 @@ class ContentCreateUpdateView(
         except AttributeError:
             pass
         return None
-
-    def resolve_model_type(self, model_type: str):
-        mt = None
-        for category in consts.ContentCategories():
-            if category.is_app and category.name == self.model._meta.model_name:
-                mt = category.contents[deslugify(model_type)]
-        return mt
 
     def set_context(self, **kwargs):
         for k, v in kwargs.items():
@@ -383,9 +389,7 @@ class ContentCreateUpdateView(
     ):
         model_name = deslugify(model_name)
         self.model = self.get_model(''.join(model_name.split(' ')))
-        if model_type:
-            mt = self.resolve_model_type(model_type)
-            self.set_initial(model_type=mt)
+        self.set_initial_model_type()
         self.set_template()
         if profile_pk:
             self.profile = get_object_or_404(
@@ -401,7 +405,7 @@ class ContentCreateUpdateView(
             )
         self.set_context(
             section='profiles' if profile_pk else 'content',
-            model_name=model_name,
+            model_name=self.model.__name__,
             profile_pk=profile_pk,
             content_pk=content_pk,
             card_width=28,

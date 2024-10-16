@@ -250,7 +250,7 @@ class AddressCreateUpdateForm(BootstrapModelFormMixin):
         }
 
 
-class LinkCreateUpdateCleanForm(BootstrapModelFormMixin):
+class LinkCreateUpdateBaseForm(BootstrapModelFormMixin):
     def clean(self):
         cleaned_data = super().clean()
         # todo: separate logic for generic web link
@@ -262,7 +262,7 @@ class LinkCreateUpdateCleanForm(BootstrapModelFormMixin):
                 full_url = 'https://' + cleaned_url
         else:
             # todo: will still accept stuff like https://github.com/https://asdf.com/
-            full_url = cleaned_data['model_type'].domain + cleaned_url
+            full_url = cleaned_data['model_type'].netloc + cleaned_url
         validator = URLValidator()
         try:
             validator(full_url)
@@ -276,7 +276,7 @@ class LinkCreateUpdateCleanForm(BootstrapModelFormMixin):
 def link_modelform_factory(mod) -> forms.ModelForm:
     return modelform_factory(
         model=mod,
-        # form=LinkCreateUpdateCleanForm,  # untested
+        form=LinkCreateUpdateBaseForm,
         fields=('model_type', 'label', 'url',),
         widgets={
             'url': forms.TextInput(attrs={
@@ -287,24 +287,35 @@ def link_modelform_factory(mod) -> forms.ModelForm:
     )
 
 
-WebsiteCreateUpdateForm = link_modelform_factory(models.Website)
-GiHubCreateUpdateForm = link_modelform_factory(models.GitHub)
-
-
-class AttachmentCreateUpdateForm(BootstrapModelFormMixin):
-    class Meta:
-        model = models.Attachment
-        fields = ('label', 'model_type', 'url', 'file',)
-        widgets = {
-            'model_type': forms.HiddenInput,
-        }
-
+class AttachmentCreateUpdateBaseForm(BootstrapModelFormMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.initial['model_type'] == models.Attachment.AttachmentTypes.DOCUMENT:
             self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/document.pdf'
         elif self.initial['model_type'] == models.Attachment.AttachmentTypes.IMAGE:
             self.fields['url'].widget.attrs['placeholder'] = 'https://example.com/image.png'
+
+
+def attachment_modelform_factory(mod) -> forms.ModelForm:
+    return modelform_factory(
+        model=mod,
+        form=AttachmentCreateUpdateBaseForm,
+        fields=('label', 'model_type', 'url', 'file',),
+        widgets={
+            'model_type': forms.HiddenInput,
+        },
+    )
+
+
+# -------------------------------------------------------------------------
+# Proxy model forms go below ----------------------------------------------
+# -------------------------------------------------------------------------
+
+WebsiteCreateUpdateForm = link_modelform_factory(models.Website)
+GitHubCreateUpdateForm = link_modelform_factory(models.GitHub)
+
+DocumentCreateUpdateForm = attachment_modelform_factory(models.Document)
+ImageCreateUpdateForm = attachment_modelform_factory(models.Image)
 
 
 # class CardEditForm(forms.ModelForm):
