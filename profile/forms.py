@@ -162,7 +162,10 @@ class BootstrapModelFormMixin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if issubclass(self.fields[field].__class__, forms.SelectMultiple):
+            if (
+                issubclass(self.fields[field].__class__, forms.SelectMultiple)
+                or issubclass(self.fields[field].__class__, forms.BooleanField)
+            ):
                 pass
             elif issubclass(self.fields[field].__class__, forms.Select):
                 self.fields[field].widget.attrs.update({'class': 'form-select'})
@@ -305,6 +308,204 @@ def attachment_modelform_factory(mod) -> forms.ModelForm:
             'model_type': forms.HiddenInput,
         },
     )
+
+
+AwardCreateUpdateForm = modelform_factory(
+    model=models.Award,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'date',
+        'organization',
+        'external_link',
+        'description',
+    ),
+    help_texts={
+        'external_link': 'Link to organization',
+        'organization': 'Awarding organization',
+    },
+)
+CertificateCreateUpdateForm = modelform_factory(
+    model=models.Award,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'date',
+        'organization',
+        'external_link',
+        'description',
+    ),
+    help_texts={
+        'external_link': 'Link to organization',
+        'organization': 'Certifying organization',
+    },
+)
+LicenseCreateUpdateForm = modelform_factory(
+    model=models.Award,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'date',
+        'organization',
+        'external_link',
+        'description',
+    ),
+    help_texts={
+        'external_link': 'Link to organization',
+        'organization': 'Awarding organization',
+    },
+)
+MembershipCreateUpdateForm = modelform_factory(
+    model=models.Membership,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'organization',
+        'external_link',
+        'date',
+        'current',
+        'end_date',
+        'location',
+        'description',
+    ),
+    widgets={
+        'current': forms.CheckboxInput(),
+    },
+    help_texts={
+        'current': 'Current membership',
+        'external_link': 'Link to organization',
+        'organization': 'Group, organization, club, etc.'
+    }
+)
+WorkExperienceCreateUpdateForm = modelform_factory(
+    model=models.WorkExperience,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'organization',
+        'external_link',
+        'date',
+        'current',
+        'end_date',
+        'location',
+        'work_setting',
+        'description',
+    ),
+    widgets={
+        'current': forms.CheckboxInput(),
+    },
+    help_texts={
+        'current': 'Current position',
+        'organization': 'Company or organization',
+        'external_link': 'Link to company',
+    },
+)
+VolunteerWorkCreateUpdateForm = modelform_factory(
+    model=models.VolunteerWork,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'organization',
+        'external_link',
+        'date',
+        'current',
+        'end_date',
+        'location',
+        'description',
+    ),
+    widgets={
+        'current': forms.CheckboxInput(),
+    },
+    help_texts={
+        'external_link': 'Link to organization',
+        'organization': 'Group, organization, club, etc.'
+    }
+)
+EducationCreateUpdateForm = modelform_factory(
+    model=models.Education,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'degree_type',
+        'organization',
+        'external_link',
+        'location',
+        'date',
+        'end_date',
+        'gpa',
+        'description',
+    ),
+    help_texts={
+        'external_link': 'Link to school or university',
+        'end_date': 'Graduation or expected graduation date',
+    }
+)
+ProjectCreateUpdateForm = modelform_factory(
+    model=models.Project,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'contributors',
+        'date',
+        'source',
+        'external_link',
+        'description',
+    ),
+    help_texts={
+        'external_link': 'Link to project source',
+    }
+)
+PublishedWorkCreateUpdateForm = modelform_factory(
+    model=models.PublishedWork,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'source',
+        'contributors',
+        'date',
+        'external_link',
+        'description',
+    ),
+    help_texts={
+        'contributors': '',
+        'external_link': 'Link to publication',
+    },
+)
+ResearchProjectCreateUpdateForm = modelform_factory(
+    model=models.ResearchProject,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',
+        'contributors',
+        'source',
+        'date',
+        'external_link',
+        'affiliated_institutions',
+        'funding_source',
+        'description',
+    ),
+    help_texts={
+        'date': 'Publication date or date of latest version',
+        'description': 'Abstractor or project description'
+    }
+)
+PatentCreateUpdateForm = modelform_factory(
+    model=models.Patent,
+    form=BootstrapModelFormMixin,
+    fields=(
+        'label',         # title
+        'number',
+        'contributors',  # inventors
+        'source',        # assignee
+        'status',
+        'filing_date',
+        'date',
+        'classifications',
+        'country',
+        'external_link',
+        'description',
+    ),
+)
 
 
 # -------------------------------------------------------------------------

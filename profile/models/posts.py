@@ -5,7 +5,7 @@ from . import profile as profile_models
 
 
 class PostBase(profile_models.ItemBase):
-    title = models.CharField(
+    label = models.CharField(
         max_length=200,
         blank=False,
         verbose_name='title',
@@ -44,36 +44,35 @@ class OrgBase(PostBase):
     def __str__(self):
         return f'{self.title}{" - " + str(self.organization) if self.organization else ""}'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.external_link.help_text = 'Link to organization'
-
 
 class Award(OrgBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.help_text = 'Awarding organization or body'
+    pass
 
 
 class Certificate(OrgBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.help_text = 'Certifying organization or body'
+    pass
 
 
 class License(OrgBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.help_text = 'Licensing organization or body'
+    pass
 
 
 class MembershipBase(OrgBase):
+    organization = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='organization',
+    )
     location = models.CharField(
         max_length=200,
         blank=True,
         verbose_name='location'
     )
     # todo: dates should be more generic to allow just month and/or year
+    date = models.DateField(
+        blank=True,
+        verbose_name='start date',
+    )
     end_date = models.DateField(
         blank=True,
         verbose_name='end date'
@@ -89,16 +88,9 @@ class MembershipBase(OrgBase):
         abstract = True
         ordering = ['-end_date', '-date']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.title.help_text = 'Title or position'
-        self.date.verbose_name = 'start date'
-
 
 class Membership(MembershipBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.help_text = 'Group, organization, club, etc.'
+    pass
 
 
 class WorkExperience(MembershipBase):
@@ -107,6 +99,15 @@ class WorkExperience(MembershipBase):
         HYBRID = 'h', _('Hybrid')
         REMOTE = 'r', _('Remote')
 
+    organization = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='company',
+    )
+    date = models.DateField(
+        blank=False,
+        verbose_name='start date',
+    )
     work_setting = models.CharField(
         max_length=1,
         choices=SettingType,
@@ -121,25 +122,32 @@ class WorkExperience(MembershipBase):
     def __str__(self):
         return f'{self.title} at {self.organization}'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.blank = False  # have to work for some org/comp
-        self.organization.verbose_name = 'Company or organization'
-        self.external_link.help_text = 'Link to company'
-
 
 class VolunteerWork(MembershipBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.help_text = 'Group, organization, club, etc.'
+    organization = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='organization',
+    )
 
 
 class Education(MembershipBase):
+    label = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='major',
+    )
+    organization = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='school',
+        help_text='School, university, etc.',
+    )
     degree_type = models.CharField(
         max_length=200,
         blank=True,
         verbose_name='degree type',
-        help_text="Associate, bachelor's, master's, etc."
+        help_text="Associate, bachelor's, master's, etc.",
     )
     gpa = models.FloatField(
         blank=True,
@@ -147,14 +155,6 @@ class Education(MembershipBase):
         verbose_name='GPA',
         help_text='Grade point average',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization.blank = False  # must be educated somewhere
-        self.title.verbose_name = 'major'
-        self.date.verbose_name = 'start date'
-        self.location.help_text = 'School, university, etc.'
-        self.end_date.help_text = 'Graduation or expected graduation date'
 
 
 class ProjectBase(PostBase):
@@ -174,29 +174,40 @@ class ProjectBase(PostBase):
     class Meta(PostBase.Meta):
         abstract = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.external_link.help_text = 'Link to project source'
-
 
 class Project(ProjectBase):
     pass
 
 
 class PublishedWork(ProjectBase):
+    contributors = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='authors',
+    )
+    source = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='publication source',
+    )
+
     class Meta(ProjectBase.Meta):
         verbose_name = 'published work'
         verbose_name_plural = 'published works'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.source.blank = False  # must be published somewhere
-        self.source.verbose_name = 'publication source'
-        self.contributors.verbose_name = 'authors'
-        self.external_link.help_text = 'Link to publication'
-
 
 class ResearchProject(ProjectBase):
+    contributors = models.CharField(
+        max_length=200,
+        blank=False,
+        verbose_name='authors',
+    )
+    source = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='project source',
+        help_text='Publication, journal, publisher, etc.',
+    )
     affiliated_institutions = models.CharField(
         max_length=200,
         blank=True,
@@ -212,16 +223,6 @@ class ResearchProject(ProjectBase):
     class Meta(ProjectBase.Meta):
         verbose_name = 'research project'
         verbose_name_plural = 'research projects'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, *kwargs)
-        self.contributors.blank = False  # someone must have contributed
-        self.contributors.verbose_name = 'authors'
-        self.date.help_text = 'Publication date or date of latest version'
-        self.description.help_text = 'Abstract or project summary'
-        self.external_link.help_text = 'Link to publication'
-        self.source.verbose_name = 'publication source'
-        self.source.help_text = 'Journal or conference name'
 
 
 class Patent(ProjectBase):
@@ -239,9 +240,24 @@ class Patent(ProjectBase):
         choices=StatusType,
         blank=True,
     )
+    date = models.DateField(
+        blank=True,
+        verbose_name='issue date',
+        help_text='Issue / Grant date',
+    )
     filing_date = models.DateField(
         blank=True,
         verbose_name='filing date',
+    )
+    contributors = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='inventors',
+    )
+    source = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='assignee',
     )
     classifications = models.CharField(
         max_length=200,
@@ -254,11 +270,3 @@ class Patent(ProjectBase):
         verbose_name='country',
         help_text='Country or region',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.date.verbose_name = 'issue date'
-        self.date.help_text = 'Issue / Grant date'
-        self.external_link.help_text = 'Link to patent'
-        self.contributors.verbose_name = 'inventors'
-        self.source.verbose_name = 'assignee'
