@@ -47,8 +47,6 @@ CONTENT_CATEGORIES = {
     ],
     'Educational': [
         'Education',
-        'Project',
-        'Membership',
     ],
     'Achievements': [
         'Published Work',
