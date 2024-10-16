@@ -329,17 +329,19 @@ class ContentCreateUpdateView(
     profile = None
     model = None
     obj = None
-    template_name = None
     initial = dict()
     context = dict()
 
-    def set_template(self):
+    def get_template_names(self):
         if self.model._meta.proxy:
             # for proxy models use the parent class name
             model_name = inspect.getmro(self.model)[1].__name__.lower()
         else:
             model_name = self.model.__name__.lower()
-        self.template_name = f'manage/item/{model_name}_edit.html'
+        return [
+            f'manage/item/{model_name}_edit.html',
+            'manage/item/itembase_edit.html',
+        ]
 
     def get_model(self, model_name):
         try:
@@ -390,7 +392,6 @@ class ContentCreateUpdateView(
         model_name = deslugify(model_name)
         self.model = self.get_model(''.join(model_name.split(' ')))
         self.set_initial_model_type()
-        self.set_template()
         if profile_pk:
             self.profile = get_object_or_404(
                 models.Profile,
