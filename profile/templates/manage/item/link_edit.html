@@ -6,15 +6,17 @@
 <div class="mb-3">
 
     <label for="{{ form.url.id_for_label }}" class="form-label">
-        {{ linkbase.title }}
-        {% if linkbase.pk != 1 %}
+        {% if form.model_type.initial.pk != 1 %}
+        {{ form.model_type.initial.title }}
         username
+        {% else %}
+        Url
         {% endif %}
     </label>
     <div class="input-group">
-        {% if linkbase.pk != 1 %}
+        {% if form.model_type.initial.pk != 1 %}
         <span class="input-group-text" id="basic-addon3">
-            {{ linkbase.domain }}
+            {{ form.model_type.initial.netloc }}
         </span>
         {% endif %}
         {{ form.url }}

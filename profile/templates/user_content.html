@@ -40,22 +40,28 @@ My Content
                 <div class="d-flex flex-row">
                     {% with mod_name=obj|model_name|lower %}
                     <a
+                        {% comment %}
                         {% if mod_name == 'link' %}
                         href="{% url 'item_update' obj.linkbase.svg_id obj.pk %}"
                         {% else %}
                         href="{% url 'item_update' mod_name obj.pk %}"
                         {% endif %}
+                        {% endcomment %}
+                        href="#"
                         class="btn btn-secondary btn-sm me-1">
                         Edit
                     </a>
                     <form
                             method="post"
                             onsubmit="return confirm('This {{ mod_name }} will be removed from any profiles it appears in.\nAre you sure you wish to delete?');"
+                            {% comment %}
                             {% if mod_name == 'link' %}
                             action="{% url 'item_delete' obj.linkbase.svg_id obj.pk %}">
                             {% else %}
                             action="{% url 'item_delete' mod_name obj.pk %}">
                             {% endif %}
+                            {% endcomment %}
+                            action="#"
                       <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
                       {% csrf_token %}
                     </form>

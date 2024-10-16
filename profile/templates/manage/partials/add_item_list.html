@@ -1,32 +1,24 @@
 {% load static %}
 
-{% for category in content_categories %}
+{% for category, contents in content_categories.items %}
 <div class="card mb-3">
     <div class="card-header">
-        <h5 class="card-text">{{ category.display_name }}</h5>
+        <h5 class="card-text">{{ category }}</h5>
     </div>
     <ul class="list-group list-group-flush">
-        {% for content in category %}
+        {% for content in contents %}
         <li class="list-group-item">
             <a
                     {% if profile_pk %}
-                    {% if category.is_app %}
-                    href="{% url 'profile_content_create' profile_pk category.name content|slugify %}"
-                    {% else %}
                     href="{% url 'profile_content_create' profile_pk content|slugify %}"
-                    {% endif %}
-                    {% else %}
-                    {% if category.is_app %}
-                    href="{% url 'item_create' category.name content|slugify %}"
                     {% else %}
                     href="{% url 'item_create' content|slugify %}"
-                    {% endif %}
                     {% endif %}
                     class="text-decoration-none text-reset">
                 <div>
                     <span>
                         <svg width="22" height="22">
-                            <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|slugify }}"></use>
+                            <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|cut:' ' }}"></use>
                         </svg>
                     </span>
                     {{ content }}

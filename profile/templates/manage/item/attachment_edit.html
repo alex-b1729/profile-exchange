@@ -5,7 +5,7 @@
 {{ form.model_type }}
 <div class="card-text mb-3">
     <label for="{{ form.url.id_for_label }}" class="form-label">
-        External link to {{ model_name }}
+        External link to {{ model_name|lower }}
     </label>
     {{ form.url }}{{ form.url.errors }}
 </div>
