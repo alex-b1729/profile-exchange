@@ -87,6 +87,14 @@ class Link(profile_models.ItemBase):
             url = urlparse(f'{self.linkbase.netloc}{self.url}')
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
+    @staticmethod
+    def model_type_initial(mode_type_name):
+        try:
+            return LinkBase.objects.get(title=mode_type_name)
+        except LinkBase.DoesNotExist:
+            pass
+        return None
+
 
 def create_link_proxy_model(linkbase_title: str):
     class CustomManager(models.Manager):
@@ -153,10 +161,14 @@ class Attachment(profile_models.ItemBase):
     def save(self, *args, **kwargs):
         if not self.pk:
             try:
-                self.model_type = getattr(self, 'model_type_to_set')
+                self.model_type = getattr(self, 'model_type_title')
             except AttributeError:
                 pass
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def model_type_initial(model_type_name):
+        return model_type_name
 
 
 def create_attachment_proxy_model(attachment_type):
@@ -175,7 +187,7 @@ def create_attachment_proxy_model(attachment_type):
         {
             'objects': CustomManager(),
             '__module__': __name__,
-            'model_type_to_set': attachment_type,
+            'model_type_title': attachment_type,
             'Meta': type('Meta', (), {'proxy': True}),
         }
     )
