@@ -16,6 +16,7 @@ class PostBase(profile_models.ItemBase):
     )
     date = models.DateField(
         blank=True,
+        null=True,
         verbose_name='date',
     )
     external_link = models.URLField(
@@ -71,10 +72,12 @@ class MembershipBase(OrgBase):
     # todo: dates should be more generic to allow just month and/or year
     date = models.DateField(
         blank=True,
+        null=True,
         verbose_name='start date',
     )
     end_date = models.DateField(
         blank=True,
+        null=True,
         verbose_name='end date'
     )
     current = models.BooleanField(
@@ -242,11 +245,13 @@ class Patent(ProjectBase):
     )
     date = models.DateField(
         blank=True,
+        null=True,
         verbose_name='issue date',
         help_text='Issue / Grant date',
     )
     filing_date = models.DateField(
         blank=True,
+        null=True,
         verbose_name='filing date',
     )
     contributors = models.CharField(
