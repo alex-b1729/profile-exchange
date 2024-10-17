@@ -288,11 +288,18 @@ def profile_img_delete(request, profile_pk):
 @login_required
 def user_content_view(request):
     c = dict()
-    for content_type in consts.CONTENT_TYPES:
-        mod = apps.get_model(app_label='profile', model_name=content_type)
-        objs = mod.objects.filter(user=request.user)
-        if objs.exists():
-            c[content_type] = objs
+    for category, mods in consts.CONTENT_CATEGORIES.items():
+        mod_dict = dict()
+        c[category] = None
+        for mod_name in mods:
+            mn = ''.join(d.lower() for d in mod_name.split(' '))
+            mod = apps.get_model(app_label='profile', model_name=mn)
+            objs = mod.objects.filter(user=request.user)
+            if objs.exists():
+                mod_dict[mod_name] = objs
+        if mod_dict:
+            c[category] = mod_dict
+
     return render(
         request,
         'user_content.html',
@@ -384,7 +391,6 @@ class ContentCreateUpdateView(
             self,
             request,
             model_name,
-            model_type=None,
             profile_pk=None,
             content_pk=None,
             *args, **kwargs
@@ -412,14 +418,13 @@ class ContentCreateUpdateView(
             card_width=28,
         )
         return super(ContentCreateUpdateView, self).dispatch(
-            request, model_name, model_type, profile_pk, content_pk, *args, **kwargs
+            request, model_name, profile_pk, content_pk, *args, **kwargs
         )
 
     def get(
             self,
             request,
             model_name,
-            model_type=None,
             profile_pk=None,
             content_pk=None,
             *args, **kwargs
@@ -432,7 +437,6 @@ class ContentCreateUpdateView(
             self,
             request,
             model_name,
-            model_type=None,
             profile_pk=None,
             content_pk=None,
             *args, **kwargs
@@ -464,7 +468,7 @@ class ContentCreateUpdateView(
 
 @login_required
 @require_POST
-def content_delete(request, model_name, content_pk, profile_pk=None, model_choice=None):
+def content_delete(request, model_name, content_pk, profile_pk=None):
     model_name = deslugify(model_name)
     if profile_pk:
         # delete the content but not the item

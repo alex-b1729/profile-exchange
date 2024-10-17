@@ -2,7 +2,7 @@
 
 {% block postlink %}
 
-{% with org=object.organization link=object.external_link loc=object.location ws=object.work_setting %}
+{% with org=object.organization link=object.external_link loc=object.location ws=object.get_work_setting_display %}
 {% if org or link or loc %}
 <p class="card-text">
     {% if org and link %}
