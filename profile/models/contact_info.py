@@ -34,7 +34,7 @@ class Email(ContactInfoBase):
         verbose_name_plural = 'emails'
 
     def __str__(self):
-        return (f'{self.info_type.label + ": " if self.info_type else ""}'
+        return (f'{self.InfoTypes(self.info_type).label + ": " if self.info_type else ""}'
                 f'{self.email_address}'
                 f'{", " + self.label if self.label else ""}')
 
@@ -51,7 +51,7 @@ class Phone(ContactInfoBase):
         verbose_name_plural = 'phones'
 
     def __str__(self):
-        return (f'{self.info_type.label + ": " if self.info_type else ""}'
+        return (f'{self.InfoTypes(self.info_type).label + ": " if self.info_type else ""}'
                 f'{self.phone_number}'
                 f'{", " + self.label if self.label else ""}')
 
@@ -70,6 +70,6 @@ class Address(ContactInfoBase):
         verbose_name_plural = 'addresses'
 
     def __str__(self):
-        return (f'{self.info_type.label + ": " if self.info_type else ""}'
+        return (f'{self.InfoTypes(self.info_type).label + ": " if self.info_type else ""}'
                 f'{self.street1}'
                 f'{", " + self.label if self.label else ""}')
