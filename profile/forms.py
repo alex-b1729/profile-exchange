@@ -326,7 +326,7 @@ AwardCreateUpdateForm = modelform_factory(
     },
 )
 CertificateCreateUpdateForm = modelform_factory(
-    model=models.Award,
+    model=models.Certificate,
     form=BootstrapModelFormMixin,
     fields=(
         'label',
@@ -341,7 +341,7 @@ CertificateCreateUpdateForm = modelform_factory(
     },
 )
 LicenseCreateUpdateForm = modelform_factory(
-    model=models.Award,
+    model=models.License,
     form=BootstrapModelFormMixin,
     fields=(
         'label',
