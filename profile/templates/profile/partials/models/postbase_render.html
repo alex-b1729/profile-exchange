@@ -8,15 +8,17 @@
     {% block postdate %}
     {% if object.date or object.end_date %}
     <h5 class="card-text">
+        {% if object.date %}
         {{ object.date }}
-        {% block dateblock %}
-        {% endblock %}
+
         {% if object.end_date %}
         - {{ object.end_date }}
         {% else %}
-        {% if object.current %}
-        - Present
+        {% if object.current %} - Present{% endif %}
         {% endif %}
+
+        {% else %}
+        {{ object.end_date }}
         {% endif %}
     </h5>
     {% endif %}

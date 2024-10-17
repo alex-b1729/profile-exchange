@@ -1,10 +1,7 @@
 {% extends "profile/partials/models/membershipbase_render.html" %}
 
-{% block cardtitle %}
-{{ object.label }}
-{% if object.degree_type %}
-, {{ object.degree_type }}
-{% endif %}
+{% block posttitle %}
+{{ object.label }}{% if object.degree_type %}, {{ object.degree_type }}{% endif %}
 {% endblock %}
 
 {% block postcontent %}

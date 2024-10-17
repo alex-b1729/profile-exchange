@@ -12,9 +12,11 @@
     <h1 class>{{ profile.title }} Profile</h1>
     <p class="text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
   </div>
+  {% if profile.description %}
   <div class="ms-3 bg-black">
     <p class="p-2 border-start">{{ profile.description }}</p>
   </div>
+  {% endif %}
 </div>
 
 {% if entity == 'self' %}
@@ -95,7 +97,7 @@
         <ul class="dropdown-menu">
           <li>
             <button
-              hx-get="{{ profile.get_absolute_url }}editdetail/profileimg/"
+              hx-get="{% url 'update_profile_img' profile.pk %}"
               hx-target="#update-img-model"
               hx-trigger="click"
               data-bs-toggle="modal"
@@ -183,21 +185,13 @@
             <form
                     method="post"
                     onsubmit="return confirm('Are you sure you wish to delete this {{ mod_name }} from this profile?');"
-                    {% if mod_name == 'link' %}
-                    action="{% url 'profile_content_delete' profile.pk item.linkbase.svg_id content.pk %}">
-                    {% else %}
                     action="{% url 'profile_content_delete' profile.pk mod_name content.pk %}">
-                    {% endif %}
               <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
               {% csrf_token %}
             </form>
             <div>
               <a
-                      {% if mod_name == 'link' %}
-                      href="{% url 'profile_content_update' profile.pk item.linkbase.svg_id item.pk %}"
-                      {% else %}
                       href="{% url 'profile_content_update' profile.pk mod_name item.pk %}"
-                      {% endif %}
                       class="btn btn-secondary btn-sm me-1">
                 Edit
               </a>

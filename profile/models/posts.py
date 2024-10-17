@@ -29,7 +29,7 @@ class PostBase(profile_models.ItemBase):
         ordering = ['-date']
 
     def __str__(self):
-        return f'{self.title}{" - " + str(self.date) if self.date else ""}'
+        return f'{self.label}{" - " + str(self.date) if self.date else ""}'
 
 
 class OrgBase(PostBase):
@@ -43,7 +43,7 @@ class OrgBase(PostBase):
         abstract = True
 
     def __str__(self):
-        return f'{self.title}{" - " + str(self.organization) if self.organization else ""}'
+        return f'{self.label}{" - " + str(self.organization) if self.organization else ""}'
 
 
 class Award(OrgBase):
@@ -123,7 +123,7 @@ class WorkExperience(MembershipBase):
         verbose_name_plural = 'work experiences'
 
     def __str__(self):
-        return f'{self.title} at {self.organization}'
+        return f'{self.label} at {self.organization}'
 
 
 class VolunteerWork(MembershipBase):

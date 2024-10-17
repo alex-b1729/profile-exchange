@@ -16,7 +16,10 @@
     <span class="text-muted">{{ ws }}</span>
     {% else %}
     {% if loc %}
-    <span class="text-muted">{{ loc }}</span>
+    <span class="text-muted">
+        {% if org or link or ws %} | {% endif %}
+        {{ loc }}
+    </span>
     {% endif %}
     {% endif %}
 </p>
