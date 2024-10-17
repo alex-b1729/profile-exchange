@@ -106,6 +106,26 @@ class Content(models.Model):
         verbose_name_plural = 'contents'
 
 
+class ContentContent(models.Model):
+    """Relationship from a profile content item to a sub-item"""
+    content = models.ForeignKey(
+        Content,
+        related_name='subcontents',
+        related_query_name='contentcontent',
+        on_delete=models.CASCADE,
+    )
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={
+            'model__in': consts.CONTENT_TYPES,
+        }
+    )
+    object_id = models.PositiveIntegerField()
+    item = GenericForeignKey('content_type', 'object_id')
+    order = OrderField(blank=True, for_fields=['content'])
+
+
 class ItemBase(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
