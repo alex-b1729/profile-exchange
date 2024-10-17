@@ -25,6 +25,7 @@ urlpatterns = [
                     path('<int:content_pk>/delete/', views.content_delete, name='profile_content_delete'),
                 ]),
             ),
+            path('<int:content_pk>/select/', views.ProfileSelectContentView.as_view(), name='content_content_select'),
         ])
     ),
 

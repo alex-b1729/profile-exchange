@@ -105,6 +105,9 @@ class Content(models.Model):
         verbose_name = 'content'
         verbose_name_plural = 'contents'
 
+    def __str__(self):
+        return str(self.item)
+
 
 class ContentContent(models.Model):
     """Relationship from a profile content item to a sub-item"""
@@ -125,6 +128,12 @@ class ContentContent(models.Model):
     item = GenericForeignKey('content_type', 'object_id')
     order = OrderField(blank=True, for_fields=['content'])
 
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return str(self.item)
+
 
 class ItemBase(models.Model):
     user = models.ForeignKey(
@@ -133,6 +142,7 @@ class ItemBase(models.Model):
         on_delete=models.CASCADE,
     )
     content_related = GenericRelation(Content)
+    subcontent_related = GenericRelation(ContentContent)
     label = models.CharField(max_length=50, blank=True, verbose_name='label')
 
     created = models.DateTimeField(auto_now_add=True)

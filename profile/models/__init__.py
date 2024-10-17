@@ -2,6 +2,7 @@ from .profile import (
     Profile,
 
     Content,
+    ContentContent,
     ItemBase,
 )
 from .contact_info import (

@@ -508,6 +508,7 @@ class ProfileSelectContentView(
     template_name = 'profile/manage/select_content.html'
     user = None
     profile = None
+    content = None
     qs_dict = dict()
     initial_dict = dict()
     form_dict = dict()
@@ -523,62 +524,104 @@ class ProfileSelectContentView(
             )
 
     def set_qs_and_initial(self):
-        """gets all items associated with user for all item models"""
+        """gets all items associated with user or content for all item models"""
         for content_type in consts.CONTENT_TYPES:
             mod = apps.get_model(app_label='profile', model_name=content_type)
             user_objs = mod.objects.filter(user=self.user)
+            # below raises django.core.exceptions.FieldError:
+            # Unsupported lookup 'contains' for GenericRel or join on the field not permitted.
+            # todo: for now can still attach content to itself
+            # if self.content:
+            #     # if we're linking items to a content, don't include the item
+            #     # associated with the from content
+            #     user_objs.exclude(content_related__contains=self.content)
             if user_objs.exists():
                 self.qs_dict[content_type] = user_objs
-                self.initial_dict[content_type] = user_objs.filter(
-                    content_related__profile=self.profile,
-                )
+                if self.content:
+                    self.initial_dict[content_type] = user_objs.filter(
+                        subcontent_related__content=self.content,
+                    )
+                else:
+                    self.initial_dict[content_type] = user_objs.filter(
+                        content_related__profile=self.profile,
+                    )
 
-    def dispatch(self, request, profile_pk, *args, **kwargs):
+    def dispatch(self, request, profile_pk, content_pk=None, *args, **kwargs):
         self.user = request.user
         self.profile = get_object_or_404(
             models.Profile,
             user=self.user,
             pk=profile_pk,
         )
+        if content_pk:
+            self.content = get_object_or_404(
+                models.Content,
+                pk=content_pk,
+                profile=self.profile,
+            )
         self.set_qs_and_initial()
         return super(ProfileSelectContentView, self).dispatch(
-            request, profile_pk, *args, **kwargs
+            request, profile_pk, content_pk, *args, **kwargs
         )
 
-    def get(self, request, profile_pk, *args, **kwargs):
+    def get(self, request, profile_pk, content_pk=None, *args, **kwargs):
         self.set_forms()
         return self.render_to_response({
             'section': 'profiles',
             'forms': self.form_dict.values(),
             'profile': self.profile,
+            'content': self.content,
             'content_categories': consts.CONTENT_CATEGORIES,
         })
 
     def post(self, request, profile_pk, *args, **kwargs):
         self.set_forms(data=request.POST)
         if all(form.is_valid() for form in self.form_dict.values()):
-            for content_type, form in self.form_dict.items():
-                models_in_form = form.cleaned_data['model_choice']
-                initial_models = self.initial_dict[content_type]
-                for mod in self.qs_dict[content_type]:
-                    if models_in_form.contains(mod) and not initial_models.contains(mod):
-                        # add new content
-                        c = models.Content(
-                            profile=self.profile,
-                            item=mod,
-                        )
-                        c.save()
-                    elif not models_in_form.contains(mod) and initial_models.contains(mod):
-                        # remove previous content
-                        content_to_remove = mod.content_related.get(profile=self.profile)
-                        content_to_remove.delete()
-                    else:
-                        pass
-            return redirect('profile', profile_pk)
+            if self.content:
+                # attach selected items to a profile content
+                for content_type, form in self.form_dict.items():
+                    models_in_form = form.cleaned_data['model_choice']
+                    initial_models = self.initial_dict[content_type]
+                    for mod in self.qs_dict[content_type]:
+                        if models_in_form.contains(mod) and not initial_models.contains(mod):
+                            # add new linked content
+                            lc = models.ContentContent(
+                                content=self.content,
+                                item=mod,
+                            )
+                            lc.save()
+                        elif not models_in_form.contains(mod) and initial_models.contains(mod):
+                            # remove previous linked content
+                            content_to_remove = mod.subcontent_related.get(content=self.content)
+                            content_to_remove.delete()
+                        else:
+                            pass
+                return redirect('profile', profile_pk)
+            else:
+                # add the item as a profile content
+                for content_type, form in self.form_dict.items():
+                    models_in_form = form.cleaned_data['model_choice']
+                    initial_models = self.initial_dict[content_type]
+                    for mod in self.qs_dict[content_type]:
+                        if models_in_form.contains(mod) and not initial_models.contains(mod):
+                            # add new content
+                            c = models.Content(
+                                profile=self.profile,
+                                item=mod,
+                            )
+                            c.save()
+                        elif not models_in_form.contains(mod) and initial_models.contains(mod):
+                            # remove previous content
+                            content_to_remove = mod.content_related.get(profile=self.profile)
+                            content_to_remove.delete()
+                        else:
+                            pass
+                return redirect('profile', profile_pk)
         return self.render_to_response({
             'section': 'profiles',
             'forms': self.form_dict.values(),
             'profile': self.profile,
+            'content': self.content,
             'content_categories': consts.CONTENT_CATEGORIES,
         })
 

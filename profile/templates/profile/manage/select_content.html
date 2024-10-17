@@ -2,11 +2,20 @@
 {% load static %}
 
 {% block title %}
+{% if content %}
+Select Attachments
+{% else %}
 Select Content - {{ profile.title }} Profile
+{% endif %}
 {% endblock %}
 
 {% block content %}
+
+{% if content %}
+<h2>Select attachments for <span class="fst-italic">{{ content }}</span>.</h2>
+{% else %}
 <h2>Select content for your <span class="fst-italic">{{ profile.title }}</span> profile.</h2>
+{% endif %}
 
 <div class="container">
     <form method="post">

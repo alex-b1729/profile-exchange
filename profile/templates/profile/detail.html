@@ -196,7 +196,23 @@
                 Edit
               </a>
             </div>
+            <div>
+              <a
+                      href="{% url 'content_content_select' profile.pk content.pk %}"
+                      class="btn btn-secondary btn-sm me-1">
+                Add Attachments
+              </a>
+            </div>
           </div>
+          {% with attached=content.subcontents.all %}
+          {% if attached %}
+          <ol>
+            {% for att in attached %}
+            <li>{{ att }}</li>
+            {% endfor %}
+          </ol>
+          {% endif %}
+          {% endwith %}
         </div>
       </div>
       {% endwith %}
