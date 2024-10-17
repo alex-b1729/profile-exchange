@@ -369,6 +369,7 @@ class ContentCreateUpdateView(
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
         try:
             form = getattr(forms, f'{self.model.__name__}CreateUpdateForm')
+            print(self.model.__name__)
             return form(
                 instance=instance,
                 initial=self.initial,
@@ -395,8 +396,7 @@ class ContentCreateUpdateView(
             content_pk=None,
             *args, **kwargs
     ):
-        model_name = deslugify(model_name)
-        self.model = self.get_model(''.join(model_name.split(' ')))
+        self.model = self.get_model(model_name)
         self.set_initial_model_type()
         if profile_pk:
             self.profile = get_object_or_404(
@@ -469,7 +469,6 @@ class ContentCreateUpdateView(
 @login_required
 @require_POST
 def content_delete(request, model_name, content_pk, profile_pk=None):
-    model_name = deslugify(model_name)
     if profile_pk:
         # delete the content but not the item
         content = get_object_or_404(

@@ -177,21 +177,20 @@
     {% with item=content.item %}
     <li class="list-group-item overflow-auto" data-id="{{ content.pk }}">
       <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
-      {% with mod_name=item|model_name|lower %}
       <div class="d-flex">
         <div class="d-md-flex">
           <div class="card-text">{{ item.render|safe }}</div>
           <div class="d-flex flex-row">
             <form
                     method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this {{ mod_name }} from this profile?');"
-                    action="{% url 'profile_content_delete' profile.pk mod_name content.pk %}">
+                    onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
+                    action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
               <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
               {% csrf_token %}
             </form>
             <div>
               <a
-                      href="{% url 'profile_content_update' profile.pk mod_name item.pk %}"
+                      href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
                       class="btn btn-secondary btn-sm me-1">
                 Edit
               </a>
@@ -215,7 +214,6 @@
           {% endwith %}
         </div>
       </div>
-      {% endwith %}
     </li>
     {% endwith %}
     {% endfor %}

@@ -95,6 +95,10 @@ class Link(profile_models.ItemBase):
             pass
         return None
 
+    @property
+    def model_name(self):
+        return self.model_type.title
+
 
 def create_link_proxy_model(linkbase_title: str):
     class CustomManager(models.Manager):
@@ -169,6 +173,10 @@ class Attachment(profile_models.ItemBase):
     @staticmethod
     def model_type_initial(model_type_name):
         return model_type_name
+
+    @property
+    def model_name(self):
+        return self.AttachmentTypes(self.model_type)
 
 
 def create_attachment_proxy_model(attachment_type):

@@ -10,9 +10,9 @@
         <li class="list-group-item">
             <a
                     {% if profile_pk %}
-                    href="{% url 'profile_content_create' profile_pk content|slugify %}"
+                    href="{% url 'profile_content_create' profile_pk content|cut:' '|lower %}"
                     {% else %}
-                    href="{% url 'item_create' content|slugify %}"
+                    href="{% url 'item_create' content|cut:' '|lower %}"
                     {% endif %}
                     class="text-decoration-none text-reset">
                 <div>

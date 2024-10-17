@@ -162,3 +162,7 @@ class ItemBase(models.Model):
             ],
             {'object': self}
         )
+
+    @property
+    def model_name(self):
+        return self.__class__.__name__

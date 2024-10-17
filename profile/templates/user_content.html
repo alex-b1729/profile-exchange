@@ -23,7 +23,7 @@ My Content
     </div>
     <div class="card-body">
         {% for mod, objs in mods.items %}
-        {% with mod_name=mod|slugify %}
+        {% with mod_name=mod|cut:' '|lower %}
         <h5 class="card-title">{{ mod }}</h5>
         <ul class="list-group list-group-flush">
             {% for obj in objs %}
