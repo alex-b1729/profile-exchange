@@ -1,5 +1,11 @@
 <div class="mb-3">
-    <h4 class="card-title">{{ object.label }}</h4>
+    <h4 class="card-title">
+        {% block posttitle %}
+        {{ object.label }}
+        {% endblock %}
+    </h4>
+
+    {% block postdate %}
     {% if object.date or object.end_date %}
     <h5 class="card-text">
         {{ object.date }}
@@ -14,8 +20,15 @@
         {% endif %}
     </h5>
     {% endif %}
+    {% endblock %}
 
     {% block postcontent %}{% endblock %}
+
+    {% block postlink %}
+    {% if object.external_link %}
+    {{ object.external_link|urlizetrunc:35 }}
+    {% endif %}
+    {% endblock %}
 
     {% if object.description %}
     <hr />

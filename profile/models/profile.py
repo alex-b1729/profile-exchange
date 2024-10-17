@@ -122,7 +122,13 @@ class ItemBase(models.Model):
         abstract = True
 
     def render(self):
+        cls_name = self.__class__.__name__
+        parent_cls_name = inspect.getmro(self.__class__)[1].__name__
         return render_to_string(
-            f'profile/partials/models/{self.__class__.__name__.lower()}_render.html',
+            [
+                f'profile/partials/models/{cls_name.lower()}_render.html',
+                f'profile/partials/models/{parent_cls_name.lower()}_render.html',
+                f'profile/partials/models/postbase_render.html',
+            ],
             {'object': self}
         )

@@ -1,0 +1,34 @@
+{% extends "profile/partials/models/postbase_render.html" %}
+
+{% block postcontent %}
+
+<div class="mb-2">
+    {% if object.contributors %}
+    <p class="fw-bold">{{ object.contributors }}</p>
+    {% endif %}
+
+    {% with s=object.source link=object.external_link %}
+    {% if s or link %}
+    <p class="fst-italic">
+        {% if s and link %}
+        <a href="{{ link }}">{{ s }}</a>
+        {% else %}
+        {% if s %}{{ s }}{% endif %}
+        {% if link %}{{ link|urlize }}{% endif %}
+        {% endif %}
+    </p>
+    {% endif %}
+    {% endwith %}
+</div>
+
+{% if object.affiliated_institutions %}
+<p class="card-text">{{ object.affiliated_institutions }}</p>
+{% endif %}
+
+{% if object.funding_source %}
+<p class="card-text">{{ object.funding_source }}</p>
+{% endif %}
+
+{% endblock %}
+
+{% block postlink %}{% endblock %}

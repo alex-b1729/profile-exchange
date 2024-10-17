@@ -1,0 +1,41 @@
+{% extends "profile/partials/models/postbase_render.html" %}
+
+{% block postdate %}{% endblock %}
+
+{% block postcontent %}
+
+{% with no=object.number co=object.country %}
+{% if no or co %}
+<h5 class="card-text">
+    {% if no %}
+    {{ no }}
+    {% endif %}
+    {% if co %}
+    ({{ co }})
+    {% endif %}
+</h5>
+{% endif %}
+{% endwith %}
+
+{% if object.contributors %}
+<p class="card-text fw-bold">Inventors: {{ object.contributors }}</p>
+{% endif %}
+
+{% if object.source %}
+<p class="card-text fst-italic">Assignee: {{ object.source }}</p>
+{% endif %}
+
+{% if object.date %}
+<p class="card-text">Issued: {{ object.date }}</p>
+{% endif %}
+{% if object.filing_date %}
+<p class="card-text">Filing date: {{ object.filing_date }}</p>
+{% endif %}
+
+{% if object.classifications %}
+<p class="card-text">Classifications: {{ object.classifications }}</p>
+{% endif %}
+
+{% endblock %}
+
+{% block postlink %}{% endblock %}
