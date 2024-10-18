@@ -14,65 +14,7 @@
 
 <div class="d-flex flex-column g-3">
     {% for p in profiles %}
-    <div class="card me-3 mb-3" style="width:18rem">
-        {% with photo=p.photo %}
-        {% if photo %}
-        {% thumbnail photo "200x150" crop="center" as im %}
-        <a href="{{ p.get_absolute_url }}">
-            <img src="{{ im.url }}" class="card-img-top" alt="{{ p.title }} Profile photo" />
-        </a>
-        {% endthumbnail %}
-        {% endif %}
-        {% endwith %}
-
-        <div class="card-body">
-            <a href="{{ p.get_absolute_url }}" class="text-reset text-decoration-none">
-                <div class="card-text">
-                    <p class="fw-bold mb-1">{{ p.fn }}</p>
-                    {% if p.headline %}<p class="mb-2">{{ p.headline }}</p>{% endif %}
-                    {% with nick=p.nickname loc=p.location %}
-                    {% if nick or loc %}
-                    <p class="text-muted">
-                        {% if loc %}
-                        {{ loc }}
-                        {% endif %}
-
-                        {% if nick and loc %}
-                        &#x2022;
-                        {% endif %}
-
-                        {% if nick %}
-                        "{{ nick }}"
-                        {% endif %}
-                    </p>
-                    {% endif %}
-                    {% endwith %}
-                </div>
-
-                <hr />
-
-                <div class="card-text mb-3">
-                    <p class="fs-4 fw-bold mb-1">{{ p.title }} Profile</p>
-                    {% if p.description %}
-                    {{ p.description }}
-                    {% endif %}
-                </div>
-            </a>
-
-            <div class="d-flex flex-row card-text">
-                <a href="{% url 'profile_edit' p.pk %}" class="btn btn-secondary btn-sm m-1">
-                    Edit Profile
-                </a>
-                <form
-                        method="post"
-                        onsubmit="return confirm('Are you sure you wish to delete your {{ p.title }} profile?');"
-                        action="{% url 'profile_delete' p.pk %}">
-                  <button class="btn btn-danger btn-sm m-1" type="submit" value="deleted">Delete</button>
-                  {% csrf_token %}
-                </form>
-            </div>
-        </div>
-    </div>
+    {% include 'profile/partials/preview_card.html' with profile=p %}
     {% empty %}
     <p><a href="{% url 'profile_create' %}">Setup your first profile to get started</a></p>
     {% endfor %}

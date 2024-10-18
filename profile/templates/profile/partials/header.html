@@ -1,0 +1,33 @@
+<div id="FN" class="fs-2 fw-bold mb-0">{{ profile.fn }}</div>
+
+{% with headline=profile.headline %}
+{% if headline %}
+<p id="headline" class="mb-2">{{ headline }}</p>
+{% endif %}
+{% endwith %}
+
+{% with nick=profile.nickname loc=profile.location %}
+{% if nick or loc %}
+<div class="d-flex justify-content-start mb-4">
+  {% if loc %}
+  <div id="location" class="fs-6 text-muted">{{ loc }}</div>
+  {% endif %}
+
+  {% if nick and loc %}
+  <div class="fs-6 text-muted mx-2"> &#x2022; </div>
+  {% endif %}
+
+  {% if nick %}
+  <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
+  {% endif %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% with description=profile.about %}
+{% if description %}
+<p class="d-flex flex-wrap border-top pt-3">
+  {{ description }}
+</p>
+{% endif %}
+{% endwith %}

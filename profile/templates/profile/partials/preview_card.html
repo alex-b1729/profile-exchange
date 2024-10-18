@@ -1,0 +1,60 @@
+{% load thumbnail %}
+<div class="card me-3 mb-3" style="width:{{ card_width|default:18 }}rem">
+    {% with photo=profile.photo %}
+    {% if photo %}
+    {% thumbnail photo "200x150" crop="center" as im %}
+    <a href="{{ profile.get_absolute_url }}">
+        <img src="{{ im.url }}" class="card-img-top" alt="{{ profile.title }} Profile photo" />
+    </a>
+    {% endthumbnail %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card-body">
+        <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
+            <div class="card-text">
+                <p class="fw-bold mb-1">{{ profile.fn }}</p>
+                {% if profile.headline %}<p class="mb-2">{{ profile.headline }}</p>{% endif %}
+                {% with nick=profile.nickname loc=profile.location %}
+                {% if nick or loc %}
+                <p class="text-muted">
+                    {% if loc %}
+                    {{ loc }}
+                    {% endif %}
+
+                    {% if nick and loc %}
+                    &#x2022;
+                    {% endif %}
+
+                    {% if nick %}
+                    "{{ nick }}"
+                    {% endif %}
+                </p>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <hr />
+
+            <div class="card-text mb-3">
+                <p class="fs-4 fw-bold mb-1">{{ profile.title }} Profile</p>
+                {% if profile.description %}
+                {{ profile.description }}
+                {% endif %}
+            </div>
+        </a>
+
+        <div class="d-flex flex-row card-text">
+            <a href="{% url 'profile_edit' profile.pk %}" class="btn btn-secondary btn-sm m-1">
+                Edit Profile
+            </a>
+            <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete your {{ profile.title }} profile?');"
+                    action="{% url 'profile_delete' profile.pk %}">
+              <button class="btn btn-danger btn-sm m-1" type="submit" value="deleted">Delete</button>
+              {% csrf_token %}
+            </form>
+        </div>
+    </div>
+</div>

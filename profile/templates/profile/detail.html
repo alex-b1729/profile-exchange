@@ -1,12 +1,20 @@
 {% extends "base.html" %}
-{% load thumbnail %}
 {% load static %}
 {% load profile_extras %}
 
-{% block title %}{{ profile.title }} | Profile{% endblock %}
+{% block title %}
+{% if profile.user == request.user %}
+{{ profile.title }}
+{% else %}
+{{ profile.fn }}
+{% endif %}
+| Profile
+{% endblock %}
 
 {% block content %}
 
+{# user profile details #}
+{% if profile.user == request.user %}
 <div class="d-md-flex align-items-end">
   <div class="p-2">
     <h1 class>{{ profile.title }} Profile</h1>
@@ -18,8 +26,9 @@
   </div>
   {% endif %}
 </div>
+{% endif %}
 
-{% if entity == 'self' %}
+{% if profile.user == request.user %}
 {# from bootstrap https://htmx.org/examples/modal-bootstrap/ #}
 {# share profile modal and update image #}
 <div id="modals-here"
@@ -43,27 +52,9 @@
 </div>
 {% endif %}
 
-{% if entity == "shared" %}
-<div class="container mb-3">
-  {% if request.user.is_authenticated %}
-  {% with suuid=p.share_uuid %}
-  <form action="{{ request.build_absolute_uri }}connect/" method="post">
-    <button class="btn btn-outline-primary" type="submit">Connect</button>
-    {% csrf_token %}
-  </form>
-  {% endwith %}
-  {% else %}
-  <p>
-    <a href="{% url 'login' %}?next={{ profile.get_shareable_url }}">Log-in</a>
-    or <a href="{% url 'register' %}">create an account</a> to connect with
-    {{ vc.n.value.given|default:vc.fn}}.
-  </p>
-  {% endif %}
-</div>
-{% endif %}
-
 {% if profile.user == request.user %}
 <div class="container d-flex flex-row justify-content-end">
+  {% comment %}
   <button
     hx-get="#" {# url share #}
     hx-target="#modals-here"
@@ -72,159 +63,25 @@
     data-bs-target="#modals-here"
     class="btn btn-dark me-3">Share</button>
   <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
+  {% endcomment %}
   <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
 </div>
 {% endif %}
 
+{# heading and pic #}
 <div class="container p-3 mb-3 d-md-flex">
   <div class="me-5 mb-3 d-flex flex-column">
-    <div class="position-relative">
-      {% with profimg=profile.photo %}
-      {% thumbnail profimg "200x200" crop="center" as im %}
-      <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
-      {% empty %}
-      <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="gray" />
-      </svg>
-      {% endthumbnail %}
-      {% if entity == "self" or entity == "connection" %}
-      <span class="position-absolute top-0 start-0 dropdown">
-        <button type="button" class="btn btn-light border border-dark pt-0 pb-1" data-bs-toggle="dropdown" aria-expanded="false">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
-            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
-          </svg>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <button
-              hx-get="{% url 'update_profile_img' profile.pk %}"
-              hx-target="#update-img-model"
-              hx-trigger="click"
-              data-bs-toggle="modal"
-              data-bs-target="#update-img-model"
-              class="dropdown-item">
-              {% if profimg %}
-              Update
-              {% else %}
-              Upload Image
-              {% endif %}
-            </button>
-          </li>
-          {% if profimg %}
-          <li>
-            <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete your profile picture?');"
-                    action="{% url 'profile_img_delete' profile.pk %}">
-              <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
-              {% csrf_token %}
-            </form>
-          </li>
-          {% endif %}
-        </ul>
-      </span>
-      {% endif %}
-      {% endwith %}
-    </div>
+    {% include 'profile/partials/photo.html' with profile=profile %}
   </div>
 
   <div class="justify-content-left flex-wrap">
-    <div id="FN" class="fs-2 fw-bold mb-0">{{ profile.fn }}</div>
-
-    {% with headline=profile.headline %}
-    {% if headline %}
-    <p id="headline" class="card-text mb-2">{{ headline }}</p>
-    {% endif %}
-    {% endwith %}
-
-    {% with nick=profile.nickname loc=profile.location %}
-    {% if nick or loc %}
-    <div class="d-flex justify-content-start mb-4">
-      {% if loc %}
-      <div id="location" class="fs-6 text-muted">{{ loc }}</div>
-      {% endif %}
-
-      {% if nick and loc %}
-      <div class="fs-6 text-muted mx-2"> &#x2022; </div>
-      {% endif %}
-
-      {% if nick %}
-      <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
-      {% endif %}
-    </div>
-    {% endif %}
-    {% endwith %}
-
-    {% with description=profile.about %}
-    {% if description %}
-    <p class="d-flex flex-wrap border-top pt-3">
-      {{ description }}
-    </p>
-    {% endif %}
-    {% endwith %}
+    {% include 'profile/partials/header.html' with profile=profile %}
   </div>
 </div>
 
-<div class="card" id="profile-content">
-  <div class="card-header">
-    <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a>
-  </div>
-  {% with contents=profile.contents.all %}
-  {% if contents %}
-
-  <ul id="contents" class="list-group list-group-flush">
-    {% for content in contents %}
-    {% with item=content.item %}
-    <li class="list-group-item overflow-auto" data-id="{{ content.pk }}">
-      <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
-      <div class="d-flex">
-        <div class="d-md-flex">
-          <div class="card-text">{{ item.render|safe }}</div>
-          <div class="d-flex flex-row">
-            <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
-                    action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
-              <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
-              {% csrf_token %}
-            </form>
-            <div>
-              <a
-                      href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
-                      class="btn btn-secondary btn-sm me-1">
-                Edit
-              </a>
-            </div>
-            <div>
-              <a
-                      href="{% url 'content_content_select' profile.pk content.pk %}"
-                      class="btn btn-secondary btn-sm me-1">
-                Add Attachments
-              </a>
-            </div>
-          </div>
-          {% with attached=content.subcontents.all %}
-          {% if attached %}
-          <ol>
-            {% for att in attached %}
-            <li>{{ att }}</li>
-            {% endfor %}
-          </ol>
-          {% endif %}
-          {% endwith %}
-        </div>
-      </div>
-    </li>
-    {% endwith %}
-    {% endfor %}
-  </ul>
-
-  {% else %}
-  <div class="card-body">
-    <p class="card-text">There's no content in this profile yet</p>
-  </div>
-  {% endif %}
-  {% endwith %}
+{# content #}
+<div class="container" id="profile-content">
+  {% include 'profile/partials/content.html' with profile=profile %}
 </div>
 
 {% endblock %}
