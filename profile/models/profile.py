@@ -1,3 +1,4 @@
+import uuid
 import inspect
 
 from django.apps import apps
@@ -166,3 +167,34 @@ class ItemBase(models.Model):
     @property
     def model_name(self):
         return self.__class__.__name__
+
+
+class ProfileLink(models.Model):
+    uid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='profiles',
+        related_query_name='profile',
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    expires = models.DateTimeField(null=True)
+    last_viewed = models.DateTimeField(auto_now=True)
+
+    max_views = models.IntegerField(null=True)
+    views = models.IntegerField(default=0, null=False)
+
+    class Meta:
+        verbose_name = 'profile link'
+        verbose_name_plural = 'profile links'
+
+    def get_absolute_url(self):
+        return reverse('shared_profile', kwargs={'uid': self.uid})
+
+    def record_view(self):
+        self.views += 1
+        self.save()

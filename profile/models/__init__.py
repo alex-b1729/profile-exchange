@@ -4,6 +4,7 @@ from .profile import (
     Content,
     ContentContent,
     ItemBase,
+    ProfileLink,
 )
 from .contact_info import (
     ContactInfoBase,

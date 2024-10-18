@@ -6,8 +6,8 @@ from profile.utils import vcard, consts
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from django.apps import apps
-from django.db.models import Value
 from django.urls import reverse_lazy
+from django.db.models import Value, F
 from django.core.files.base import ContentFile
 from django.forms.models import modelform_factory
 from formtools.wizard.views import SessionWizardView
@@ -16,6 +16,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib import messages
+from django.utils.timezone import now
 from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -637,6 +638,23 @@ class ContentOrderView(
                 profile__user=request.user,
             ).update(order=order)
         return self.render_json_response({'saved': 'OK'})
+
+
+def shared_profile_view(request, uid):
+    shared_link = get_object_or_404(
+        models.ProfileLink,
+        uid=uid,
+        expires__gte=now(),
+        max_views__gt=F('views'),
+    )
+    shared_profile = shared_link.profile
+    # todo check user cache so don't double count same user views?
+    shared_link.record_view()
+    return render(
+        request,
+        'profile/shared.html',
+        {'profile': shared_profile}
+    )
 
 
 # class RegisterWizard(SessionWizardView):

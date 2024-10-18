@@ -41,6 +41,7 @@ urlpatterns = [
             ),
         ]),
     ),
+    path('shared/<uuid:uid>/', prof_views.shared_profile_view, name='shared_profile'),
 
     path('admin/', admin.site.urls),
     path('profile/', include('profile.urls')),
