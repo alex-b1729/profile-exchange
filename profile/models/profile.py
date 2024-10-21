@@ -205,7 +205,7 @@ class ProfileLink(models.Model):
         verbose_name = 'profile link'
         verbose_name_plural = 'profile links'
 
-    def get_absolute_url(self):
+    def get_shareable_url(self):
         return reverse('shared_profile', kwargs={'uid': self.uid})
 
     def record_view(self):

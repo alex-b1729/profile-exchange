@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Profile Links
+{% endblock %}
+
+{% block content %}
+<h1>Links to share your profile</h1>
+<a href="{% url 'profile_link_create' profile_pk %}">Create new link for sharing</a>
+<ul>
+    {% for l in links %}
+    <li>
+        <p>{{ l.label }} link for {{ l.profile }} profile</p>
+        <p><a href="{{ l.get_shareable_url }}">{{ url_prefix }}{{ l.get_shareable_url }}</a></p>
+    </li>
+    {% endfor %}
+    {% if not profile_pk %}
+    <li>You don't have any shareable links yet</li>
+    {% endif %}
+</ul>
+{% endblock %}

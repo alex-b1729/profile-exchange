@@ -1,4 +1,5 @@
 import re
+import datetime as dt
 from django import forms
 from urllib.parse import urljoin
 from django.forms import modelform_factory
@@ -171,6 +172,29 @@ class BootstrapModelFormMixin(forms.ModelForm):
                 self.fields[field].widget.attrs.update({'class': 'form-select'})
             else:
                 self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+
+class CreateProfileLink(BootstrapModelFormMixin):
+    never_expires = forms.BooleanField(
+        label='Never Expires',
+        required=False,
+        initial=False,
+    )
+
+    class Meta:
+        model = models.ProfileLink
+        fields = ('label', 'expires', 'never_expires', 'max_views',)
+        widgets = {
+            'expires': forms.DateTimeInput(attrs={
+                'help_text': 'Format as YYYY-MM-DD HH:MM',
+            }),
+        }
+
+    def clean_never_expires(self):
+        cd = self.cleaned_data
+        if cd['never_expires'] is True and cd['expires'] is not None:
+            raise forms.ValidationError('Cannot select both never expires and an expiration date.')
+        return cd['never_expires']
 
 
 class UserEditEmailForm(forms.ModelForm):

@@ -1,0 +1,49 @@
+{% extends 'center_card.html' %}
+
+{% block title %}
+Create Profile Link
+{% endblock %}
+
+{% block card %}
+<div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                <div>
+                    {{ field.label }}
+                    {% comment %}
+                    {% if field.field.required %}
+                    <span class="text-muted">(required)</span>
+                    {% endif %}
+                    {% endcomment %}
+                </div>
+                {{ field }}
+                {{ field.help_text|safe }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div>
+            <input type="submit" value="Save" class="btn btn-primary"/>
+            <a href="{% url 'profile' profile_pk %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+{% if form.non_field_errors %}
+<div class="card-footer">
+    <ul>
+        {% for e in form.non_field_errors %}
+        <li>{{ e }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

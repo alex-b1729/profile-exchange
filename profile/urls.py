@@ -25,6 +25,18 @@ urlpatterns = [
                     path('<int:content_pk>/delete/', views.content_delete, name='profile_content_delete'),
                 ]),
             ),
+            path(
+                'share/',
+                include([
+                    path(
+                        'links/',
+                        include([
+                            path('', views.profile_links, name='profile_links'),
+                            path('new/', views.ProfileCreateLink.as_view(), name='profile_link_create'),
+                        ]),
+                    ),
+                ]),
+            ),
             path('<int:content_pk>/select/', views.ProfileSelectContentView.as_view(), name='content_content_select'),
         ])
     ),

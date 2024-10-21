@@ -7,7 +7,7 @@ from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from django.apps import apps
 from django.urls import reverse_lazy
-from django.db.models import Value, F
+from django.db.models import Value, F, When, Q
 from django.core.files.base import ContentFile
 from django.forms.models import modelform_factory
 from formtools.wizard.views import SessionWizardView
@@ -640,21 +640,87 @@ class ContentOrderView(
         return self.render_json_response({'saved': 'OK'})
 
 
-def shared_profile_view(request, uid):
-    shared_link = get_object_or_404(
-        models.ProfileLink,
-        uid=uid,
-        expires__gte=now(),
-        max_views__gt=F('views'),
-    )
-    shared_profile = shared_link.profile
-    # todo check user cache so don't double count same user views?
-    shared_link.record_view()
+class ProfileCreateLink(
+    LoginRequiredMixin,
+    UserMixin,
+    TemplateResponseMixin,
+    View,
+):
+    template_name = 'profile/manage/create_link.html'
+    profile = None
+
+    def get_form(self, *args, **kwargs):
+        data = kwargs.get('data', None)
+        return forms.CreateProfileLink(
+            data=data,
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        profile_pk = kwargs.get('profile_pk', None)
+        self.profile = get_object_or_404(
+            models.Profile,
+            user=request.user,
+            pk=profile_pk,
+        )
+        return super(ProfileCreateLink, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile_pk': self.profile.pk,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(data=request.POST)
+        if form.is_valid():
+            link = form.save(commit=False)
+            link.profile = self.profile
+            link.save()
+            return redirect('profile_links', self.profile.pk)
+        return self.render_to_response({
+            'section': 'profiles',
+            'form': form,
+            'profile_pk': self.profile.pk,
+        })
+
+
+def profile_links(request, profile_pk=None):
+    links = models.ProfileLink.objects.filter(profile__user=request.user)
+    if profile_pk:
+        links = links.filter(profile__pk=profile_pk)
     return render(
         request,
-        'profile/shared.html',
-        {'profile': shared_profile}
+        'profile/link_list.html',
+        {
+            'section': 'profiles',
+            'links': links,
+            'url_prefix': Site.objects.get_current(),
+            'profile_pk': profile_pk,
+        }
     )
+
+
+def shared_profile_view(request, uid):
+    qs = (models.ProfileLink.objects
+          .filter(Q(expires__isnull=True) | Q(expires__gte=now()))
+          .filter(Q(max_views__isnull=True) | Q(max_views__gt=F('views'))))
+    try:
+        shared_link = qs.get(
+            uid=uid,
+        )
+    except models.ProfileLink.DoesNotExist or models.ProfileLink.MultipleObjectsReturned:
+        return render(request, 'profile/dne.html')
+    else:
+        shared_profile = shared_link.profile
+        # todo check user cache so don't double count same user views?
+        shared_link.record_view()
+        return render(
+            request,
+            'profile/shared.html',
+            {'profile': shared_profile}
+        )
 
 
 # class RegisterWizard(SessionWizardView):
