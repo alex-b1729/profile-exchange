@@ -170,6 +170,11 @@ class ItemBase(models.Model):
 
 
 class ProfileLink(models.Model):
+    label = models.CharField(
+        blank=False,
+        max_length=200,
+        verbose_name='label',
+    )
     uid = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -182,10 +187,18 @@ class ProfileLink(models.Model):
         related_query_name='profile',
     )
     created = models.DateTimeField(auto_now_add=True)
-    expires = models.DateTimeField(null=True)
+    expires = models.DateTimeField(
+        blank=True,
+        null=True,
+        default=None,
+    )
     last_viewed = models.DateTimeField(auto_now=True)
 
-    max_views = models.IntegerField(null=True)
+    max_views = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name='maximum number of views'
+    )
     views = models.IntegerField(default=0, null=False)
 
     class Meta:
