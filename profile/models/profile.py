@@ -56,6 +56,12 @@ class Profile(models.Model):
     location = models.CharField(max_length=50, blank=True, verbose_name='location')
     about = models.TextField(blank=True, verbose_name='about')
 
+    connections = models.ManyToManyField(
+        'self',
+        through='Connection',
+        symmetrical=True,
+    )
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -211,3 +217,26 @@ class ProfileLink(models.Model):
     def record_view(self):
         self.views += 1
         self.save()
+
+
+class Connection(models.Model):
+    profile_from = models.ForeignKey(
+        Profile,
+        related_name='rel_from_set',
+        on_delete=models.CASCADE,
+    )
+    profile_to = models.ForeignKey(
+        Profile,
+        related_name='rel_to_set',
+        on_delete=models.CASCADE
+    )
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created']),
+        ]
+        ordering = ['-created']
+
+    def __str__(self):
+        return f'{self.profile_from} -> {self.profile_to}'
