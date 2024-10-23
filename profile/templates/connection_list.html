@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+Connections
+{% endblock %}
+
+{% block content %}
+<h1>My connections</h1>
+<ul>
+    {% for conn in conns %}
+    <li>
+        <div>
+            <a href="{{ conn.get_absolute_url }}">
+                {{ conn.profile_to.fn }}
+            </a> ({{ conn.profile_from.title }} profile)
+        </div>
+        <div>Connected: {{ conn.created }}</div>
+    </li>
+    {% empty %}
+    <li>You don't have any connections yet</li>
+    {% endfor %}
+</ul>
+{% endblock %}

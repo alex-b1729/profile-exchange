@@ -240,3 +240,6 @@ class Connection(models.Model):
 
     def __str__(self):
         return f'{self.profile_from} -> {self.profile_to}'
+
+    def get_absolute_url(self):
+        return reverse('connection', kwargs={'connection_id': self.pk})

@@ -739,6 +739,38 @@ def shared_profile_view(request, uid):
         )
 
 
+@login_required
+def connection_list(request):
+    conns = models.Connection.objects.filter(
+        profile_from__user=request.user
+    )
+    return render(
+        request,
+        'connection_list.html',
+        {
+            'section': 'connections',
+            'conns': conns,
+        }
+    )
+
+
+@login_required
+def connection(request, connection_id):
+    conn = get_object_or_404(
+        models.Connection,
+        pk=connection_id,
+        profile_from__user=request.user,
+    )
+    return render(
+        request,
+        'profile/detail.html',
+        {
+            'section': 'connections',
+            'profile': conn.profile_to,
+        }
+    )
+
+
 # class RegisterWizard(SessionWizardView):
 #     template_name = 'profile/register.html'
 #
