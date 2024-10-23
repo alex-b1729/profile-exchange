@@ -64,6 +64,7 @@
     class="btn btn-dark me-3">Share</button>
   <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
   {% endcomment %}
+  <a class="btn btn-dark me-3" href="{% url 'profile_links' profile.pk %}">Links</a>
   <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
 </div>
 {% endif %}

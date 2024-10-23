@@ -33,6 +33,7 @@ urlpatterns = [
                         include([
                             path('', views.profile_links, name='profile_links'),
                             path('new/', views.ProfileCreateLink.as_view(), name='profile_link_create'),
+                            path('<uuid:link_uid>/delete/', views.profile_link_delete, name='profile_link_delete'),
                         ]),
                     ),
                 ]),

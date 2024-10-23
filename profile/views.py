@@ -686,6 +686,7 @@ class ProfileCreateLink(
         })
 
 
+@login_required
 def profile_links(request, profile_pk=None):
     links = models.ProfileLink.objects.filter(profile__user=request.user)
     if profile_pk:
@@ -700,6 +701,21 @@ def profile_links(request, profile_pk=None):
             'profile_pk': profile_pk,
         }
     )
+
+
+@login_required
+@require_POST
+def profile_link_delete(request, link_uid, profile_pk=None):
+    link = get_object_or_404(
+        models.ProfileLink,
+        uid=link_uid,
+        profile__user=request.user,
+    )
+    link.delete()
+    if profile_pk:
+        return redirect('profile_links', profile_pk)
+    else:
+        return redirect('profile_list')
 
 
 def shared_profile_view(request, uid):

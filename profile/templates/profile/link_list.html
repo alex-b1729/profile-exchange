@@ -6,12 +6,24 @@ Profile Links
 
 {% block content %}
 <h1>Links to share your profile</h1>
-<a href="{% url 'profile_link_create' profile_pk %}">Create new link for sharing</a>
+<p><a href="{% url 'profile_link_create' profile_pk %}">Create new link for sharing</a></p>
 <ul>
     {% for l in links %}
-    <li>
-        <p>{{ l.label }} link for {{ l.profile }} profile</p>
-        <p><a href="{{ l.get_shareable_url }}">{{ url_prefix }}{{ l.get_shareable_url }}</a></p>
+    <li class="mb-3">
+        <div>{{ l.label }} - {{ l.profile }} profile</div>
+        <div>{% if l.expires %}Expires: {{ l.expires }}{% endif %}</div>
+        <div>
+            {{ l.views }}{% if l.max_views %}/{{ l.max_views }}{% endif %} views,
+            Last viewed: {{ l.last_viewed }}
+        </div>
+        <div><a href="{{ l.get_shareable_url }}">{{ url_prefix }}{{ l.get_shareable_url }}</a></div>
+        <form
+                method="post"
+                onsubmit="return confirm('Are you sure you want to delete this link?');"
+                action="{% url 'profile_link_delete' profile_pk l.uid %}">
+            <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
+            {% csrf_token %}
+        </form>
     </li>
     {% endfor %}
     {% if not profile_pk %}
