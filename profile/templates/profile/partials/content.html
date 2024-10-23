@@ -1,6 +1,9 @@
+{% if request.user == profile.user %}
 <div class="card-header">
   <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a>
 </div>
+{% endif %}
+
 {% with contents=profile.contents.all %}
 {% if contents %}
 
@@ -12,6 +15,7 @@
   <div class="d-flex">
     <div class="d-md-flex">
       <div class="card-text">{{ item.render|safe }}</div>
+      {% if request.user == profile.user %}
       <div class="d-flex flex-row">
         <form
                 method="post"
@@ -35,6 +39,7 @@
           </a>
         </div>
       </div>
+      {% endif %}
       {% with attached=content.subcontents.all %}
       {% if attached %}
       <ol>

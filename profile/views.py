@@ -734,7 +734,7 @@ def shared_profile_view(request, uid):
         shared_link.record_view()
         return render(
             request,
-            'profile/shared.html',
+            'profile/detail.html',
             {'profile': shared_profile}
         )
 

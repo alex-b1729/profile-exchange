@@ -87,8 +87,8 @@
 
 {% endblock %}
 
-{% if request.user == profile.user %}
 {% block domready %}
+{% if request.user == profile.user %}
 $('#contents').sortable({
   stop: function(event, ui) {
     contents_order = {};
@@ -107,5 +107,5 @@ $('#contents').sortable({
     });
   }
 });
-{% endblock %}
 {% endif %}
+{% endblock %}
