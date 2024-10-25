@@ -12,16 +12,14 @@ Create Profile Link
             {% for field in form %}
             <div class="fieldWrapper">
                 {{ field.errors }}
-                <div>
-                    {{ field.label }}
-                    {% comment %}
-                    {% if field.field.required %}
-                    <span class="text-muted">(required)</span>
-                    {% endif %}
-                    {% endcomment %}
+                <div>{{ field.label }}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }}</div>
+                {% else %}</div>{{ field }}
+                {% endif %}
+                <div class="text-muted mb-3" id="{{ field.auto_id }}_helptext">
+                    {{ field.field.help_text|safe }}
                 </div>
-                {{ field }}
-                {{ field.help_text|safe }}
             </div>
             {% endfor %}
         </div>
