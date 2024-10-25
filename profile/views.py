@@ -12,6 +12,7 @@ from django.core.files.base import ContentFile
 from django.forms.models import modelform_factory
 from formtools.wizard.views import SessionWizardView
 from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -19,6 +20,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -32,6 +34,7 @@ from django.views.generic.edit import ModelFormMixin
 
 from profile import forms
 from profile import models
+from profile.utils import helpers
 
 
 def home(request):
@@ -40,6 +43,11 @@ def home(request):
         'index.html',
         {'section': ''},
     )
+
+
+@method_decorator(helpers.persist_session_vars(['shared_with']), name='dispatch')
+class LoginView(auth_views.LoginView):
+    pass
 
 
 def register(request):
@@ -729,9 +737,14 @@ def shared_profile_view(request, uid):
     except models.ProfileLink.DoesNotExist or models.ProfileLink.MultipleObjectsReturned:
         return render(request, 'profile/dne.html')
     else:
+        # store shared with links in cookies to prevent duplicated view counts
+        shared_with = request.session.get('shared_with')
+        if not shared_with:
+            request.session['shared_with'] = []
+        if str(shared_link.pk) not in request.session['shared_with']:
+            request.session['shared_with'].append(str(shared_link.pk))
+            shared_link.record_view()
         shared_profile = shared_link.profile
-        # todo check user cache so don't double count same user views?
-        shared_link.record_view()
         return render(
             request,
             'profile/detail.html',

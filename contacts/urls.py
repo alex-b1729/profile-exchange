@@ -24,7 +24,13 @@ from profile import views as prof_views
 urlpatterns = [
     path('', prof_views.home, name='home'),
     path('account/', prof_views.account, name='account'),
-    path('account/', include('django.contrib.auth.urls')),
+    path(
+        'account/',
+        include([
+            path('login/', prof_views.LoginView.as_view(), name='login'),
+            path('', include('django.contrib.auth.urls'))
+        ]),
+    ),
     path('account/register/', prof_views.register, name='register'),
     path(
         'content/',

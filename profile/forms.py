@@ -184,10 +184,9 @@ class CreateProfileLink(BootstrapModelFormMixin):
     class Meta:
         model = models.ProfileLink
         fields = ('label', 'expires', 'never_expires', 'max_views',)
-        widgets = {
-            'expires': forms.DateTimeInput(attrs={
-                'help_text': 'Format as YYYY-MM-DD HH:MM',
-            }),
+        help_texts = {
+            'expires': 'Format as YYYY-MM-DD HH:MM',
+            'max_views': 'Expires after this many unique views',
         }
 
     def clean_never_expires(self):
