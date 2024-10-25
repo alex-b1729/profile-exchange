@@ -47,9 +47,12 @@
         </ul>
 
         {% else %}
-        {# todo: should always set next as current page #}
         <ul class="navbar-nav ms-auto">
-          <a class="nav-link" href="{% url 'login' %}">Log-in</a>
+          <a
+                  class="nav-link"
+                  href="{% url 'login' %}{% if request.path != '/' %}?next={{ request.path }}{% endif %}">
+            Log-in
+          </a>
         </ul>
         {% endif %}
 
