@@ -182,7 +182,6 @@ class ProfileLink(models.Model):
         verbose_name='label',
     )
     uid = models.UUIDField(
-        primary_key=True,
         default=uuid.uuid4,
         editable=False,
     )
