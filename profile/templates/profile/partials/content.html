@@ -1,7 +1,6 @@
+{% load static %}
 {% if request.user == profile.user %}
-<div class="card-header">
-  <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a>
-</div>
+<a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a>
 {% endif %}
 
 {% with contents=profile.contents.all %}
@@ -37,6 +36,11 @@
                   class="btn btn-secondary btn-sm me-1">
             Add Attachments
           </a>
+        </div>
+        <div class="handle">
+          <svg width="24" height="24" class="float-end">
+              <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
+          </svg>
         </div>
       </div>
       {% endif %}

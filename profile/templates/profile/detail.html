@@ -6,9 +6,9 @@
 {% if profile.user == request.user %}
 {{ profile.title }}
 {% else %}
-{{ profile.fn }}
+{{ profile.fn }} |
 {% endif %}
-| Profile
+Profile
 {% endblock %}
 
 {% block content %}
@@ -52,31 +52,42 @@
 </div>
 {% endif %}
 
-{% if profile.user == request.user %}
-<div class="container d-flex flex-row justify-content-end">
-  {% comment %}
-  <button
-    hx-get="#" {# url share #}
-    hx-target="#modals-here"
-    hx-trigger="click"
-    data-bs-toggle="modal"
-    data-bs-target="#modals-here"
-    class="btn btn-dark me-3">Share</button>
-  <a class="btn btn-dark me-3" href="#">Download</a> {# url 'download_card' #}
-  {% endcomment %}
-  <a class="btn btn-dark me-3" href="{% url 'profile_links' profile.pk %}">Links</a>
-  <a class="btn btn-dark me-3" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
-</div>
-{% endif %}
-
 {# heading and pic #}
 <div class="container p-3 mb-3 d-md-flex">
   <div class="me-5 mb-3 d-flex flex-column">
     {% include 'profile/partials/photo.html' with profile=profile %}
   </div>
 
-  <div class="justify-content-left flex-wrap">
+  <div class="justify-content-left flex-wrap position-relative">
     {% include 'profile/partials/header.html' with profile=profile %}
+
+    {% if request.user == profile.user %}
+    <span class="position-absolute top-0 end-0 dropdown">
+      {% include 'partials/dropdown_button.html' %}
+      <ul class="dropdown-menu">
+        {% comment %}
+        <li>
+          <button
+            hx-get="#" {# url share #}
+            hx-target="#modals-here"
+            hx-trigger="click"
+            data-bs-toggle="modal"
+            data-bs-target="#modals-here"
+            class="dropdown-item">Share</button>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">Download</a> {# url 'download_card' #}
+        </li>
+        {% endcomment %}
+        <li>
+          <a class="dropdown-item" href="{% url 'profile_links' profile.pk %}">Links</a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
+        </li>
+      </ul>
+    </span>
+    {% endif %}
   </div>
 </div>
 
@@ -90,6 +101,7 @@
 {% block domready %}
 {% if request.user == profile.user %}
 $('#contents').sortable({
+  handle: ".handle",
   stop: function(event, ui) {
     contents_order = {};
     $('#contents').children().each(function() {
