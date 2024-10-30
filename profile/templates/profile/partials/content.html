@@ -1,63 +1,74 @@
 {% load static %}
 {% if request.user == profile.user %}
-<a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a>
+<p><a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a></p>
 {% endif %}
 
 {% with contents=profile.contents.all %}
 {% if contents %}
 
-<ul id="contents" class="list-group list-group-flush">
-{% for content in contents %}
-{% with item=content.item %}
-<li class="list-group-item overflow-auto" data-id="{{ content.pk }}">
-  <span class="text-muted order" hidden>{{ content.order|add:1 }}</span>
-  <div class="d-flex">
-    <div class="d-md-flex">
-      <div class="card-text">{{ item.render|safe }}</div>
+<ul id="contents" class="ps-0">
+  {% for content in contents %}
+  {% with item=content.item %}
+  <li class="card mb-3 overflow-x-scroll" data-id="{{ content.pk }}">
+    <div class="card-body p-2 d-flex justify-content-between align-items-center">
+      <div class="card-text ms-2 me-auto overflow-auto">
+        {{ item.render|safe }}
+        {% with attached=content.subcontents.all %}
+        {% if attached %}
+        <ol>
+          {% for att in attached %}
+          <li>{{ att }}</li>
+          {% endfor %}
+        </ol>
+        {% endif %}
+        {% endwith %}
+      </div>
+
       {% if request.user == profile.user %}
-      <div class="d-flex flex-row">
-        <form
-                method="post"
-                onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
-                action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
-          <button class="btn btn-danger btn-sm ms-3 me-1" type="submit" value="deleted">Delete</button>
-          {% csrf_token %}
-        </form>
-        <div>
+      <div class="align-self-start me-1">
+        <div class="button-grp d-flex"> <!-- flex-column-reverse flex-md-row"> -->
+          <form
+                  method="post"
+                  onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
+                  action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
+            <button class="btn btn-sm btn-outline-light border border-0 rounded" type="submit" value="deleted" title="Delete">
+              <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                  <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+              </svg>
+            </button>
+            {% csrf_token %}
+          </form>
           <a
                   href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
-                  class="btn btn-secondary btn-sm me-1">
-            Edit
+                  class="btn btn-sm btn-outline-light border border-0 rounded"
+                  role="button"
+                  title="Edit">
+            <svg class="bi" width="16" height="16">
+                <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+            </svg>
           </a>
-        </div>
-        <div>
           <a
                   href="{% url 'content_content_select' profile.pk content.pk %}"
-                  class="btn btn-secondary btn-sm me-1">
-            Add Attachments
+                  class="btn btn-sm btn-outline-light border border-0 rounded"
+                  title="Attach content">
+            <svg class="bi" width="16" height="16">
+                <use href="{% static 'svg_spiritsheet.svg' %}#file-earmark-plus"></use>
+            </svg>
           </a>
-        </div>
-        <div class="handle">
-          <svg width="24" height="24" class="float-end">
-              <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
-          </svg>
+          {% if contents|length != 1 %}
+          <div class="handle grabbable"> <!-- d-flex align-items-center justify-content-center mb-1"> -->
+            <svg class="bi" width="16" height="16">
+                <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
+            </svg>
+          </div>
+          {% endif %}
         </div>
       </div>
       {% endif %}
-      {% with attached=content.subcontents.all %}
-      {% if attached %}
-      <ol>
-        {% for att in attached %}
-        <li>{{ att }}</li>
-        {% endfor %}
-      </ol>
-      {% endif %}
-      {% endwith %}
     </div>
-  </div>
-</li>
-{% endwith %}
-{% endfor %}
+  </li>
+  {% endwith %}
+  {% endfor %}
 </ul>
 
 {% else %}

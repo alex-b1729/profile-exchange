@@ -1,13 +1,14 @@
-<div class="mb-3">
-    <h4 class="card-title">
+{% load static %}
+<div class="mb-0">
+    <h5 class="mb-1">
         {% block posttitle %}
         {{ object.label }}
         {% endblock %}
-    </h4>
+    </h5>
 
     {% block postdate %}
     {% if object.date or object.end_date %}
-    <h5 class="card-text">
+    <p class="mb-1">
         {% if object.date %}
         {{ object.date }}
 
@@ -20,7 +21,7 @@
         {% else %}
         {{ object.end_date }}
         {% endif %}
-    </h5>
+    </p>
     {% endif %}
     {% endblock %}
 
@@ -28,12 +29,16 @@
 
     {% block postlink %}
     {% if object.external_link %}
-    {{ object.external_link|urlizetrunc:35 }}
+    <p class="mb-1">
+        {{ object.external_link|urlizetrunc:35 }}
+        <svg width="12" height="12" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+        </svg>
+    </p>
     {% endif %}
     {% endblock %}
 
     {% if object.description %}
-    <hr />
-    <p class="card-text">{{ object.description }}</p>
+    {{ object.description|linebreaks }}
     {% endif %}
 </div>

@@ -20,8 +20,8 @@ New {{ model_name }}
             New {{ model_name }}
             {% endif %}
         </p>
-        <svg width="48" height="48" class="float-end">
-            <use href="{% static 'svg_spiritsheet.svg' %}#{{ model_name }}"></use>
+        <svg width="24" height="24" class="float-end">
+            <use href="{% static 'svg_spiritsheet.svg' %}#{{ model_name|lower }}"></use>
         </svg>
     </div>
 </div>
@@ -62,7 +62,7 @@ New {{ model_name }}
 {% if content_pk %}
 <div class="card-footer">
     <div class="">
-        <svg width="24" height="24" fill="currentColor"> {#  style="font-color: black;"> #}
+        <svg width="16" height="16" fill="currentColor">
             <use href="{% static 'svg_spiritsheet.svg' %}#info"></use>
         </svg>
         This content will be updated on all associated profiles.

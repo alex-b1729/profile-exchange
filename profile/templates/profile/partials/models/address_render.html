@@ -1,14 +1,17 @@
-<div class="d-flex">
-    <div class="me-3">
-        <p class="text-muted">{{ object.get_type_display }}</p>
-    </div>
-    <div class="justify-content-left">
-        {% if object.label %}<p class="fst-italic mb-1">{{ object.label }}</p>{% endif %}
-        <p>
-            {{ object.street1 }}<br>
-            {% if object.street2 %}{{ object.street2 }}<br>{% endif %}
-            {{ object.city }}, {{ object.state }} {{ object.zip }}<br>
-            {% if object.country %}{{ object.country }}{% endif %}
-        </p>
-    </div>
+{% extends 'profile/partials/models/model_render.html' %}
+{% block objtxt %}
+<div class="column">
+    {% with lab=object.label tp=object.get_info_type_display %}
+    {% if lab or tp %}
+    <span class="text-muted">
+        {% if tp %}({{ tp }}){% endif %}
+        {{ lab }}
+    </span><br/>
+    {% endif %}
+    {% endwith %}
+    {{ object.street1 }}<br/>
+    {% if object.street2 %}{{ object.street2 }}<br>{% endif %}
+    {{ object.city }}, {{ object.state }} {{ object.zip }}<br>
+    {% if object.country %}{{ object.country }}{% endif %}
 </div>
+{% endblock %}

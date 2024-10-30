@@ -1,7 +1,17 @@
+{% extends 'profile/partials/models/model_render.html' %}
 {% load static %}
-<div class="d-flex flex-row">
-    <svg width="24" height="24">
-        <use href="{% static 'svg_spiritsheet.svg' %}#{{ object.linkbase.svg_id }}"></use>
-    </svg>
-    {{ object|urlize }}{% if object.label %} - {{ object.label }}{% endif %}
+{% block objtxt %}
+<div class="column">
+    {% if object.label %}{{ object.label }}<br/>{% endif %}
+    <a href="{{ object }}" target="_blank">
+        {% if object.model_name == 'Website' %}
+        {{ object }}
+        <svg width="12" height="12" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+        </svg>
+        {% else %}
+        @{{ object.url }}
+        {% endif %}
+    </a>
 </div>
+{% endblock %}

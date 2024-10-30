@@ -1,20 +1,32 @@
 {% extends "profile/partials/models/postbase_render.html" %}
-
+{% load static %}
 {% block postcontent %}
 
-<div class="mb-2">
+<div class="mb-1">
     {% if object.contributors %}
-    <p class="fw-bold">{{ object.contributors }}</p>
+    <p class="fw-bold mb-1">{{ object.contributors }}</p>
     {% endif %}
 
     {% with s=object.source link=object.external_link %}
     {% if s or link %}
-    <p class="fst-italic">
+    <p class="fst-italic mb-1">
         {% if s and link %}
-        <a href="{{ link }}">{{ s }}</a>
+        <a href="{{ link }}">
+            {{ s }}
+            <svg width="12" height="12" class="bi" fill="currentColor">
+                <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+            </svg>
+        </a>
         {% else %}
         {% if s %}{{ s }}{% endif %}
-        {% if link %}{{ link|urlize }}{% endif %}
+        {% if link %}
+        <a href="{{ link }}">
+            {{ link }}
+            <svg width="12" height="12" class="bi" fill="currentColor">
+                <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+            </svg>
+        </a>
+        {% endif %}
         {% endif %}
     </p>
     {% endif %}
@@ -22,11 +34,11 @@
 </div>
 
 {% if object.affiliated_institutions %}
-<p class="card-text">{{ object.affiliated_institutions }}</p>
+<p class="mb-1">Affiliated Institutions: {{ object.affiliated_institutions }}</p>
 {% endif %}
 
 {% if object.funding_source %}
-<p class="card-text">{{ object.funding_source }}</p>
+<p class="mb-1">Funding from: {{ object.funding_source }}</p>
 {% endif %}
 
 {% endblock %}

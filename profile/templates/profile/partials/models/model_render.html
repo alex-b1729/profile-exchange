@@ -1,0 +1,10 @@
+{% load static %}
+<div class="d-flex align-items-start">
+    <p class="mb-0">
+        <svg width="16" height="16" class="bi me-3">
+            <use href="{% static 'svg_spiritsheet.svg' %}#{{ object.model_name|lower }}"></use>
+        </svg>
+    </p>
+    {% block objtxt %}
+    {% endblock %}
+</div>

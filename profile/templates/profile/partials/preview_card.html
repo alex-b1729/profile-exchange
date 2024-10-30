@@ -1,5 +1,41 @@
+{% load static %}
 {% load thumbnail %}
 <div class="card me-3 mb-3" style="width:{{ card_width|default:18 }}rem">
+    <div class="card-header">
+        <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
+            <h4 class="mb-1 card-title">{{ profile.title }} Profile</h4>
+            <p class="card-subtitle text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
+            {% if profile.description %}
+            <div class="mt-2 card-text">
+                {{ profile.description }}
+            </div>
+            {% endif %}
+        </a>
+
+        <div class="btn-group position-absolute top-0 end-0 d-flex flex-column" role="group"> {# d-flex flex-row card-text #}
+            <a
+                    href="{% url 'list_profile_edit' profile.pk %}"
+                    class="btn btn-sm btn-outline-light border border-0 rounded"
+                    role="button"
+                    title="Edit">
+                <svg class="bi" width="16" height="16">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+                </svg>
+            </a>
+            <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete your {{ profile.title }} profile?');"
+                    action="{% url 'profile_delete' profile.pk %}">
+                <button class="btn btn-sm btn-outline-light border border-0 rounded" type="submit" value="deleted" title="Delete">
+                    <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                        <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+                    </svg>
+                </button>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+
     {% with photo=profile.photo %}
     {% if photo %}
     {% thumbnail photo "200x150" crop="center" as im %}
@@ -12,49 +48,25 @@
 
     <div class="card-body">
         <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
-            <div class="card-text">
-                <p class="fw-bold mb-1">{{ profile.fn }}</p>
-                {% if profile.headline %}<p class="mb-2">{{ profile.headline }}</p>{% endif %}
-                {% with nick=profile.nickname loc=profile.location %}
-                {% if nick or loc %}
-                <p class="text-muted">
-                    {% if loc %}
-                    {{ loc }}
-                    {% endif %}
-
-                    {% if nick and loc %}
-                    &#x2022;
-                    {% endif %}
-
-                    {% if nick %}
-                    "{{ nick }}"
-                    {% endif %}
-                </p>
+            <p class="fw-bold mb-1 card-text">{{ profile.fn }}</p>
+            {% if profile.headline %}<p class="card-text mb-1">{{ profile.headline }}</p>{% endif %}
+            {% with nick=profile.nickname loc=profile.location %}
+            {% if nick or loc %}
+            <p class="text-muted card-text mb-1">
+                {% if loc %}
+                {{ loc }}
                 {% endif %}
-                {% endwith %}
-            </div>
 
-            <hr />
-
-            <div class="card-text mb-3">
-                <p class="fs-4 fw-bold mb-1">{{ profile.title }} Profile</p>
-                {% if profile.description %}
-                {{ profile.description }}
+                {% if nick and loc %}
+                &#x2022;
                 {% endif %}
-            </div>
+
+                {% if nick %}
+                "{{ nick }}"
+                {% endif %}
+            </p>
+            {% endif %}
+            {% endwith %}
         </a>
-
-        <div class="d-flex flex-row card-text">
-            <a href="{% url 'profile_edit' profile.pk %}" class="btn btn-secondary btn-sm m-1">
-                Edit Profile
-            </a>
-            <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete your {{ profile.title }} profile?');"
-                    action="{% url 'profile_delete' profile.pk %}">
-              <button class="btn btn-danger btn-sm m-1" type="submit" value="deleted">Delete</button>
-              {% csrf_token %}
-            </form>
-        </div>
     </div>
 </div>

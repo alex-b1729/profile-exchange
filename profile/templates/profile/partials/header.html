@@ -27,7 +27,7 @@
 {% with description=profile.about %}
 {% if description %}
 <p class="d-flex flex-wrap border-top pt-3">
-  {{ description }}
+  {{ description|linebreaksbr }}
 </p>
 {% endif %}
 {% endwith %}

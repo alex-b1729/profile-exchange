@@ -1,2 +1,14 @@
-<span class="text-muted">{{ object.get_type_display }}</span>
-{{ object.phone_number }}{% if object.label %} - {{ object.label }}{% endif %}
+{% extends 'profile/partials/models/model_render.html' %}
+{% block objtxt %}
+<div class="">
+    {% with tp=object.get_info_type_display lab=object.label %}
+    {% if tp or lab %}
+    <span class="text-muted">
+        {% if tp %}({{ tp }}){% endif %}
+        {{ lab }}
+    </span>
+    {% endif %}
+    {% endwith %}
+    {{ object.phone_number }}
+</div>
+{% endblock %}

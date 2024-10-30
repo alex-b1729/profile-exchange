@@ -84,7 +84,7 @@ class Link(profile_models.ItemBase):
         if self.is_independent_url:
             url = urlparse(str(self.url))
         else:
-            url = urlparse(f'{self.linkbase.netloc}{self.url}')
+            url = urlparse(f'{self.model_type.netloc}{self.url}')
         return f'{url.netloc}{url.path}{url.params}{url.query}{url.fragment}'.rstrip('/')
 
     @staticmethod
@@ -176,7 +176,11 @@ class Attachment(profile_models.ItemBase):
 
     @property
     def model_name(self):
-        return self.AttachmentTypes(self.model_type)
+        return self.AttachmentTypes(self.model_type).label
+
+    @property
+    def filename(self):
+        return self.file.name.split('/')[-1]
 
 
 def create_attachment_proxy_model(attachment_type):

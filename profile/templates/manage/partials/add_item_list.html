@@ -16,9 +16,9 @@
                     {% endif %}
                     class="text-decoration-none text-reset">
                 <div>
-                    <span>
-                        <svg width="22" height="22">
-                            <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|cut:' ' }}"></use>
+                    <span class="me-2">
+                        <svg width="16" height="16">
+                            <use href="{% static 'svg_spiritsheet.svg' %}#{{ content|cut:' '|lower }}"></use>
                         </svg>
                     </span>
                     {{ content }}

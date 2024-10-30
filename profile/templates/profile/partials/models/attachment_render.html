@@ -1,39 +1,48 @@
+{% extends 'profile/partials/models/model_render.html' %}
+{% load static %}
 {% load thumbnail %}
-<div class="overflow-auto">
-    {% with lab=object.label %}
-    {% with mt=object.attachment_type %}
-    {% if mt == 'IMG' %}
-    {% if object.url %}
-    {% thumbnail object.url '200x200' crop='center' as im %}
-    <figure>
-        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ lab }}" class="rounded"/>
-        {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
-    </figure>
-    {% endthumbnail %}
-    {% else %}
-    {% thumbnail object.file '200x200' crop='center' as im %}
-    <figure>
-        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ object.label }}" class="rounded"/>
-        {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
-    </figure>
-    {% endthumbnail %}
-    {% endif %}
+{% block objtxt %}
 
-    {% elif mt == 'DOC' %}
-    Document:
-    {% if object.file %}
-    <a href="{{ object.file.url }}" target="_blank">
-        {% if lab %}{{ lab }}{% else %}{{ object.file }}{% endif %}
-    </a>
-    {% else %}
-    <a href="{{ object.url }}" target="_blank">
-        {% if lab %}{{ lab }}{% else %}{{ object.url }}{% endif %}
-    </a>
-    {% endif %}
+{% with lab=object.label %}
+{% with mt=object.model_type %}
+{% if mt == 'i' %}
+{% if object.url %}
+{% thumbnail object.url '200x200' crop='center' as im %}
+<figure class="mb-0">
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ lab }}" class="rounded"/>
+    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+</figure>
+{% endthumbnail %}
+{% else %}
+{% thumbnail object.file '200x200' crop='center' as im %}
+<figure class="mb-0>
+    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ object.label }}" class="rounded"/>
+    {% if lab %}<figcaption>{{ lab }}</figcaption>{% endif %}
+</figure>
+{% endthumbnail %}
+{% endif %}
 
-    {% else %}
-    {{ object.get_attachment_type_display }}: {{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
-    {% endif %}
-    {% endwith %}
-    {% endwith %}
-</div>
+{% elif mt == 'd' %}
+{% if object.file %}
+<span><a href="{{ object.file.url }}" target="_blank">
+    {% if lab %}{{ lab }}{% else %}{{ object.filename|truncatechars:100 }}{% endif %}
+    <svg width="12" height="12" class="bi" fill="currentColor">
+        <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+    </svg>
+</a></span>
+{% else %}
+<span><a href="{{ object.url }}" target="_blank">
+    {% if lab %}{{ lab }}{% else %}{{ object.url }}{% endif %}
+    <svg width="12" height="12" class="bi" fill="currentColor">
+        <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+    </svg>
+</a></span>
+{% endif %}
+
+{% else %}
+{{ object.url }}{{ object.file }}{% if object.label %} - {{ object.label }}{% endif %}
+{% endif %}
+{% endwith %}
+{% endwith %}
+
+{% endblock %}

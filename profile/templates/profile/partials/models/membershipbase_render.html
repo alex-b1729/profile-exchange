@@ -1,31 +1,40 @@
 {% extends "profile/partials/models/postbase_render.html" %}
-
+{% load static %}
 {% block postlink %}
+
+{% if object.employment_type %}
+<p class="mb-1">{{ object.get_employment_type_display }}</p>
+{% endif %}
 
 {% with org=object.organization link=object.external_link loc=object.location ws=object.get_work_setting_display %}
 {% if org or link or loc %}
-<p class="card-text">
+<p class="mb-1">
     {% if org and link %}
-    <a href="{{ link }}">{{ org }}</a>
+    <a href="{{ link }}">
+        {{ org }}
+        <svg width="12" height="12" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+        </svg>
+    </a>
     {% else %}
-    {% if org %}{{ org }}{% endif %}
-    {% if link %}{{ link|urlize }}{% endif %}
+    {% if org %}<span class="text-muted">{{ org }}</span>{% endif %}
+    {% if link %}
+    <a href="{{ link }}" target="_blank">
+        {{ link|truncatechars:35 }}
+        <svg width="12" height="12" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+        </svg>
+    </a>
+    {% endif %}
     {% endif %}
 
-    {% if ws %}
-    <span class="text-muted">{{ ws }}</span>
-    {% else %}
     {% if loc %}
-    <span class="text-muted">
-        {% if org or link or ws %} | {% endif %}
-        {{ loc }}
-    </span>
+    <span class="text-muted">| {{ loc }}</span>
     {% endif %}
+    {% if ws %}
+    <span class="text-muted">| {{ ws }}</span>
     {% endif %}
 </p>
-{% if ws and loc %}
-<p class="card-text">{{ loc }}</p>
-{% endif %}
 {% endif %}
 {% endwith %}
 

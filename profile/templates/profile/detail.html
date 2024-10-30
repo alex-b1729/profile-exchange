@@ -15,17 +15,26 @@ Profile
 
 {# user profile details #}
 {% if profile.user == request.user %}
-<div class="d-md-flex align-items-end">
-  <div class="p-2">
-    <h1 class>{{ profile.title }} Profile</h1>
-    <p class="text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
-  </div>
+<div class="mb-3 position-relative">
+  <h4 class="mb-1">{{ profile.title }} Profile</h4>
+  <p class="mb-2 text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
   {% if profile.description %}
-  <div class="ms-3 bg-black">
-    <p class="p-2 border-start">{{ profile.description }}</p>
-  </div>
+  <p class="">{{ profile.description }}</p>
   {% endif %}
+
+  <span class="position-absolute top-0 end-0">
+    <a
+            href="{% url 'profile_edit' profile.pk %}"
+            class="btn btn-sm btn-outline-light border border-0 rounded"
+            role="button"
+            title="Edit">
+      <svg class="bi" width="16" height="16">
+          <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+      </svg>
+    </a>
+  </span>
 </div>
+<hr/>
 {% endif %}
 
 {% if profile.user == request.user %}
@@ -62,34 +71,42 @@ Profile
     {% include 'profile/partials/header.html' with profile=profile %}
 
     {% if request.user == profile.user %}
-    <span class="position-absolute top-0 end-0 dropdown">
-      {% include 'partials/dropdown_button.html' %}
-      <ul class="dropdown-menu">
-        {% comment %}
-        <li>
-          <button
-            hx-get="#" {# url share #}
-            hx-target="#modals-here"
-            hx-trigger="click"
-            data-bs-toggle="modal"
-            data-bs-target="#modals-here"
-            class="dropdown-item">Share</button>
-        </li>
-        <li>
-          <a class="dropdown-item" href="#">Download</a> {# url 'download_card' #}
-        </li>
-        {% endcomment %}
-        <li>
-          <a class="dropdown-item" href="{% url 'profile_links' profile.pk %}">Links</a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{% url 'profile_detail_edit' profile.pk %}">Edit</a>
-        </li>
-      </ul>
+    <span class="position-absolute top-0 end-0">
+      <a
+              href="{% url 'profile_edit' profile.pk %}"
+              class="btn btn-sm btn-outline-light border border-0 rounded"
+              role="button"
+              title="Edit">
+        <svg class="bi" width="16" height="16">
+            <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+        </svg>
+      </a>
     </span>
     {% endif %}
   </div>
 </div>
+
+{% if request.user == profile.user %}
+<ul class="">
+  {% comment %}
+  <li>
+    <button
+      hx-get="#" {# url share #}
+      hx-target="#modals-here"
+      hx-trigger="click"
+      data-bs-toggle="modal"
+      data-bs-target="#modals-here"
+      class="dropdown-item">Share</button>
+  </li>
+  <li>
+    <a class="dropdown-item" href="#">Download</a> {# url 'download_card' #}
+  </li>
+  {% endcomment %}
+  <li>
+    <a class="" href="{% url 'profile_links' profile.pk %}">Links</a>
+  </li>
+</ul>
+{% endif %}
 
 {# content #}
 <div class="container" id="profile-content">

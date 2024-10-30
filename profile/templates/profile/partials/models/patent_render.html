@@ -1,39 +1,56 @@
 {% extends "profile/partials/models/postbase_render.html" %}
-
+{% load static %}
 {% block postdate %}{% endblock %}
 
 {% block postcontent %}
 
 {% with no=object.number co=object.country %}
 {% if no or co %}
-<h5 class="card-text">
+<h6 class="mb-1">
     {% if no %}
     {{ no }}
     {% endif %}
     {% if co %}
     ({{ co }})
     {% endif %}
-</h5>
+</h6>
 {% endif %}
 {% endwith %}
 
 {% if object.contributors %}
-<p class="card-text fw-bold">Inventors: {{ object.contributors }}</p>
+<p class="mb-1 fw-bold">Inventors: {{ object.contributors }}</p>
 {% endif %}
 
 {% if object.source %}
-<p class="card-text fst-italic">Assignee: {{ object.source }}</p>
+<p class="mb-1">Assignee: <span class="fst-italic">{{ object.source }}</span></p>
+{% endif %}
+
+{% if object.external_link %}
+<p class="mb-1"><a href="{{ object.external_link }}" target="_blank" class="mb-1">
+    {{ object.external_link }}
+    <svg width="12" height="12" class="bi" fill="currentColor">
+        <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+    </svg>
+</a></p>
+{% endif %}
+
+<p class="mb-3"></p>
+
+{% if object.status %}
+<p class="mb-1">Status: <span class="fst-italic">{{ object.get_status_display }}</span></p>
 {% endif %}
 
 {% if object.date %}
-<p class="card-text">Issued: {{ object.date }}</p>
+<p class="mb-1">{{ object.date }} <span class="fw-light">- Issued</span></p>
 {% endif %}
 {% if object.filing_date %}
-<p class="card-text">Filing date: {{ object.filing_date }}</p>
+<p class="mb-1">{{ object.filing_date }} <span class="fw-light">- Application filed</span></p>
 {% endif %}
 
+<p class="mb-3"></p>
+
 {% if object.classifications %}
-<p class="card-text">Classifications: {{ object.classifications }}</p>
+<p class="mb-2">Classifications: <span class="fst-italic">{{ object.classifications }}</span></p>
 {% endif %}
 
 {% endblock %}

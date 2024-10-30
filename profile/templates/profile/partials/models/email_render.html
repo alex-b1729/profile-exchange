@@ -1,2 +1,14 @@
-{% if object.type %}<span class="text-muted">{{ object.get_type_display }}</span>{% endif %}
-{{ object.email_address|urlize }}{% if object.label %} - {{ object.label }}{% endif %}
+{% extends 'profile/partials/models/model_render.html' %}
+{% block objtxt %}
+<div class="column">
+    {% with tp=object.get_info_type_display lab=object.label %}
+    {% if tp or lab %}
+    <span class="text-muted">
+        {% if tp %}({{ tp }}){% endif %}
+        {% if lab %}{{ lab }}<br/>{% endif %}
+    </span>
+    {% endif %}
+    {% endwith %}
+    {{ object.email_address|urlize }}
+</div>
+{% endblock %}
