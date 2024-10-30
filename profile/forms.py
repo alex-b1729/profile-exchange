@@ -410,6 +410,7 @@ WorkExperienceCreateUpdateForm = modelform_factory(
         'date',
         'current',
         'end_date',
+        'employment_type',
         'location',
         'work_setting',
         'description',

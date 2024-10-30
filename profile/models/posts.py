@@ -102,6 +102,10 @@ class WorkExperience(MembershipBase):
         HYBRID = 'h', _('Hybrid')
         REMOTE = 'r', _('Remote')
 
+    class EmploymentType(models.TextChoices):
+        FULL = 'f', _('Full-time')
+        PART = 'p', _('Part-time')
+
     organization = models.CharField(
         max_length=200,
         blank=False,
@@ -116,6 +120,12 @@ class WorkExperience(MembershipBase):
         choices=SettingType,
         blank=True,
         verbose_name='work setting',
+    )
+    employment_type = models.CharField(
+        max_length=1,
+        choices=EmploymentType,
+        blank=True,
+        verbose_name='employment type',
     )
 
     class Meta(MembershipBase.Meta):
