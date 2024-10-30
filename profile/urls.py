@@ -6,12 +6,18 @@ urlpatterns = [
     path('', views.profile_list, name='profile_list'),
     path('new/', views.ProfileCreateUpdateView.as_view(), name='profile_create'),
     path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
+    path(
+        'edit/<int:profile_pk>/',
+        views.ProfileCreateUpdateView.as_view(),
+        {'next': 'profile_list'},
+        name='list_profile_edit'
+    ),
     # consider [Sqids](https://sqids.org/) instead of pks
     path(
         '<int:profile_pk>/',
         include([
             path('', views.profile, name='profile'),
-            path('edit/', views.ProfileCreateUpdateView.as_view(), name='profile_edit'),
+            path('edit/', views.ProfileCreateUpdateView.as_view(), {'next': 'profile'}, name='profile_edit'),
             path('delete/', views.profile_delete, name='profile_delete'),
             path('select/', views.ProfileSelectContentView.as_view(), name='profile_content_select',),
             path('editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),

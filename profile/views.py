@@ -125,6 +125,7 @@ class ProfileCreateUpdateView(
 ):
     template_name = 'profile/manage/profile_edit.html'
     user = None
+    next = None
     profile = None
 
     def get_form(self, data=None, files=None):
@@ -133,8 +134,9 @@ class ProfileCreateUpdateView(
             data=data,
         )
 
-    def dispatch(self, request, profile_pk=None, *args, **kwargs):
+    def dispatch(self, request, next, profile_pk=None, *args, **kwargs):
         self.user = request.user
+        self.next = next
         if profile_pk:
             self.profile = get_object_or_404(
                 models.Profile,
@@ -160,7 +162,10 @@ class ProfileCreateUpdateView(
             if p.pk:
                 # editing existing
                 p.save()
-                return redirect('profile_list')
+                if self.next == 'profile_list':
+                    return redirect('profile_list')
+                else:
+                    return redirect('profile', p.pk)
             else:
                 # new profile
                 p.user = self.user
@@ -378,7 +383,6 @@ class ContentCreateUpdateView(
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
         try:
             form = getattr(forms, f'{self.model.__name__}CreateUpdateForm')
-            print(self.model.__name__)
             return form(
                 instance=instance,
                 initial=self.initial,
