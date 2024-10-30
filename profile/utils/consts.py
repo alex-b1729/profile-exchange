@@ -20,6 +20,7 @@ CONTENT_TYPES = (
     'volunteerwork',
     'education',
     'project',
+    'researchproject',
     'publishedwork',
     'patent',
 )
@@ -44,6 +45,7 @@ CONTENT_CATEGORIES = {
         'Membership',
         'License',
         'Certificate',
+        'Research Project',
     ],
     'Educational': [
         'Education',
