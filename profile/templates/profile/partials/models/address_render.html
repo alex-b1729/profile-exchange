@@ -5,8 +5,7 @@
     {% if lab or tp %}
     <span class="text-muted">
         {% if tp %}({{ tp }}){% endif %}
-        {{ lab }}
-    </span><br/>
+    </span>{{ lab }}<br/>
     {% endif %}
     {% endwith %}
     {{ object.street1 }}<br/>

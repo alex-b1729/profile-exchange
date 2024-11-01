@@ -2,13 +2,13 @@
 {% block objtxt %}
 <div class="column">
     {% with tp=object.get_info_type_display lab=object.label %}
-    {% if tp or lab %}
-    <span class="text-muted">
-        {% if tp %}({{ tp }}){% endif %}
-        {% if lab %}{{ lab }}<br/>{% endif %}
-    </span>
+    {% if tp %}<span class="text-muted">({{ tp }})</span>{% endif %}
+    {{ object.email_address|urlize }}
+    {% if lab %}
+    <p class="mb-0">
+        {% if lab %}{{ lab }}{% endif %}
+    </p>
     {% endif %}
     {% endwith %}
-    {{ object.email_address|urlize }}
 </div>
 {% endblock %}

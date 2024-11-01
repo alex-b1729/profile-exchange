@@ -2,7 +2,6 @@
 {% load static %}
 {% block objtxt %}
 <div class="column">
-    {% if object.label %}{{ object.label }}<br/>{% endif %}
     <a href="{{ object }}" target="_blank">
         {% if object.model_name == 'Website' %}
         {{ object }}
@@ -13,5 +12,6 @@
         @{{ object.url }}
         {% endif %}
     </a>
+    {% if object.label %}<p class="mb-0">{{ object.label }}</p>{% endif %}
 </div>
 {% endblock %}

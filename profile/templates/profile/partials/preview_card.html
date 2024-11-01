@@ -12,27 +12,40 @@
             {% endif %}
         </a>
 
-        <div class="btn-group position-absolute top-0 end-0 d-flex flex-column" role="group"> {# d-flex flex-row card-text #}
-            <a
-                    href="{% url 'list_profile_edit' profile.pk %}"
-                    class="btn btn-sm btn-outline-light border border-0 rounded"
-                    role="button"
-                    title="Edit">
-                <svg class="bi" width="16" height="16">
-                    <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+        <div class="position-absolute top-0 end-0 btn-group">
+            <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+                <svg width="16" height="16" class="bi">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#three-dots"></use>
                 </svg>
-            </a>
-            <form
-                    method="post"
-                    onsubmit="return confirm('Are you sure you wish to delete your {{ profile.title }} profile?');"
-                    action="{% url 'profile_delete' profile.pk %}">
-                <button class="btn btn-sm btn-outline-light border border-0 rounded" type="submit" value="deleted" title="Delete">
-                    <svg class="bi text-danger" width="16" height="16" fill="currentColor">
-                        <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
-                    </svg>
-                </button>
-                {% csrf_token %}
-            </form>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a
+                            href="{% url 'list_profile_edit' profile.pk %}"
+                            class="dropdown-item"
+                            role="button"
+                            title="Edit">
+                        <svg class="bi" width="16" height="16">
+                            <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+                        </svg>
+                        Edit
+                    </a>
+                </li>
+                <li>
+                    <form
+                            method="post"
+                            onsubmit="return confirm('Are you sure you wish to delete your {{ profile.title }} profile?');"
+                            action="{% url 'profile_delete' profile.pk %}">
+                        <button class="dropdown-item" type="submit" value="deleted" title="Delete">
+                            <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                                <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+                            </svg>
+                            Delete
+                        </button>
+                        {% csrf_token %}
+                    </form>
+                </li>
+            </ul>
         </div>
     </div>
 

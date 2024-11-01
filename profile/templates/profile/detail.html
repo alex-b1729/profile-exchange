@@ -17,7 +17,7 @@ Profile
 {% if profile.user == request.user %}
 <div class="mb-3 position-relative">
   <h4 class="mb-1">{{ profile.title }}</h4>
-  <p class="mb-2 text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
+  <p class="mb-2 text-muted">Kind: {{ profile.get_kind_display }}</p>
   {% if profile.description %}
   <p class="">{{ profile.description }}</p>
   {% endif %}
@@ -140,7 +140,7 @@ Profile
                     <ul class="dropdown-menu">
                       <li>
                         <a
-                                href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
+                                href="{% url 'profile_content_update' profile.pk att.item.model_name|lower att.item.pk %}"
                                 class="dropdown-item"
                                 role="button"
                                 title="Edit">
