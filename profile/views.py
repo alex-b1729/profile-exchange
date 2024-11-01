@@ -665,7 +665,7 @@ class ContentOrderView(
                         pk=content_pk,
                         profile__user=request.user,
                     ).update(order=order)
-            elif len(order_field)[0] == 'attachments':
+            elif list(order_field)[0] == 'attachments':
                 for attachment_pk, order in self.request_json['attachments'].items():
                     models.ContentContent.objects.filter(
                         pk=attachment_pk,
