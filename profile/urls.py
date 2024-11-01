@@ -4,8 +4,9 @@ from . import views
 
 urlpatterns = [
     path('', views.profile_list, name='profile_list'),
-    path('new/', views.ProfileCreateUpdateView.as_view(), name='profile_create'),
+    path('new/', views.ProfileCreateUpdateView.as_view(), {'next': 'profile'}, name='profile_create'),
     path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
+    path('content/<int:related_content_pk>/order', views.ContentOrderView.as_view(), name='attachment_order'),
     path(
         'edit/<int:profile_pk>/',
         views.ProfileCreateUpdateView.as_view(),
@@ -19,7 +20,7 @@ urlpatterns = [
             path('', views.profile, name='profile'),
             path('edit/', views.ProfileCreateUpdateView.as_view(), {'next': 'profile'}, name='profile_edit'),
             path('delete/', views.profile_delete, name='profile_delete'),
-            path('select/', views.ProfileSelectContentView.as_view(), name='profile_content_select',),
+            path('select/', views.ProfileSelectContentView.as_view(), name='profile_content_select', ),
             path('editdetail/', views.ProfileDetailEditView.as_view(), name='profile_detail_edit'),
             path('img/', views.update_profile_img, name='update_profile_img'),
             path('img/delete/', views.profile_img_delete, name='profile_img_delete'),
@@ -44,8 +45,14 @@ urlpatterns = [
                     ),
                 ]),
             ),
-            path('<int:content_pk>/select/', views.ProfileSelectContentView.as_view(), name='content_content_select'),
-        ])
+            path(
+                '<int:content_pk>/',
+                include([
+                    path('select/', views.ProfileSelectContentView.as_view(), name='content_content_select'),
+                    path('delete/', views.content_delete, name='content_content_delete'),
+                ])
+            ),
+        ]),
     ),
 
     # path('', views.profile_list, name='profile_list'),

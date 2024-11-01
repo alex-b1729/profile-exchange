@@ -10,60 +10,92 @@ My Content
 {% block content %}
 
 <h1>My Content</h1>
-<p>Hey {{ request.user.username }}, here's all your content.</p>
-<p>Mix and match these items in your <a href="{% url 'profile_list' %}">profiles</a>.</p>
-<a href="{% url 'add_item' %}" class="btn btn-primary">Add Content</a>
-<hr />
+<p class="mb-3"><a href="{% url 'add_item' %}" class="btn btn-primary">Add Content</a></p>
 
 {% for category, mods in content_dict.items %}
-{% if mods %}
-<div class="card mb-3">
-    <div class="card-header">
-        {{ category }}
-    </div>
-    <div class="card-body">
-        {% for mod, objs in mods.items %}
-        {% with mod_name=mod|cut:' '|lower %}
-        <h5 class="card-title">{{ mod }}</h5>
-        <ul class="list-group list-group-flush">
+<div class="my-4">
+    <h4 class="my-3">{{ category }}</h4>
+    {% for mod, objs in mods.items %}
+    {% with mod_name=mod|cut:' '|lower %}
+    <div class="px-3">
+        <h5>{{ mod }}</h5>
+        <ul class="ps-0">
             {% for obj in objs %}
-            <li class="list-group-item">
-                {{ obj.render|safe }}
-                {% with related=obj.content_related.all %}
-                {% if related %}
-                <p>
-                    <span class="text-muted">Profiles: </span>
-                    {% for r in related %}
-                    <a href="{{ r.profile.get_absolute_url }}">{{ r.profile.title }}</a>
-                    {% if not forloop.last %} | {% endif %}
-                    {% endfor %}
-                </p>
+
+            <li class="card mb-3 overflow-x-scroll">
+                <div class="card-body p-2 d-flex justify-content-between align-items-center">
+                    <div class="card-text ms-2 overflow-auto">
+                        {{ obj.render|safe }}
+                    </div>
+
+                    <div class="align-self-start btn-group dropdown-start">
+                        <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg width="16" height="16" class="bi">
+                                <use href="{% static 'svg_spiritsheet.svg' %}#three-dots"></use>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a
+                                        href="{% url 'item_update' mod_name obj.pk %}"
+                                        class="dropdown-item"
+                                        role="button"
+                                        title="Edit">
+                                    <svg class="bi" width="16" height="16">
+                                       <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+                                    </svg>
+                                    Edit
+                                </a>
+                            </li>
+                            <li>
+                                <form
+                                        method="post"
+                                        onsubmit="return confirm('This {{ mod_name }} will be removed from any profiles it appears in.\nAre you sure you wish to delete?');"
+                                        action="{% url 'item_delete' mod_name obj.pk %}">
+                                    <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted" title="Delete">
+                                        <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                                            <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                    {% csrf_token %}
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% with related=obj.content_related.all attached=obj.subcontent_related.all %}
+                {% if related or attached %}
+                <div class="card-footer">
+                    {% if related %}
+                    <p class="card-text">
+                        <span class="text-muted">Profiles: </span>
+                        {% for r in related %}
+                        <a href="{{ r.profile.get_absolute_url }}#content{{ r.pk }}">{{ r.profile.title }}</a>
+                        {% if not forloop.last %} | {% endif %}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if attached %}
+                    <p class="card-text">
+                        <span class="text-muted">Attached on: </span>
+                        {% for att in attached %}
+                        <a href="{{ att.content.profile.get_absolute_url }}#attached{{ att.pk }}">{{ att.content.profile.title }}</a>
+                        {% if not forloop.last %} | {% endif %}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                </div>
                 {% endif %}
                 {% endwith %}
-
-                <div class="d-flex flex-row">
-                    <a
-                        href="{% url 'item_update' mod_name obj.pk %}"
-                        class="btn btn-secondary btn-sm me-1">
-                        Edit
-                    </a>
-                    <form
-                            method="post"
-                            onsubmit="return confirm('This {{ mod_name }} will be removed from any profiles it appears in.\nAre you sure you wish to delete?');"
-                            action="{% url 'item_delete' mod_name obj.pk %}">
-                      <button class="btn btn-danger btn-sm me-1" type="submit" value="deleted">Delete</button>
-                      {% csrf_token %}
-                    </form>
-                </div>
             </li>
             {% endfor %}
         </ul>
-        {% endwith %}
-        {% if not forloop.last %}<hr />{% endif %}
-        {% endfor %}
     </div>
+    {% endwith %}
+    {% endfor %}
 </div>
-{% endif %}
+
 {% empty %}
 You don't have any content yet.
 {% endfor %}

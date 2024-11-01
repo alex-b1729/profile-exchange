@@ -153,6 +153,7 @@ class ProfileCreateUpdateView(
             'section': 'profiles',
             'form': form,
             'profile': self.profile,
+            'next': self.next,
         })
 
     def post(self, request, *args, **kwargs):
@@ -175,6 +176,7 @@ class ProfileCreateUpdateView(
             'section': 'profiles',
             'form': form,
             'profile': self.profile,
+            'next': self.next,
         })
 
 
@@ -481,16 +483,27 @@ class ContentCreateUpdateView(
 
 @login_required
 @require_POST
-def content_delete(request, model_name, content_pk, profile_pk=None):
+def content_delete(request, content_pk, model_name=None, profile_pk=None):
     if profile_pk:
-        # delete the content but not the item
-        content = get_object_or_404(
-            models.Content,
-            pk=content_pk,
-            profile__pk=profile_pk,
-            profile__user=request.user,
-        )
-        content.delete()
+        # delete the content or attachment but not the item
+        if model_name:
+            content = get_object_or_404(
+                models.Content,
+                pk=content_pk,
+                profile__pk=profile_pk,
+                profile__user=request.user,
+            )
+            # delete the content
+            content.delete()
+        else:
+            # delete the attached content
+            subcontent = get_object_or_404(
+                models.ContentContent,
+                pk=content_pk,
+                content__profile__pk=profile_pk,
+                content__profile__user=request.user,
+            )
+            subcontent.delete()
         return redirect('profile', profile_pk)
     else:
         # delete the actual item
@@ -644,12 +657,25 @@ class ContentOrderView(
     View,
 ):
     def post(self, request):
-        for content_pk, order in self.request_json.items():
-            models.Content.objects.filter(
-                pk=content_pk,
-                profile__user=request.user,
-            ).update(order=order)
-        return self.render_json_response({'saved': 'OK'})
+        order_field = self.request_json.keys()
+        if len(order_field) == 1:
+            if list(order_field)[0] == 'content':
+                for content_pk, order in self.request_json['content'].items():
+                    models.Content.objects.filter(
+                        pk=content_pk,
+                        profile__user=request.user,
+                    ).update(order=order)
+            elif len(order_field)[0] == 'attachments':
+                for attachment_pk, order in self.request_json['attachments'].items():
+                    models.ContentContent.objects.filter(
+                        pk=attachment_pk,
+                        content__profile__user=request.user,
+                    ).update(order=order)
+            else:
+                return None
+            return self.render_json_response({'saved': 'OK'})
+        else:
+            return None
 
 
 class ProfileCreateLink(

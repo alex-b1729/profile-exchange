@@ -1,7 +1,4 @@
 {% load static %}
-{% if request.user == profile.user %}
-<p><a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">Add Content</a></p>
-{% endif %}
 
 {% with contents=profile.contents.all %}
 {% if contents %}
@@ -9,60 +6,127 @@
 <ul id="contents" class="ps-0">
   {% for content in contents %}
   {% with item=content.item %}
-  <li class="card mb-3 overflow-x-scroll" data-id="{{ content.pk }}">
+  <li class="card mb-3 overflow-x-scroll" data-id="{{ content.pk }}" id="content{{ content.pk }}">
     <div class="card-body p-2 d-flex justify-content-between align-items-center">
-      <div class="card-text ms-2 me-auto overflow-auto">
+      <div class="card-text ms-2 me-auto overflow-auto w-100">
         {{ item.render|safe }}
         {% with attached=content.subcontents.all %}
         {% if attached %}
-        <ol>
+        <ul id="attachments{{ content.pk }}" class="list-group list-group-flush">
           {% for att in attached %}
-          <li>{{ att }}</li>
+          <li class="list-group-item" data-id="{{ att.pk }}" id="attached{{ att.pk }}">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="me-auto overflow-auto w-100">
+                {{ att.item.render }}
+              </div>
+
+              {% if request.user == profile.user %}
+              <div class="align-self-start me-1 btn-group dropdown-start">
+                <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+                  <svg width="16" height="16" class="bi">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#three-dots"></use>
+                  </svg>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                            href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
+                            class="dropdown-item"
+                            role="button"
+                            title="Edit">
+                      <svg class="bi" width="16" height="16">
+                        <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+                      </svg>
+                      Edit
+                    </a>
+                  </li>
+                  <li>
+                    <form
+                            method="post"
+                            onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
+                            action="{% url 'content_content_delete' profile.pk att.pk %}">
+                      <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted" title="Delete">
+                        <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                          <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+                        </svg>
+                        Delete
+                      </button>
+                      {% csrf_token %}
+                    </form>
+                  </li>
+                </ul>
+
+                {% if contents|length != 1 %}
+                <div class="attachmenthandle{{ content.pk }} grabbable d-flex align-items-center"> <!-- d-flex align-items-center justify-content-center mb-1"> -->
+                  <svg class="bi" width="16" height="16">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
+                  </svg>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          </li>
           {% endfor %}
-        </ol>
+        </ul>
         {% endif %}
         {% endwith %}
       </div>
 
       {% if request.user == profile.user %}
-      <div class="align-self-start me-1">
-        <div class="button-grp d-flex"> <!-- flex-column-reverse flex-md-row"> -->
-          <form
-                  method="post"
-                  onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
-                  action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
-            <button class="btn btn-sm btn-outline-light border border-0 rounded" type="submit" value="deleted" title="Delete">
-              <svg class="bi text-danger" width="16" height="16" fill="currentColor">
-                  <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+      <div class="align-self-start me-1 btn-group dropdown-start">
+        <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg width="16" height="16" class="bi">
+                <use href="{% static 'svg_spiritsheet.svg' %}#three-dots"></use>
+            </svg>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a
+                    href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
+                    class="dropdown-item"
+                    role="button"
+                    title="Edit">
+              <svg class="bi" width="16" height="16">
+                  <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
               </svg>
-            </button>
-            {% csrf_token %}
-          </form>
-          <a
-                  href="{% url 'profile_content_update' profile.pk item.model_name|lower item.pk %}"
-                  class="btn btn-sm btn-outline-light border border-0 rounded"
-                  role="button"
-                  title="Edit">
-            <svg class="bi" width="16" height="16">
-                <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
-            </svg>
-          </a>
-          <a
-                  href="{% url 'content_content_select' profile.pk content.pk %}"
-                  class="btn btn-sm btn-outline-light border border-0 rounded"
-                  title="Attach content">
-            <svg class="bi" width="16" height="16">
-                <use href="{% static 'svg_spiritsheet.svg' %}#file-earmark-plus"></use>
-            </svg>
-          </a>
-          {% if contents|length != 1 %}
-          <div class="handle grabbable"> <!-- d-flex align-items-center justify-content-center mb-1"> -->
-            <svg class="bi" width="16" height="16">
-                <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
-            </svg>
-          </div>
-          {% endif %}
+              Edit
+            </a>
+          </li>
+          <li>
+            <a
+                    href="{% url 'content_content_select' profile.pk content.pk %}"
+                    class="dropdown-item" {# btn btn-sm btn-outline-light border border-0 rounded #}
+                    title="Attach content">
+              <svg class="bi" width="16" height="16">
+                  <use href="{% static 'svg_spiritsheet.svg' %}#file-earmark-plus"></use>
+              </svg>
+              Attach content
+            </a>
+          </li>
+          <li>
+            <form
+                    method="post"
+                    onsubmit="return confirm('Are you sure you wish to delete this from your profile?');"
+                    action="{% url 'profile_content_delete' profile.pk item.model_name|lower content.pk %}">
+              <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted" title="Delete">
+                <svg class="bi text-danger" width="16" height="16" fill="currentColor">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
+                </svg>
+                Delete
+              </button>
+              {% csrf_token %}
+            </form>
+          </li>
+        </ul>
+
+        {% if contents|length != 1 %}
+        <div class="contenthandle grabbable d-flex align-items-center"> <!-- d-flex align-items-center justify-content-center mb-1"> -->
+          <svg class="bi" width="16" height="16">
+              <use href="{% static 'svg_spiritsheet.svg' %}#arrows-expand"></use>
+          </svg>
         </div>
+        {% endif %}
       </div>
       {% endif %}
     </div>

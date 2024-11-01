@@ -8,7 +8,7 @@
 
 {% with nick=profile.nickname loc=profile.location %}
 {% if nick or loc %}
-<div class="d-flex justify-content-start mb-4">
+<div class="d-flex justify-content-start mb-0">
   {% if loc %}
   <div id="location" class="fs-6 text-muted">{{ loc }}</div>
   {% endif %}
@@ -26,7 +26,7 @@
 
 {% with description=profile.about %}
 {% if description %}
-<p class="d-flex flex-wrap border-top pt-3">
+<p class="d-flex flex-wrap mt-4 mb-0">
   {{ description|linebreaksbr }}
 </p>
 {% endif %}

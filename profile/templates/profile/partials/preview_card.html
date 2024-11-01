@@ -1,10 +1,10 @@
 {% load static %}
 {% load thumbnail %}
-<div class="card me-3 mb-3" style="width:{{ card_width|default:18 }}rem">
+<div class="card me-3 mb-3" style="width:{{ card_width|default:28 }}rem">
     <div class="card-header">
         <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
-            <h4 class="mb-1 card-title">{{ profile.title }} Profile</h4>
-            <p class="card-subtitle text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
+            <h4 class="mb-1 card-title">{{ profile.title }}</h4>
+            <p class="card-subtitle text-muted">Kind: {{ profile.get_kind_display }}</p>
             {% if profile.description %}
             <div class="mt-2 card-text">
                 {{ profile.description }}
@@ -36,37 +36,43 @@
         </div>
     </div>
 
-    {% with photo=profile.photo %}
-    {% if photo %}
-    {% thumbnail photo "200x150" crop="center" as im %}
-    <a href="{{ profile.get_absolute_url }}">
-        <img src="{{ im.url }}" class="card-img-top" alt="{{ profile.title }} Profile photo" />
-    </a>
-    {% endthumbnail %}
-    {% endif %}
-    {% endwith %}
-
     <div class="card-body">
         <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
-            <p class="fw-bold mb-1 card-text">{{ profile.fn }}</p>
-            {% if profile.headline %}<p class="card-text mb-1">{{ profile.headline }}</p>{% endif %}
-            {% with nick=profile.nickname loc=profile.location %}
-            {% if nick or loc %}
-            <p class="text-muted card-text mb-1">
-                {% if loc %}
-                {{ loc }}
-                {% endif %}
+            <div class="d-flex">
+                <div class="me-3 d-flex flex-column">
+                    {% with profimg=profile.photo %}
+                    {% thumbnail profimg "100x100" crop="center" as im %}
+                    <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+                    {% empty %}
+                    <svg class="rounded" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="gray" />
+                    </svg>
+                    {% endthumbnail %}
+                    {% endwith %}
+                </div>
 
-                {% if nick and loc %}
-                &#x2022;
-                {% endif %}
+                <div class="justify-content-left flex-wrap">
+                    <p class="fw-bold mb-1 card-text">{{ profile.fn }}</p>
+                    {% if profile.headline %}<p class="card-text mb-1">{{ profile.headline }}</p>{% endif %}
+                    {% with nick=profile.nickname loc=profile.location %}
+                    {% if nick or loc %}
+                    <p class="text-muted card-text mb-1">
+                        {% if loc %}
+                        {{ loc }}
+                        {% endif %}
 
-                {% if nick %}
-                "{{ nick }}"
-                {% endif %}
-            </p>
-            {% endif %}
-            {% endwith %}
+                        {% if nick and loc %}
+                        &#x2022;
+                        {% endif %}
+
+                        {% if nick %}
+                        "{{ nick }}"
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
         </a>
     </div>
 </div>

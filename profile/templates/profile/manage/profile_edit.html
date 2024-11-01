@@ -18,7 +18,11 @@
             {{ form.description.label }}{{ form.description }}{{ form.description.errors }}
         </div>
         <input class="btn btn-primary" type="submit" value="Save" />
+        {% if profile and next == 'profile' %}
+        <a class="btn btn-secondary" href="{% url 'profile' profile.pk %}">Cancel</a>
+        {% else %}
         <a class="btn btn-secondary" href="{% url 'profile_list' %}">Cancel</a>
+        {% endif %}
         {{ form.non_field_errors }}
     </form>
 </div>

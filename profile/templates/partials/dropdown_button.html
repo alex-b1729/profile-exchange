@@ -1,5 +1,6 @@
+{% load static %}
 <button type="button" class="btn btn-light border border-dark px-1 pt-0 pb-1 {{ otherclasses }}" data-bs-toggle="dropdown" aria-expanded="false">
     <svg width="16" height="16" class="bi">
-        <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+        <use href="{% static 'svg_spiritsheet.svg' %}#three-dots"></use>
     </svg>
 </button>

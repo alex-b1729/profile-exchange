@@ -16,7 +16,7 @@ Profile
 {# user profile details #}
 {% if profile.user == request.user %}
 <div class="mb-3 position-relative">
-  <h4 class="mb-1">{{ profile.title }} Profile</h4>
+  <h4 class="mb-1">{{ profile.title }}</h4>
   <p class="mb-2 text-muted fst-italic">Kind: {{ profile.get_kind_display }}</p>
   {% if profile.description %}
   <p class="">{{ profile.description }}</p>
@@ -61,78 +61,83 @@ Profile
 </div>
 {% endif %}
 
-{# heading and pic #}
-<div class="container p-3 mb-3 d-md-flex">
-  <div class="me-5 mb-3 d-flex flex-column">
-    {% include 'profile/partials/photo.html' with profile=profile %}
+<div class="container">
+  {# heading and pic #}
+  <div class="container p-3 mb-3 d-md-flex">
+    <div class="me-5 mb-3 d-flex flex-column">
+      {% include 'profile/partials/photo.html' with profile=profile %}
+    </div>
+
+    <div class="position-relative w-100">
+      <div class="justify-content-left flex-wrap">
+        {% include 'profile/partials/header.html' with profile=profile %}
+      </div>
+
+      {% if request.user == profile.user %}
+      <span class="position-absolute top-0 end-0">
+        <a
+                href="{% url 'profile_detail_edit' profile.pk %}"
+                class="btn btn-sm btn-outline-light border border-0 rounded"
+                role="button"
+                title="Edit">
+          <svg class="bi" width="16" height="16">
+              <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
+          </svg>
+        </a>
+      </span>
+      {% endif %}
+    </div>
   </div>
 
-  <div class="justify-content-left flex-wrap position-relative">
-    {% include 'profile/partials/header.html' with profile=profile %}
-
+  {# content #}
+  <div class="container" id="profile-content">
     {% if request.user == profile.user %}
-    <span class="position-absolute top-0 end-0">
-      <a
-              href="{% url 'profile_edit' profile.pk %}"
-              class="btn btn-sm btn-outline-light border border-0 rounded"
-              role="button"
-              title="Edit">
-        <svg class="bi" width="16" height="16">
-            <use href="{% static 'svg_spiritsheet.svg' %}#pencil-square"></use>
-        </svg>
+    <div class="mb-3">
+      <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">
+        Add Content
       </a>
-    </span>
+      <a href="{% url 'profile_links' profile.pk %}" class="btn btn-secondary btn-sm">
+        Links
+      </a>
+      {% comment %}
+      <button
+          hx-get="#" {# url share #}
+          hx-target="#modals-here"
+          hx-trigger="click"
+          data-bs-toggle="modal"
+          data-bs-target="#modals-here"
+          class="dropdown-item">Share</button>
+      {% endcomment %}
+    </div>
     {% endif %}
+
+    {% include 'profile/partials/content.html' with profile=profile %}
   </div>
 </div>
-
-{% if request.user == profile.user %}
-<ul class="">
-  {% comment %}
-  <li>
-    <button
-      hx-get="#" {# url share #}
-      hx-target="#modals-here"
-      hx-trigger="click"
-      data-bs-toggle="modal"
-      data-bs-target="#modals-here"
-      class="dropdown-item">Share</button>
-  </li>
-  <li>
-    <a class="dropdown-item" href="#">Download</a> {# url 'download_card' #}
-  </li>
-  {% endcomment %}
-  <li>
-    <a class="" href="{% url 'profile_links' profile.pk %}">Links</a>
-  </li>
-</ul>
-{% endif %}
-
-{# content #}
-<div class="container" id="profile-content">
-  {% include 'profile/partials/content.html' with profile=profile %}
-</div>
-
 {% endblock %}
 
 {% block domready %}
 {% if request.user == profile.user %}
 $('#contents').sortable({
-  handle: ".handle",
+  handle: ".contenthandle",
   stop: function(event, ui) {
     contents_order = {};
     $('#contents').children().each(function() {
+      {% comment %}
       // update order field
-      $(this).find('.order').text($(this).index() + 1);
+      //$(this).find('.contentorder').text($(this).index() + 1);
       // associate the content's id with its order
+      {% endcomment %}
       contents_order[$(this).data('id')] = $(this).index();
     });
+    json_data = {};
+    json_data['content'] = contents_order;
     $.ajax({
       type: 'POST',
       url: '{% url 'content_order' %}',
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
-        data: JSON.stringify(contents_order)
+        data: JSON.stringify(json_data)
     });
   }
 });
