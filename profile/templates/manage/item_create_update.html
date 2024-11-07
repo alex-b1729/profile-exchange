@@ -1,11 +1,12 @@
 {% extends "center_card.html" %}
 {% load static %}
+{% load profile_extras %}
 
 {% block title %}
 {% if content_pk %}
-Edit {{ model_name }}
+Edit {{ form.instance|get_verbose_name }}
 {% else %}
-New {{ model_name }}
+New {{ form.instance|get_verbose_name }}
 {% endif %}
 {% endblock %}
 
@@ -15,13 +16,13 @@ New {{ model_name }}
     <div class="d-flex align-items-center justify-content-between">
         <p class="fs-4 mb-0">
             {% if content_pk %}
-            Edit {{ model_name }}
+            Edit {{ form.instance|get_verbose_name }}
             {% else %}
-            New {{ model_name }}
+            New {{ form.instance|get_verbose_name }}
             {% endif %}
         </p>
         <svg width="24" height="24" class="float-end">
-            <use href="{% static 'svg_spiritsheet.svg' %}#{{ model_name|lower }}"></use>
+            <use href="{% static 'svg_spiritsheet.svg' %}#{{ form.instance|get_verbose_name|cut:' '|lower }}"></use>
         </svg>
     </div>
 </div>

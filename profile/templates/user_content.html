@@ -18,7 +18,22 @@ My Content
     {% for mod, objs in mods.items %}
     {% with mod_name=mod|cut:' '|lower %}
     <div class="px-3">
-        <h5>{{ mod }}</h5>
+        <h5 class="d-flex align-content-between">
+            <span class="me-auto">{{ mod }}</span>
+            {% comment %}
+            {# not using this bc the cancel button on the new page redirects to content/new not content/ #}
+            <a
+                    href="{% url 'item_create' mod_name %}"
+                    type="button"
+                    class="ms-2 btn btn-sm btn-outline-primary"
+                    title="New {{ mod }}">
+                <svg width="16" height="16" class="bi mb-1" fill="currentColor">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#plus"></use>
+                </svg>
+                New {{ mod }}
+            </a>
+            {% endcomment %}
+        </h5>
         <ul class="ps-0">
             {% for obj in objs %}
 
@@ -68,7 +83,7 @@ My Content
                 {% if related or attached %}
                 <div class="card-footer">
                     {% if related %}
-                    <p class="card-text">
+                    <p class="card-text mb-0">
                         <span class="text-muted">Profiles: </span>
                         {% for r in related %}
                         <a href="{{ r.profile.get_absolute_url }}#content{{ r.pk }}">{{ r.profile.title }}</a>
@@ -77,7 +92,7 @@ My Content
                     </p>
                     {% endif %}
                     {% if attached %}
-                    <p class="card-text">
+                    <p class="card-text mt-0 mb-0">
                         <span class="text-muted">Attached on: </span>
                         {% for att in attached %}
                         <a href="{{ att.content.profile.get_absolute_url }}#attached{{ att.pk }}">{{ att.content.profile.title }}</a>

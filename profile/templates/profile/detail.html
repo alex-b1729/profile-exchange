@@ -2,6 +2,13 @@
 {% load static %}
 {% load profile_extras %}
 
+{% block dochead %}
+{{ block.super }}
+
+<meta name="robots" content="noindex">
+
+{% endblock %}
+
 {% block title %}
 {% if profile.user == request.user %}
 {{ profile.title }}
