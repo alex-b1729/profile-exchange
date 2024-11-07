@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.utils import timezone
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -216,6 +217,18 @@ class ProfileLink(models.Model):
     def record_view(self):
         self.views += 1
         self.save()
+
+    @property
+    def views_expired(self):
+        return self.max_views is not None and self.views >= self.max_views
+
+    @property
+    def time_expired(self):
+        return self.expires is not None and timezone.now() >= self.expires
+
+    @property
+    def expired(self):
+        return self.views_expired or self.time_expired
 
 
 class Connection(models.Model):
