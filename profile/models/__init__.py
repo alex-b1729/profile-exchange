@@ -44,3 +44,8 @@ from .posts import (
     ResearchProject,
     Patent,
 )
+from .tag import (
+    Skill,
+    Interest,
+    Cause,
+)

@@ -383,17 +383,24 @@ class ContentCreateUpdateView(
             self.initial.update({'model_type': mt_initial})
 
     def get_form(self, instance=None, data=None, files=None, *args, **kwargs):
+        form = None
         try:
             form = getattr(forms, f'{self.model.__name__}CreateUpdateForm')
-            return form(
-                instance=instance,
-                initial=self.initial,
-                data=data,
-                files=files,
-            )
         except AttributeError:
-            pass
-        return None
+            form = modelform_factory(
+                self.model,
+                form=forms.BootstrapModelFormMixin,
+                exclude=('user',),
+            )
+        if form:
+            return form(
+                    instance=instance,
+                    initial=self.initial,
+                    data=data,
+                    files=files,
+                )
+        else:
+            return None
 
     def set_context(self, **kwargs):
         for k, v in kwargs.items():

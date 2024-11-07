@@ -1,0 +1,13 @@
+{% load static %}
+<p class="my-0">
+    {% if object.external_link %}
+    <a href="{{ object.external_link }}" target="_blank" class="badge btn btn-secondary">
+        {{ object.label }}
+        <svg width="12" height="12" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#box-arrow-up-right"></use>
+        </svg>
+    </a>
+    {% else %}
+    <span class="badge bg-secondary">{{ object.label }}</span>
+    {% endif %}
+</p>

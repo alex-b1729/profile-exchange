@@ -23,6 +23,9 @@ CONTENT_TYPES = (
     'researchproject',
     'publishedwork',
     'patent',
+    'skill',
+    'interest',
+    'cause',
 )
 
 CONTENT_CATEGORIES = {
@@ -46,6 +49,7 @@ CONTENT_CATEGORIES = {
         'License',
         'Certificate',
         'Research Project',
+        'Skill',
     ],
     'Educational': [
         'Education',
@@ -56,7 +60,9 @@ CONTENT_CATEGORIES = {
         'Patent',
     ],
     'Interests': [
+        'Interest',
         'Volunteer Work',
+        'Cause',
     ],
 }
 
