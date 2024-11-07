@@ -375,7 +375,7 @@ LicenseCreateUpdateForm = modelform_factory(
     ),
     help_texts={
         'external_link': 'Link to organization',
-        'organization': 'Awarding organization',
+        'organization': 'Licensing organization',
     },
 )
 MembershipCreateUpdateForm = modelform_factory(
