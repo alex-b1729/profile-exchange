@@ -100,7 +100,7 @@ class Link(profile_models.ItemBase):
         return self.model_type.title
 
 
-def create_link_proxy_model(linkbase_title: str):
+def create_link_proxy_model(linkbase_title: str, verbose_name=None, verbose_name_plural=None):
     class CustomManager(models.Manager):
         def get_queryset(self, *args, **kwargs):
             return super().get_queryset(*args, **kwargs).filter(
@@ -115,6 +115,12 @@ def create_link_proxy_model(linkbase_title: str):
         def create(self, *args, **kwargs):
             kwargs.update({'model_type': LinkBase.objects.get(title=linkbase_title)})
             return super().create(*args, **kwargs)
+
+    meta_attribs = {'proxy': True}
+    if verbose_name:
+        meta_attribs['verbose_name'] = verbose_name
+    if verbose_name_plural:
+        meta_attribs['verbose_name_plural'] = verbose_name_plural
 
     # dynamic proxy model
     ProxyModel = type(
@@ -131,7 +137,7 @@ def create_link_proxy_model(linkbase_title: str):
             # when calling ProxyModel.save()
             'model_type_title': linkbase_title,
 
-            'Meta': type('Meta', (), {'proxy': True}),
+            'Meta': type('Meta', (), meta_attribs),
         }
     )
 
@@ -213,7 +219,7 @@ def create_attachment_proxy_model(attachment_type):
 
 # Links
 Website = create_link_proxy_model('Website')
-GitHub = create_link_proxy_model('GitHub')
+GitHub = create_link_proxy_model('GitHub', verbose_name='GitHub', verbose_name_plural='GitHubs')
 
 # Attachments
 Document = create_attachment_proxy_model(Attachment.AttachmentTypes.DOCUMENT)
