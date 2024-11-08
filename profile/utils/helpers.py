@@ -1,5 +1,8 @@
 from functools import wraps
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+
 
 class persist_session_vars(object):
     """
@@ -38,3 +41,10 @@ class persist_session_vars(object):
             return response
 
         return inner
+
+
+class NeverCacheMixin(object):
+    """source: https://stackoverflow.com/a/35385953"""
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super(NeverCacheMixin, self).dispatch(*args, **kwargs)

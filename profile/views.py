@@ -28,6 +28,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.views.generic.list import ListView
 from django.views.defaults import page_not_found
 from django.views.generic.detail import DetailView
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import ModelFormMixin
@@ -533,7 +534,8 @@ def content_delete(request, content_pk, model_name=None, profile_pk=None):
 
 class ProfileSelectContentView(
     LoginRequiredMixin,
-    UserMixin,
+    helpers.NeverCacheMixin,
+    # UserMixin,
     TemplateResponseMixin,
     View,
 ):
