@@ -534,7 +534,6 @@ def content_delete(request, content_pk, model_name=None, profile_pk=None):
 
 class ProfileSelectContentView(
     LoginRequiredMixin,
-    helpers.NeverCacheMixin,
     # UserMixin,
     TemplateResponseMixin,
     View,
@@ -548,6 +547,7 @@ class ProfileSelectContentView(
     form_dict = dict()
 
     def set_forms(self, data=None):
+        self.form_dict = {}
         for content_type in self.qs_dict:
             self.form_dict[content_type] = forms.ProfileSelectContentForm(
                 qs=self.qs_dict[content_type],
@@ -559,6 +559,8 @@ class ProfileSelectContentView(
 
     def set_qs_and_initial(self):
         """gets all items associated with user or content for all item models"""
+        self.qs_dict = {}
+        self.initial_dict = {}
         for content_type in consts.CONTENT_TYPES:
             mod = apps.get_model(app_label='profile', model_name=content_type)
             user_objs = mod.objects.filter(user=self.user)
