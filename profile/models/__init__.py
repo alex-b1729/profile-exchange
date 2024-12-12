@@ -6,6 +6,7 @@ from .profile import (
     ItemBase,
     ProfileLink,
     Connection,
+    ConnectionRequest,
 )
 from .contact_info import (
     ContactInfoBase,

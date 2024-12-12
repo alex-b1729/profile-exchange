@@ -63,6 +63,13 @@ class Profile(models.Model):
         symmetrical=True,
     )
 
+    requests_made = models.ManyToManyField(
+        'self',
+        through='ConnectionRequest',
+        related_name='requests_of',
+        symmetrical=False,
+    )
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -257,3 +264,72 @@ class Connection(models.Model):
 
     def get_absolute_url(self):
         return reverse('connection', kwargs={'connection_id': self.pk})
+
+
+class RequestStatus(models.TextChoices):
+    OUTSTANDING = 'o', _('Outstanding')
+    ACCEPTED = 'a', _('Accepted')
+    DECLINED = 'd', _('Declined')
+
+
+class OutstandingManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=RequestStatus.OUTSTANDING)
+
+
+class AcceptedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=RequestStatus.ACCEPTED)
+
+
+class DeclinedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=RequestStatus.DECLINED)
+
+
+class ConnectionRequest(models.Model):
+    profile_from = models.ForeignKey(
+        Profile,
+        related_name='request_from_set',
+        on_delete=models.CASCADE,
+    )
+    profile_to = models.ForeignKey(
+        Profile,
+        related_name='request_to_set',
+        on_delete=models.CASCADE,
+    )
+    message = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+    requested = models.DateTimeField(
+        auto_now_add=True,
+    )
+    status = models.CharField(
+        max_length=1,
+        choices=RequestStatus,
+        default=RequestStatus.OUTSTANDING,
+    )
+    updated = models.DateTimeField(
+        auto_now=True,
+    )
+
+    objects = models.Manager()
+    outstanding = OutstandingManager()
+    accepted = AcceptedManager()
+    declined = DeclinedManager()
+
+    class Meta:
+        ordering = ('-requested',)
+
+    def __str__(self):
+        return f'{self.profile_from} requested to follow {self.profile_to}'
+
+    def accept(self):
+        self.status = RequestStatus.ACCEPTED
+        self.save()
+        self.profile_from.connections.add(self.profile_to)
+
+    def decline(self):
+        self.status = RequestStatus.DECLINED
+        self.save()
