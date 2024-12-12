@@ -44,6 +44,15 @@ Profile
 <hr/>
 {% endif %}
 
+{# shared profile view #}
+{% if not request.user == profile.user %}
+{% if request.user.is_authenticated %}
+<a href="#">Connect!</a>
+{% else %}
+<a href="#">Login to connect</a>
+{% endif %}
+{% endif %}
+
 {% if profile.user == request.user %}
 {# from bootstrap https://htmx.org/examples/modal-bootstrap/ #}
 {# share profile modal and update image #}
