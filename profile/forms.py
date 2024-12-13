@@ -209,6 +209,25 @@ class UserEditEmailForm(forms.ModelForm):
         }
 
 
+class ConnectionRequestForm(BootstrapModelFormMixin):
+    profile_from = forms.ModelChoiceField(
+        queryset=None,
+        widget=forms.Select(),
+        required=True,
+    )
+
+    def __init__(self, qs, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['profile_from'].queryset = qs
+
+    class Meta:
+        model = models.ConnectionRequest
+        fields = (
+            'profile_from',
+            'message',
+        )
+
+
 class EmailCreateUpdateForm(BootstrapModelFormMixin):
     class Meta:
         model = models.Email

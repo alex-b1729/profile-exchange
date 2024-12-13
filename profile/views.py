@@ -5,6 +5,7 @@ import qrcode.image.svg
 from profile.utils import vcard, consts
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
+from django import forms as dforms
 from django.apps import apps
 from django.urls import reverse_lazy
 from django.db.models import Value, F, When, Q
@@ -25,7 +26,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
-from django.views.generic.list import ListView
+from django.views import generic
 from django.views.defaults import page_not_found
 from django.views.generic.detail import DetailView
 from django.views.decorators.cache import never_cache
@@ -791,6 +792,127 @@ def shared_profile_view(request, uid):
             'profile/detail.html',
             {'profile': shared_profile}
         )
+
+
+class SharedProfileView(
+    View,
+    TemplateResponseMixin,
+    ModelFormMixin,
+):
+    template_name = 'profile/shared.html'
+    shared_link: models.ProfileLink
+
+    def dispatch(self, request, *args, **kwargs):
+        qs = (
+            models.ProfileLink.objects
+            .filter(Q(expires__isnull=True) | Q(expires__gte=now()))
+            .filter(Q(max_views__isnull=True) | Q(max_views__gt=F('views')))
+        )
+        try:
+            self.shared_link = qs.get(
+                uid=kwargs.get('uid'),
+            )
+        except models.ProfileLink.DoesNotExist or models.ProfileLink.MultipleObjectsReturned:
+            return render(request, 'profile/dne.html')
+        else:
+            # store shared with links in cookies to prevent duplicated view counts
+            shared_with = request.session.get('shared_with')
+            if not shared_with:
+                request.session['shared_with'] = []
+            if str(self.shared_link.pk) not in request.session['shared_with']:
+                request.session['shared_with'].append(str(self.shared_link.pk))
+                self.shared_link.record_view()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        return self.render_to_response({
+            'section': 'connections',
+            'form': form,
+            'profile': self.shared_link.profile,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(data=request.POST)
+        self.form_valid(form)
+        return self.render_to_response({
+            'section': 'connections',
+            'form': form,
+            'profile': self.shared_link.profile,
+        })
+
+    def get_form(self, form_class=None, *args, **kwargs):
+        qs = models.Profile.objects.filter(user=self.request.user)
+        f = forms.ConnectionRequestForm(
+            qs=qs,
+            data=kwargs.get('data'),
+        )
+        print(type(f))
+        return f
+
+    def form_valid(self, form):
+        form.instance.profile_to = self.shared_link.profile
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        messages.success(
+            request=self.request,
+            message=f'Your connection request is sent',
+        )
+        return self.shared_link.get_shareable_url()
+
+
+class ConnectionRequestsView(
+    LoginRequiredMixin,
+    generic.TemplateView,
+):
+    template_name = 'following/request_list.html'
+    connection_requests = None
+
+    def get(self, request, *args, **kwargs):
+        self.connection_requests = dict()
+        self.connection_requests['outstanding'] = models.ConnectionRequest.outstanding.filter(profile_to=request.user)
+        self.connection_requests['accepted'] = models.ConnectionRequest.accepted.filter(profile_to=request.user)
+        self.connection_requests['declined'] = models.ConnectionRequest.declined.filter(profile_to=request.user)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'section': 'following',
+            'connection_requests': self.connection_requests,
+        })
+        return context
+
+
+@login_required
+@require_POST
+def follow_accept(request, request_pk):
+    r = get_object_or_404(
+        models.ConnectionRequest,
+        pk=request_pk,
+        profile_to=request.user,
+    )
+    r.accept()
+    next = 'connection_requests'
+    if 'next' in request.POST:
+        next = request.POST.get('next')
+    return redirect(next)
+
+
+@login_required
+@require_POST
+def follow_decline(request, request_pk):
+    r = get_object_or_404(
+        models.ConnectionRequest,
+        pk=request_pk,
+        profile_to=request.user,
+    )
+    r.decline()
+    next = 'connection_requests'
+    if 'next' in request.POST:
+        next = request.POST.get('next')
+    return redirect(next)
 
 
 @login_required

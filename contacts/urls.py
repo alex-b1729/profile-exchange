@@ -47,7 +47,7 @@ urlpatterns = [
             ),
         ]),
     ),
-    path('shared/<uuid:uid>/', prof_views.shared_profile_view, name='shared_profile'),
+    path('shared/<uuid:uid>/', prof_views.SharedProfileView.as_view(), name='shared_profile'),
     path(
         'connections/',
         include([

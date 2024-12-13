@@ -1,1 +1,85 @@
-<h1>todo: make this page...</h1>
+{% extends "base.html" %}
+{% load static %}
+{% load profile_extras %}
+
+{% block dochead %}
+{{ block.super }}
+
+<meta name="robots" content="noindex">
+
+{% endblock dochead %}
+
+{% block title %}
+{{ profile.fn }} | Profile
+{% endblock %}
+
+{% block content %}
+
+{# shared profile view #}
+{% if request.user.is_authenticated %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_div }}
+    <input type="submit" value="Connect" class="btn btn-primary"/>
+</form>
+{% else %}
+<a href="#">Login to connect</a>
+{% endif %}
+
+<div class="container">
+  {# heading and pic #}
+  <div class="container p-3 mb-3 d-md-flex">
+    <div class="me-5 mb-3 d-flex flex-column">
+      {% include 'profile/partials/photo.html' with profile=profile %}
+    </div>
+
+    <div class="position-relative w-100">
+      <div class="justify-content-left flex-wrap">
+        {% include 'profile/partials/header.html' with profile=profile %}
+      </div>
+    </div>
+  </div>
+
+  {# content #}
+  <div class="container" id="profile-content">
+
+    {% with contents=profile.contents.all %}
+    {% if contents %}
+    <ul id="contents" class="ps-0">
+      {% for content in contents %}
+      {% with item=content.item %}
+      <li class="card mb-3 overflow-x-scroll" data-id="{{ content.pk }}" id="content{{ content.pk }}">
+        <div class="card-body p-2 d-flex justify-content-between align-items-center">
+          <div class="card-text ms-2 me-auto overflow-auto w-100">
+            {{ item.render|safe }}
+            {% with attached=content.subcontents.all %}
+            {% if attached %}
+            <ul id="attachments{{ content.pk }}" class="list-group list-group-flush">
+              {% for att in attached %}
+              <li class="list-group-item" data-id="{{ att.pk }}" id="attached{{ att.pk }}">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="me-auto overflow-auto w-100">
+                    {{ att.item.render }}
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </li>
+      {% endwith %}
+      {% endfor %}
+    </ul>
+
+    {% else %}
+    <div class="card-body">
+      <p class="card-text">There's no content in this profile yet</p>
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+{% endblock %}
