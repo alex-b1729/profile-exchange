@@ -21,7 +21,15 @@
             <a class="nav-link{% if section == 'content' %} active{% endif %}" href="{% url 'content' %}">My Content</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if section == 'connections' %} active{% endif %}" href="{% url 'connection_list' %}">Connections</a>
+            <a class="nav-link d-flex align-items-center {% if section == 'connections' %} active{% endif %}" href="{% url 'connection_list' %}">
+              Connections
+              {% if connection_request_count != 0 %}
+              <span class="ms-1 badge rounded-pill bg-danger">
+                {{ connection_request_count }}
+                <span class="visually-hidden">connection requests outstanding</span>
+              </span>
+              {% endif %}
+            </a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled{% if section == 'messaging' %} active{% endif %}" href="#">Messaging</a>
