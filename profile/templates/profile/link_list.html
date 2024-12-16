@@ -6,76 +6,72 @@ Profile Links
 {% endblock %}
 
 {% block content %}
-<h1>Profile Links</h1>
-<p><a href="{% url 'profile_link_create' profile_pk %}">Create new link for sharing</a></p>
+<h3>Profile Links</h3>
+<p><a href="{% url 'profile_link_create' profile_pk %}">Create a new link</a></p>
 
-<ul class="ps-0 d-inline-flex flex-column">
-    {% for l in links %}
-    <li class="card mb-3{% if l.expired %} text-bg-secondary{% endif %}">
-        <div class="card-header{% if l.expired %} text-secondary{% endif %}">
-            <h4 class="card-title mb-1">{{ l.label }}</h4>
-            <p class="card-text mb-1"><a href="{% url 'profile' l.profile.pk %}">{{ l.profile.title }}</a> profile</p>
-
-            <div class="position-absolute top-0 end-0 btn-group">
-                <form
-                        method="post"
-                        onsubmit="return confirm('Are you sure you want to delete this link?');"
-                        action="{% url 'profile_link_delete' profile_pk l.uid %}">
-                    <button class="btn btn-light" type="submit" value="deleted" title="Delete">
-                        <svg class="bi text-danger" width="16" height="16" fill="currentColor">
-                            <use href="{% static 'svg_spiritsheet.svg' %}#trash"></use>
-                        </svg>
-                    </button>
-                    {% csrf_token %}
-                </form>
-            </div>
-        </div>
-        <div class="card-body{% if l.expired %} text-muted{% endif %}">
-            {% if l.expired %}<p class="text-danger mb-2">Expired</p>{% endif %}
-            <div class="border rounded d-inline-flex p-1 mb-2 {% if not l.expired %}user-select-all{% endif %}">
-                <span
-                        {% if l.expired %}
-                        class="px-1"
-                        {% else %}
-                        class="text-body px-1"
-                        style="cursor: pointer;"
-                        onclick="copyTextToClipboard('shareLink{{ l.pk }}')"
-                        tabindex="0"
-                        data-bs-container="body"
-                        data-bs-toggle="popover"
-                        data-bs-trigger="focus"
-                        data-bs-placement="top"
-                        data-bs-content="Link copied"
+{% if links %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Label</th>
+                <th scope="col">Profile</th>
+                <th scope="col">Link</th>
+                <th scope="col">Views</th>
+                <th scope="col">Expires After</th>
+                <th scope="col">Last Viewed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in links %}
+            <tr {% if link.expired %}class="table-secondary text-muted"{% endif %}>
+                <th scope="row">{{ link.label }}</th>
+                <td><a href="{% url 'profile' link.profile.pk %}">{{ link.profile.title }}</a></td>
+                <td>
+                    <div class="border rounded d-inline-flex p-1 mb-2 {% if not link.expired %}user-select-all{% endif %}">
+                        {% if not link.expired %}
+                        <span
+                                class="text-body px-1"
+                                style="cursor: pointer;"
+                                onclick="copyTextToClipboard('shareLink{{ link.pk }}')"
+                                tabindex="0"
+                                data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-trigger="focus"
+                                data-bs-placement="top"
+                                data-bs-content="Link copied"
+                        >
+                            <svg width="16" height="16" class="bi" fill="currentColor">
+                                <use href="{% static 'svg_spiritsheet.svg' %}#copy"></use>
+                            </svg>
+                        </span>
                         {% endif %}
-                >
-                    <svg width="16" height="16" class="bi" fill="currentColor">
-                        <use href="{% static 'svg_spiritsheet.svg' %}#copy"></use>
-                    </svg>
-                </span>
-                <p id="shareLink{{ l.pk }}" class="m-0 me-1">
-                    {{ url_prefix }}{{ l.get_shareable_url }}
-                </p>
-            </div>
+                        <p id="shareLink{{ link.pk }}" class="m-0 me-1">
+                            {{ url_prefix }}{{ link.get_shareable_url }}
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    {{ link.views }}
+                    {% if link.max_views %}of {{ link.max_views }}{% endif %}
+                </td>
+                <td>
+                    {% if link.expires %}
+                    {{ link.expires }}
+                    {% elif not link.max_views %}
+                    Never Expires
+                    {% else %}
+                    --
+                    {% endif %}
+                </td>
+                <td>{{ link.last_viewed|date:"Y-m-d f A" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 
-            <div class="text-muted mb-0">
-                {% if not l.expires and not l.max_views %}
-                <p class="mb-1">Never Expires</p>
-                {% else %}
-                {% if l.expires %}<p class="mb-1">Expires: {{ l.expires }}</p>{% endif %}
-                {% endif %}
-                <p class="mb-1">{{ l.views }}{% if l.max_views %}/{{ l.max_views }}{% endif %} views</p>
-            </div>
-        </div>
-        <div class="card-footer{% if l.expired %} text-muted{% endif %}">
-            <p class="card-text mb-1">Created: {{ l.created }}</p>
-            <p class="card-text mb-0">Last viewed: {{ l.last_viewed }}</p>
-        </div>
-    </li>
-    {% endfor %}
-    {% if not profile_pk %}
-    <li>You don't have any shareable links yet</li>
-    {% endif %}
-</ul>
 <script src="{% static 'js/copy_to_clip.js' %}"></script>
 {% endblock %}
 
