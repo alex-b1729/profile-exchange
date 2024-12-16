@@ -263,7 +263,7 @@ class Connection(models.Model):
         return f'{self.profile_from} -> {self.profile_to}'
 
     def get_absolute_url(self):
-        return reverse('connection', kwargs={'connection_id': self.pk})
+        return reverse('connection', kwargs={'connection_pk': self.pk})
 
 
 class RequestStatus(models.TextChoices):

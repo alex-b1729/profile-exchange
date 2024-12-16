@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}Connections{% endblock %}
+
+{% block content %}
+{% with outstanding=connection_requests.outstanding %}
+{% if outstanding %}
+<h3>Requests</h3>
+<ul>
+  {% for req in outstanding %}
+  <li>
+    {{ req.profile_from.fn }}
+    <form method="post" action="{% url 'connection_accept' req.pk %}">
+      {% csrf_token %}
+      <button type="submit" value="Accept">Accept</button>
+    </form>
+    <form method="post" action="{% url 'connection_decline' req.pk %}">
+      {% csrf_token %}
+      <button type="submit" value="Decline">Decline</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% if connections %}
+<h3>Connections</h3>
+<ul id="connection-list">
+  {% for connection in connections %}
+  <li class="profile">
+    <a href="{{ connection.get_absolute_url }}">
+      {{ connection.profile_to.fn }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% with declined=connection_requests.declined %}
+{% if declined %}
+<h3>Declined connection requests</h3>
+<ul>
+  {% for req in declined %}
+  <li>{{ req.profile_from.fn }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+{% endblock %}

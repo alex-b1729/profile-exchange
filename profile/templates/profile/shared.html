@@ -17,11 +17,30 @@
 
 {# shared profile view #}
 {% if request.user.is_authenticated %}
+{% if form %}
 <form method="post">
     {% csrf_token %}
     {{ form.as_div }}
     <input type="submit" value="Connect" class="btn btn-primary"/>
 </form>
+{% elif request_from %}
+<div>
+  <p>{{ profile.fn }} would like to connect</p>
+  {% if request_from.message %}
+  <p class="border">{{ request_from.message }}</p>
+  {% endif %}
+  <form method="post" action="{% url 'connection_accept' request_from.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" value="Accept">Accept</button>
+  </form>
+  <form method="post" action="{% url 'connection_decline' request_from.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" value="Decline">Decline</button>
+  </form>
+</div>
+{% endif %}
 {% else %}
 <a href="#">Login to connect</a>
 {% endif %}

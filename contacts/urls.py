@@ -51,8 +51,10 @@ urlpatterns = [
     path(
         'connections/',
         include([
-            path('', prof_views.connection_list, name='connection_list'),
-            path('<connection_id>/', prof_views.connection, name='connection'),
+            path('', prof_views.ConnectionListView.as_view(), name='connection_list'),
+            path('<int:connection_pk>/', prof_views.connection, name='connection'),
+            path('<int:request_pk>/accept/', prof_views.connection_accept, name='connection_accept'),
+            path('<int:request_pk>/decline/', prof_views.connection_decline, name='connection_decline'),
         ])
     ),
 
