@@ -6,8 +6,13 @@ Profile Links
 {% endblock %}
 
 {% block content %}
-<h3>Profile Links</h3>
-<p><a href="{% url 'profile_link_create' profile_pk %}">Create a new link</a></p>
+<h3>
+    <a href="{% url 'profile' profile.pk %}">{{ profile.title }}</a>
+    Profile Links
+</h3>
+<a href="{% url 'profile_link_create' profile.pk %}" class="btn btn-primary">
+    New link
+</a>
 
 {% if links %}
 <div class="table-responsive">
@@ -15,7 +20,6 @@ Profile Links
         <thead>
             <tr>
                 <th scope="col">Label</th>
-                <th scope="col">Profile</th>
                 <th scope="col">Link</th>
                 <th scope="col">Views</th>
                 <th scope="col">Expires After</th>
@@ -26,7 +30,6 @@ Profile Links
             {% for link in links %}
             <tr {% if link.expired %}class="table-secondary text-muted"{% endif %}>
                 <th scope="row">{{ link.label }}</th>
-                <td><a href="{% url 'profile' link.profile.pk %}">{{ link.profile.title }}</a></td>
                 <td>
                     <div class="border rounded d-inline-flex p-1 mb-2 {% if not link.expired %}user-select-all{% endif %}">
                         {% if not link.expired %}

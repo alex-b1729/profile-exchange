@@ -52,8 +52,9 @@
     <div class="card-body">
         <a href="{{ profile.get_absolute_url }}" class="text-reset text-decoration-none">
             <div class="d-flex">
+                {% with profimg=profile.photo %}
+                {% if profimg %}
                 <div class="me-3 d-flex flex-column">
-                    {% with profimg=profile.photo %}
                     {% thumbnail profimg "100x100" crop="center" as im %}
                     <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
                     {% empty %}
@@ -61,8 +62,9 @@
                         <rect width="100" height="100" fill="gray" />
                     </svg>
                     {% endthumbnail %}
-                    {% endwith %}
                 </div>
+                {% endif %}
+                {% endwith %}
 
                 <div class="justify-content-left flex-wrap">
                     <p class="fw-bold mb-1 card-text">{{ profile.fn }}</p>

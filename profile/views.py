@@ -740,7 +740,8 @@ class ProfileCreateLink(
 def profile_links(request, profile_pk=None):
     links = models.ProfileLink.objects.filter(profile__user=request.user)
     if profile_pk:
-        links = links.filter(profile__pk=profile_pk)
+        prof = models.Profile.objects.get(pk=profile_pk)
+        links = links.filter(profile=prof)
     return render(
         request,
         'profile/link_list.html',
@@ -748,7 +749,7 @@ def profile_links(request, profile_pk=None):
             'section': 'profiles',
             'links': links,
             'url_prefix': Site.objects.get_current(),
-            'profile_pk': profile_pk,
+            'profile': prof,
         }
     )
 
@@ -869,14 +870,7 @@ class ConnectionListView(
 
     def get(self, request, *args, **kwargs):
         self.connections = models.Connection.objects.filter(profile_from__user=request.user)
-        self.connection_requests = dict()
-        self.connection_requests['outstanding'] = models.ConnectionRequest.outstanding.filter(
-            profile_to__user=request.user
-        )
-        self.connection_requests['accepted'] = models.ConnectionRequest.accepted.filter(
-            profile_to__user=request.user
-        )
-        self.connection_requests['declined'] = models.ConnectionRequest.declined.filter(
+        self.outstanding = models.ConnectionRequest.outstanding.filter(
             profile_to__user=request.user
         )
         return super().get(request, *args, **kwargs)
@@ -886,9 +880,28 @@ class ConnectionListView(
         context.update({
             'section': 'connections',
             'connections': self.connections,
-            'connection_requests': self.connection_requests,
+            'outstanding': self.outstanding,
         })
         return context
+
+
+class DeclinedListView(
+    LoginRequiredMixin,
+    generic.ListView,
+):
+    template_name = 'profile/user/declined_list.html'
+    context_object_name = 'declined'
+
+    def get_queryset(self):
+        return models.ConnectionRequest.declined.filter(profile_to__user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'section': 'connections',
+        })
+        return context
+
 
 
 @login_required

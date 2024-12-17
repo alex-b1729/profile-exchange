@@ -4,38 +4,84 @@
 {% block title %}Connections{% endblock %}
 
 {% block content %}
-{% with outstanding=connection_requests.outstanding %}
+
 {% if outstanding %}
-<h3>Requests</h3>
-<ul>
+<h3>Requests to connect</h3>
+<div class="list-group mb-3">
   {% for req in outstanding %}
-  <li>
-    {{ req.profile_from.fn }}
-    <form method="post" action="{% url 'connection_accept' req.pk %}">
-      {% csrf_token %}
-      <button type="submit" value="Accept">Accept</button>
-    </form>
-    <form method="post" action="{% url 'connection_decline' req.pk %}">
-      {% csrf_token %}
-      <button type="submit" value="Decline">Decline</button>
-    </form>
-  </li>
+  <div class="list-group-item">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex">
+        {% with profimg=req.profile_from.photo %}
+        {% if profimg %}
+        <div class="me-3">
+          {% thumbnail profimg "60x60" crop="center" as im %}
+          <img class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+          {% endthumbnail %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <div>
+          <div class="fw-bold">{{ req.profile_from.fn }}</div>
+          {% if req.profile_from.headline %}
+          <div class="text-muted">{{ req.profile_from.headline }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="btn-group btn-group-sm" role="group">
+        <form method="post" action="{% url 'connection_accept' req.pk %}" class="m-1">
+          {% csrf_token %}
+          <button type="submit" value="Accept" class="btn btn-sm btn-primary">
+            Accept
+          </button>
+        </form>
+        <form method="post" action="{% url 'connection_decline' req.pk %}" class="m-1">
+          {% csrf_token %}
+          <button type="submit" value="Decline" class="btn btn-sm btn-outline-danger">
+            Decline
+          </button>
+        </form>
+      </div>
+    </div>
+    {% if req.message %}
+    <div class="ms-3 mt-3 p-2 d-inline-flex border rounded">
+      {{ req.message }}
+    </div>
+    {% endif %}
+  </div>
   {% endfor %}
-</ul>
+</div>
 {% endif %}
-{% endwith %}
+
+<div class="d-flex align-items-center justify-content-between">
+  <h3>Connections</h3>
+  <a href="{% url 'declined_list' %}">Declined requests</a>
+</div>
 
 {% if connections %}
-<h3>Connections</h3>
-<ul id="connection-list">
+<div class="list-group list-group-flush">
   {% for connection in connections %}
-  <li class="profile">
-    <a href="{{ connection.get_absolute_url }}">
-      {{ connection.profile_to.fn }}
-    </a>
-  </li>
+  <a href="{{ connection.get_absolute_url }}" type="button" class="list-group-item list-group-item-action">
+    <div class="d-flex align-items-center">
+      {% with profimg=connection.profile_to.photo %}
+      {% if profimg %}
+      <div class="me-3">
+        {% thumbnail profimg "60x60" crop="center" as im %}
+        <img class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+        {% endthumbnail %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <div>
+        <div class="fw-bold">{{ connection.profile_to.fn }}</div>
+        {% if connection.profile_to.headline %}
+        <div class="text-muted">{{ connection.profile_to.headline }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </a>
   {% endfor %}
-</ul>
+</div>
 {% endif %}
 
 {% with declined=connection_requests.declined %}
