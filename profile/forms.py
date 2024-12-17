@@ -172,6 +172,10 @@ class BootstrapModelFormMixin(forms.ModelForm):
                 self.fields[field].widget.attrs.update({'class': 'form-select'})
             else:
                 self.fields[field].widget.attrs.update({'class': 'form-control'})
+            if 'date' in field.lower():
+                placehold = 'YYYY-MM-DD'
+                if 'placeholder' not in self.fields[field].widget.attrs:
+                    self.fields[field].widget.attrs['placeholder'] = placehold
 
 
 class CreateProfileLink(BootstrapModelFormMixin):
