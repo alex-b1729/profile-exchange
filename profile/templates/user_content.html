@@ -8,9 +8,10 @@ My Content
 {% endblock %}
 
 {% block content %}
-
-<h1>My Content</h1>
-<p class="mb-3"><a href="{% url 'add_item' %}" class="btn btn-primary">Add Content</a></p>
+<div class="d-flex flex-wrap justify-content-between align-items-center">
+    <h2>My Content</h2>
+    <p class="mb-3"><a href="{% url 'add_item' %}" class="btn btn-primary">Add Content</a></p>
+</div>
 
 {% for category, mods in content_dict.items %}
 <div class="my-4">

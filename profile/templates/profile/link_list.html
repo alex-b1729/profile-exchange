@@ -6,13 +6,22 @@ Profile Links
 {% endblock %}
 
 {% block content %}
-<h3>
-    <a href="{% url 'profile' profile.pk %}">{{ profile.title }}</a>
-    Profile Links
-</h3>
-<a href="{% url 'profile_link_create' profile.pk %}" class="btn btn-primary">
-    New link
-</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center">
+    <h3>
+        <a href="{% url 'profile' profile.pk %}">{{ profile.title }}</a>
+        Profile Links
+    </h3>
+    <a href="{% url 'profile_link_create' profile.pk %}" class="btn btn-primary">
+        New link
+    </a>
+</div>
+
+<p>
+    Share your profile with others using these links.
+    {% if not links %}
+    <a href="{% url 'profile_link_create' profile.pk %}">Create your first link</a> to get started sharing your profile with others.
+    {% endif %}
+</p>
 
 {% if links %}
 <div class="table-responsive">
@@ -31,7 +40,7 @@ Profile Links
             <tr {% if link.expired %}class="table-secondary text-muted"{% endif %}>
                 <th scope="row">{{ link.label }}</th>
                 <td>
-                    <div class="border rounded d-inline-flex p-1 mb-2 {% if not link.expired %}user-select-all{% endif %}">
+                    <div class="d-inline-flex p-1 {% if not link.expired %}user-select-all{% endif %}">
                         {% if not link.expired %}
                         <span
                                 class="text-body px-1"
@@ -49,9 +58,9 @@ Profile Links
                             </svg>
                         </span>
                         {% endif %}
-                        <p id="shareLink{{ link.pk }}" class="m-0 me-1">
+                        <div id="shareLink{{ link.pk }}" class="border rounded m-0 px-1">
                             {{ url_prefix }}{{ link.get_shareable_url }}
-                        </p>
+                        </div>
                     </div>
                 </td>
                 <td>
