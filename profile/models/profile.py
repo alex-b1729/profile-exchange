@@ -216,9 +216,18 @@ class ProfileLink(models.Model):
     )
     views = models.IntegerField(default=0, null=False)
 
+    is_expired = models.BooleanField(
+        editable=False,
+        null=False,
+    )
+
     class Meta:
         verbose_name = 'profile link'
         verbose_name_plural = 'profile links'
+
+    def save(self, *args, **kwargs):
+        self.is_expired = self.calculate_expired
+        super().save(*args, **kwargs)
 
     def get_shareable_url(self):
         return reverse('shared_profile', kwargs={'uid': self.uid})
@@ -236,7 +245,7 @@ class ProfileLink(models.Model):
         return self.expires is not None and timezone.now() >= self.expires
 
     @property
-    def expired(self):
+    def calculate_expired(self):
         return self.views_expired or self.time_expired
 
 
