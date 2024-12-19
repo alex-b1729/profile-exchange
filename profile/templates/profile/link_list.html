@@ -37,11 +37,20 @@ Profile Links
         </thead>
         <tbody>
             {% for link in links %}
-            <tr {% if link.expired %}class="table-secondary text-muted"{% endif %}>
-                <th scope="row">{{ link.label }}</th>
+            <tr {% if link.is_expired %}class="table-secondary text-muted" title="Expired Link"{% endif %}>
+                <th scope="row">
+                    {{ link.label }}
+                    {% if link.is_expired %}
+                    <span class="text-danger">
+                        <svg width="16" height="16" class="bi" fill="currentColor">
+                            <use href="{% static 'svg_spiritsheet.svg' %}#ban"></use>
+                        </svg>
+                    </span>
+                    {% endif %}
+                </th>
                 <td>
-                    <div class="d-inline-flex p-1 {% if not link.expired %}user-select-all{% endif %}">
-                        {% if not link.expired %}
+                    <div class="d-inline-flex p-1 {% if not link.is_expired %}user-select-all{% endif %}">
+                        {% if not link.is_expired %}
                         <span
                                 class="text-body px-1"
                                 style="cursor: pointer;"

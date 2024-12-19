@@ -222,6 +222,7 @@ class ProfileLink(models.Model):
     )
 
     class Meta:
+        ordering = ['-created']
         verbose_name = 'profile link'
         verbose_name_plural = 'profile links'
 

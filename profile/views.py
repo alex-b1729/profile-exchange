@@ -738,6 +738,7 @@ class ProfileCreateLink(
 
 @login_required
 def profile_links(request, profile_pk=None):
+    prof = None
     links = models.ProfileLink.objects.filter(profile__user=request.user)
     if profile_pk:
         prof = models.Profile.objects.get(pk=profile_pk)
@@ -901,7 +902,6 @@ class DeclinedListView(
             'section': 'connections',
         })
         return context
-
 
 
 @login_required
