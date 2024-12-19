@@ -6,6 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -76,6 +77,18 @@ class Profile(models.Model):
     class Meta:
         verbose_name = 'profile'
         verbose_name_plural = 'profiles'
+
+    def save(self, *args, **kwargs):
+        # create a default link when saving new profile
+        if not self.pk:
+            new_profile = super().save()
+            share_link = ProfileLink(
+                label='Default',
+                profile=self,
+            )
+            share_link.save()
+        else:
+            super().save()
 
     def __str__(self):
         return f'{self.user.username}\'s {self.title} Profile'
@@ -185,6 +198,11 @@ class ItemBase(models.Model):
         return self.__class__.__name__
 
 
+class ActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_expired=False)
+
+
 class ProfileLink(models.Model):
     label = models.CharField(
         blank=False,
@@ -198,8 +216,8 @@ class ProfileLink(models.Model):
     profile = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
-        related_name='profiles',
-        related_query_name='profile',
+        related_name='links',
+        related_query_name='link',
     )
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(
@@ -221,6 +239,9 @@ class ProfileLink(models.Model):
         null=False,
     )
 
+    objects = models.Manager()
+    active = ActiveManager()
+
     class Meta:
         ordering = ['-created']
         verbose_name = 'profile link'
@@ -231,7 +252,7 @@ class ProfileLink(models.Model):
         super().save(*args, **kwargs)
 
     def get_shareable_url(self):
-        return reverse('shared_profile', kwargs={'uid': self.uid})
+        return f"{Site.objects.get_current()}{reverse('shared_profile', kwargs={'uid': self.uid})}"
 
     def record_view(self):
         self.views += 1

@@ -25,22 +25,17 @@ urlpatterns = [
             path('img/', views.update_profile_img, name='update_profile_img'),
             path('img/delete/', views.profile_img_delete, name='profile_img_delete'),
             path(
-                '<slug:model_name>/',
-                include([
-                    path('new/', views.ContentCreateUpdateView.as_view(), name='profile_content_create'),
-                    path('<int:content_pk>/', views.ContentCreateUpdateView.as_view(), name='profile_content_update'),
-                    path('<int:content_pk>/delete/', views.content_delete, name='profile_content_delete'),
-                ]),
-            ),
-            path(
                 'share/',
                 include([
+                    path('', views.share, name='share'),
+                    path('<int:link_pk>/', views.share, name='link_share'),
                     path(
                         'links/',
                         include([
                             path('', views.profile_links, name='profile_links'),
                             path('new/', views.ProfileCreateLink.as_view(), name='profile_link_create'),
-                            path('<uuid:link_uid>/delete/', views.profile_link_delete, name='profile_link_delete'),
+                            path('<pk>/', views.ProfileLinkDetail.as_view(), name='profile_link_detail'),
+                            path('<pk>/delete/', views.profile_link_delete, name='profile_link_delete'),
                         ]),
                     ),
                 ]),
@@ -52,7 +47,22 @@ urlpatterns = [
                     path('delete/', views.content_delete, name='content_content_delete'),
                 ])
             ),
+            path(
+                '<slug:model_name>/',
+                include([
+                    path('new/', views.ContentCreateUpdateView.as_view(), name='profile_content_create'),
+                    path('<int:content_pk>/', views.ContentCreateUpdateView.as_view(), name='profile_content_update'),
+                    path('<int:content_pk>/delete/', views.content_delete, name='profile_content_delete'),
+                ]),
+            ),
         ]),
+    ),
+    path(
+        'links/',
+        include([
+            path('', views.profile_list, name='link_list'),
+            path('<pk>/', views.ProfileLinkDetail.as_view(), name='link_detail'),
+        ])
     ),
 
     # path('', views.profile_list, name='profile_list'),

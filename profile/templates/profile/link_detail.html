@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{{ link.label }} Profile Link
+{% endblock title %}
+
+{% block content %}
+<h4 class="mb-3">
+    <a
+            {% if profile_pk %}
+            href="{% url 'profile_links' profile_pk %}"
+            {% else %}
+            href="{% url 'link_list' %}"
+            {% endif %}
+            class="text-reset text-decoration-none d-inline-flex align-items-center">
+        <svg width="20" height="20" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#chevron-left"></use>
+        </svg>
+        {% if profile_pk %}
+        {{ link.profile.title }}
+        {% endif %}
+        Profile Links
+    </a>
+</h4>
+
+<div class="card" style="max-width: 24rem;">
+    {% if qr_svg %}
+    <div class="card-img-top d-flex flex-column align-items-center">
+        <p>
+            {{ qr_svg|safe }}
+        </p>
+        <div class="d-inline-flex user-select-all">
+            <span
+                    class="text-body px-1"
+                    style="cursor: pointer;"
+                    onclick="copyTextToClipboard('shareLink{{ link.pk }}')"
+                    tabindex="0"
+                    data-bs-container="body"
+                    data-bs-toggle="popover"
+                    data-bs-trigger="focus"
+                    data-bs-placement="top"
+                    data-bs-content="Link copied"
+            >
+                <svg width="16" height="16" class="bi" fill="currentColor">
+                    <use href="{% static 'svg_spiritsheet.svg' %}#copy"></use>
+                </svg>
+            </span>
+            <span id="shareLink{{ link.pk }}" class="border rounded m-0 px-1">
+                {{ link.get_shareable_url }}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+    <div class="card-header">
+        <h4 class="card-title">{{ link.label }} Link</h4>
+        <p class="card-text">
+            <a href="{% url 'profile' link.profile.pk %}">{{ link.profile.title }}</a>
+            Profile
+        </p>
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            <span class="fw-bold">Created</span>: {{ link.created }}<br>
+        </p>
+        <p>
+            <span class="fw-bold">Views</span>:
+            {{ link.views }}
+            {% if link.max_views %}of {{ link.max_views }}{% endif %}
+            <br>
+            {% if link.expires or link.max_views %}
+            <span class="fw-bold">Expires After</span>:
+            {{ link.expires|default_if_none:'--' }}<br>
+            {% else %}
+            <span class="fw-bold">Never Expires</span>
+            {% endif %}
+        </p>
+        {% if not link.is_expired %}
+        <a href="{% url 'shared_profile' link.uid %}" target="_blank" class="btn btn-sm btn-primary">
+            Preview
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block domready %}
+const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+{% endblock domready %}

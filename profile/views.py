@@ -755,6 +755,76 @@ def profile_links(request, profile_pk=None):
     )
 
 
+class ProfileLinkDetail(
+    LoginRequiredMixin,
+    generic.DetailView,
+):
+    model = models.ProfileLink
+    context_object_name = 'link'
+    template_name = 'profile/link_detail.html'
+    profile_pk: int
+
+    def dispatch(self, request, *args, **kwargs):
+        self.profile_pk = kwargs.get('profile_pk')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        qr_svg = None
+        if not self.object.is_expired:
+            qr = qrcode.QRCode(
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                image_factory=qrcode.image.svg.SvgPathImage
+            )
+            qr.add_data(self.object.get_shareable_url())
+            qr_svg = qr.make_image()
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'section': 'profiles',
+            'profile_pk': self.profile_pk,
+            'qr_svg': qr_svg.to_string(encoding='unicode'),
+        })
+        return context
+
+
+@login_required
+def share(request, profile_pk, link_pk=None):
+    """qr code and link view of profile"""
+    prof = get_object_or_404(
+        models.Profile,
+        pk=profile_pk,
+        user=request.user,
+    )
+    if link_pk:
+        link = get_object_or_404(
+            models.ProfileLink,
+            pk=link_pk,
+            profile__user=request.user,
+            is_expired=False,
+        )
+    else:
+        link = get_object_or_404(
+            models.ProfileLink,
+            profile=prof,
+            label='Default',
+            profile__user=request.user,
+            is_expired=False,
+        )
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        image_factory=qrcode.image.svg.SvgPathImage
+    )
+    qr.add_data(link.get_shareable_url())
+    qr_svg = qr.make_image()
+    return render(
+        request,
+        'profile/partials/share_profile.html',
+        {
+            'qr_svg': qr_svg.to_string(encoding='unicode'),
+            'link': link,
+        },
+    )
+
+
 @login_required
 @require_POST
 def profile_link_delete(request, link_uid, profile_pk=None):

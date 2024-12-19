@@ -6,11 +6,19 @@ Profile Links
 {% endblock %}
 
 {% block content %}
+{% if profile %}
+<h4 class="mb-3">
+    <a href="{% url 'profile' profile.pk %}" class="text-reset text-decoration-none d-inline-flex align-items-center">
+        <svg width="20" height="20" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#chevron-left"></use>
+        </svg>
+        {{ profile.title }} Profile
+    </a>
+</h4>
+{% endif %}
+
 <div class="d-flex flex-wrap justify-content-between align-items-center">
-    <h3>
-        <a href="{% url 'profile' profile.pk %}">{{ profile.title }}</a>
-        Profile Links
-    </h3>
+    <h3>Profile Links</h3>
     <a href="{% url 'profile_link_create' profile.pk %}" class="btn btn-primary">
         New link
     </a>
@@ -29,7 +37,7 @@ Profile Links
         <thead>
             <tr>
                 <th scope="col">Label</th>
-                <th scope="col">Link</th>
+                <th scope="col">Shareable Link</th>
                 <th scope="col">Views</th>
                 <th scope="col">Expires After</th>
                 <th scope="col">Last Viewed</th>
@@ -39,17 +47,21 @@ Profile Links
             {% for link in links %}
             <tr {% if link.is_expired %}class="table-secondary text-muted" title="Expired Link"{% endif %}>
                 <th scope="row">
-                    {{ link.label }}
-                    {% if link.is_expired %}
-                    <span class="text-danger">
-                        <svg width="16" height="16" class="bi" fill="currentColor">
-                            <use href="{% static 'svg_spiritsheet.svg' %}#ban"></use>
-                        </svg>
-                    </span>
-                    {% endif %}
+                    <a href="{% url 'profile_link_detail' profile.pk link.pk %}" class="text-reset text-decoration-none">
+                        <div>
+                            {{ link.label }}
+                            {% if link.is_expired %}
+                            <span class="text-danger">
+                                <svg width="16" height="16" class="bi" fill="currentColor">
+                                    <use href="{% static 'svg_spiritsheet.svg' %}#ban"></use>
+                                </svg>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </a>
                 </th>
                 <td>
-                    <div class="d-inline-flex p-1 {% if not link.is_expired %}user-select-all{% endif %}">
+                    <div class="d-inline-flex {% if not link.is_expired %}user-select-all{% endif %}">
                         {% if not link.is_expired %}
                         <span
                                 class="text-body px-1"
@@ -68,7 +80,7 @@ Profile Links
                         </span>
                         {% endif %}
                         <div id="shareLink{{ link.pk }}" class="border rounded m-0 px-1">
-                            {{ url_prefix }}{{ link.get_shareable_url }}
+                            {{ link.get_shareable_url }}
                         </div>
                     </div>
                 </td>

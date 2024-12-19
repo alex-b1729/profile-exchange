@@ -4,29 +4,29 @@
 
 {% block dochead %}
 {{ block.super }}
-
 <meta name="robots" content="noindex">
-
-{% endblock %}
+{% endblock dochead %}
 
 {% block title %}
-{% if profile.user == request.user %}
-{{ profile.title }}
-{% else %}
-{{ profile.fn }} |
-{% endif %}
-Profile
+{{ profile.title }} Profile
 {% endblock %}
 
 {% block content %}
+<h4 class="mb-3">
+    <a href="{% url 'profile_list' %}" class="text-reset text-decoration-none d-inline-flex align-items-center">
+        <svg width="20" height="20" class="bi" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#chevron-left"></use>
+        </svg>
+        Profiles
+    </a>
+</h4>
 
 {# user profile details #}
-{% if profile.user == request.user %}
-<div class="mb-3 position-relative">
+<div class="mb-3 p-2 position-relative border rounded border-secondary">
   <h4 class="mb-1">{{ profile.title }}</h4>
-  <p class="mb-2 text-muted">Kind: {{ profile.get_kind_display }}</p>
+  <p class="my-0 text-muted">Kind: {{ profile.get_kind_display }}</p>
   {% if profile.description %}
-  <p class="">{{ profile.description }}</p>
+  <p class="mt-2 mb-0">{{ profile.description }}</p>
   {% endif %}
 
   <span class="position-absolute top-0 end-0">
@@ -41,47 +41,70 @@ Profile
     </a>
   </span>
 </div>
-<hr/>
-{% endif %}
 
-{# shared profile view #}
-{% if not request.user == profile.user %}
-{% if request.user.is_authenticated %}
-<a href="#">Connect!</a>
-{% else %}
-<a href="#">Login to connect</a>
-{% endif %}
-{% endif %}
-
-{% if profile.user == request.user %}
 {# from bootstrap https://htmx.org/examples/modal-bootstrap/ #}
 {# share profile modal and update image #}
-<div id="modals-here"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1">
+<div
+        id="share-modal"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content"></div>
     </div>
 </div>
 
-<div id="update-img-model"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1">
+<div
+        id="update-img-model"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content"></div>
     </div>
 </div>
-{% endif %}
 
 <div class="container">
   {# heading and pic #}
   <div class="container p-3 mb-3 d-md-flex">
     <div class="me-5 mb-3 d-flex flex-column">
-      {% include 'profile/partials/photo.html' with profile=profile %}
+      <div class="position-relative">
+        {% include 'profile/partials/photo.html' with profile=profile %}
+
+        <span class="position-absolute top-0 start-0 dropdown">
+          {% include 'partials/dropdown_button.html' %}
+          <ul class="dropdown-menu">
+            <li>
+              <button
+                hx-get="{% url 'update_profile_img' profile.pk %}"
+                hx-target="#update-img-model"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#update-img-model"
+                class="dropdown-item">
+                {% if profile.photo %}
+                Update
+                {% else %}
+                Upload Image
+                {% endif %}
+              </button>
+            </li>
+            {% if profile.photo %}
+            <li>
+              <form
+                      method="post"
+                      onsubmit="return confirm('Are you sure you wish to delete your profile picture?');"
+                      action="{% url 'profile_img_delete' profile.pk %}">
+                <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
+                {% csrf_token %}
+              </form>
+            </li>
+            {% endif %}
+          </ul>
+        </span>
+      </div>
     </div>
 
     <div class="position-relative w-100">
@@ -107,14 +130,65 @@ Profile
 
   {# content #}
   <div class="container" id="profile-content">
-    {% if request.user == profile.user %}
     <div class="mb-3">
-      <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary btn-sm">
+      <a href="{% url 'profile_content_select' profile.pk %}" class="btn btn-secondary">
         Add Content
       </a>
-      <a href="{% url 'profile_links' profile.pk %}" class="btn btn-secondary btn-sm">
-        Share
+      <a href="{% url 'profile_links' profile.pk %}" class="btn btn-secondary">
+        Manage Links
       </a>
+      <div class="btn-group">
+        <button
+                hx-get="{% url 'share' profile.pk %}"
+                hx-target="#share-modal"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#share-modal"
+                class="btn btn-secondary d-flex align-items-center">
+          <svg width="16" height="16" class="bi me-2" fill="currentColor">
+            <use href="{% static 'svg_spiritsheet.svg' %}#qr-code-scan"></use>
+          </svg>
+          Share
+        </button>
+        <button
+                type="button"
+                class="btn btn-secondary dropdown-toggle dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                data-bs-reference="parent">
+          <span class="visually-hidden">Toggle Share Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+          {% for link in profile.links.all %}
+          {% if not link.is_expired %}
+          <li>
+            <button
+              type="button"
+              hx-get="{% url 'link_share' profile.pk link.pk %}"
+              hx-target="#share-modal"
+              hx-trigger="click"
+              data-bs-toggle="modal"
+              data-bs-target="#share-modal"
+              class="dropdown-item">
+              <svg width="16" height="16" class="bi me-2" fill="currentColor">
+                <use href="{% static 'svg_spiritsheet.svg' %}#qr-code-scan"></use>
+              </svg>
+              {{ link.label }}
+            </button>
+          </li>
+          {% endif %}
+          {% endfor %}
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a href="{% url 'profile_link_create' profile.pk %}" class="dropdown-item">
+              <svg width="16" height="16" class="bi me-2" fill="currentColor">
+                <use href="{% static 'svg_spiritsheet.svg' %}#plus"></use>
+              </svg>
+              New Link
+            </a>
+          </li>
+        </ul>
+      </div>
       {% comment %}
       <button
           hx-get="#" {# url share #}
@@ -125,7 +199,6 @@ Profile
           class="dropdown-item">Share</button>
       {% endcomment %}
     </div>
-    {% endif %}
 
     {% with contents=profile.contents.all %}
     {% if contents %}
@@ -146,7 +219,6 @@ Profile
                     {{ att.item.render }}
                   </div>
 
-                  {% if request.user == profile.user %}
                   <div class="align-self-start me-1 btn-group dropdown-start">
                     <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
                       <svg width="16" height="16" class="bi">
@@ -190,7 +262,6 @@ Profile
                     </div>
                     {% endif %}
                   </div>
-                  {% endif %}
                 </div>
               </li>
               {% endfor %}
@@ -199,7 +270,6 @@ Profile
             {% endwith %}
           </div>
 
-          {% if request.user == profile.user %}
           <div class="align-self-start me-1 btn-group dropdown-start">
             <button type="button" class="me-2 btn btn-sm btn-outline-light border border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
                 <svg width="16" height="16" class="bi">
@@ -254,7 +324,6 @@ Profile
             </div>
             {% endif %}
           </div>
-          {% endif %}
         </div>
       </li>
       {% endwith %}
@@ -273,8 +342,6 @@ Profile
 {% endblock %}
 
 {% block domready %}
-{% if request.user == profile.user %}
-
 $('#contents').sortable({
   handle: ".contenthandle",
   opacity: 0.7,
@@ -334,5 +401,4 @@ $('#attachments{{ content.pk }}').sortable({
 {% endif %}
 {% endwith %}
 
-{% endif %}
 {% endblock %}

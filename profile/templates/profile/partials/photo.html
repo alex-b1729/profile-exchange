@@ -1,45 +1,10 @@
 {% load thumbnail %}
-<div class="position-relative">
-  {% with profimg=profile.photo %}
-  {% thumbnail profimg "200x200" crop="center" as im %}
-  <img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
-  {% empty %}
-  <svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-    <rect width="200" height="200" fill="gray" />
-  </svg>
-  {% endthumbnail %}
-  {% if profile.user == request.user %}
-  <span class="position-absolute top-0 start-0 dropdown">
-    {% include 'partials/dropdown_button.html' %}
-    <ul class="dropdown-menu">
-      <li>
-        <button
-          hx-get="{% url 'update_profile_img' profile.pk %}"
-          hx-target="#update-img-model"
-          hx-trigger="click"
-          data-bs-toggle="modal"
-          data-bs-target="#update-img-model"
-          class="dropdown-item">
-          {% if profimg %}
-          Update
-          {% else %}
-          Upload Image
-          {% endif %}
-        </button>
-      </li>
-      {% if profimg %}
-      <li>
-        <form
-                method="post"
-                onsubmit="return confirm('Are you sure you wish to delete your profile picture?');"
-                action="{% url 'profile_img_delete' profile.pk %}">
-          <button class="dropdown-item btn btn-link link-danger" type="submit" value="deleted">Delete</button>
-          {% csrf_token %}
-        </form>
-      </li>
-      {% endif %}
-    </ul>
-  </span>
-  {% endif %}
-  {% endwith %}
-</div>
+{% with profimg=profile.photo %}
+{% thumbnail profimg "200x200" crop="center" as im %}
+<img id="PHOTO" class="rounded" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="{{ profile.card.FN }} profile photo">
+{% empty %}
+<svg class="rounded" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="gray" />
+</svg>
+{% endthumbnail %}
+{% endwith %}
