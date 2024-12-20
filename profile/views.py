@@ -802,13 +802,25 @@ def share(request, profile_pk, link_pk=None):
             is_expired=False,
         )
     else:
-        link = get_object_or_404(
-            models.ProfileLink,
+        all_links = models.ProfileLink.objects.filter(
             profile=prof,
-            label='Default',
             profile__user=request.user,
             is_expired=False,
         )
+        if not all_links.exists():
+            # create new default sharing link
+            link = models.ProfileLink(
+                profile=prof,
+                label='Default',
+            )
+            link.save()
+        else:
+            link = all_links.filter(label='Default')
+            if not link.exists():
+                link = all_links.first()
+            elif link.count() > 1:
+                link = link.first()
+
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         image_factory=qrcode.image.svg.SvgPathImage
