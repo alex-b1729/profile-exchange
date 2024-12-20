@@ -1,4 +1,5 @@
 {% load static %}
+{% load profile_extras %}
 <div class="mb-0">
     <h5 class="mb-1">
         {% block posttitle %}
@@ -39,6 +40,6 @@
     {% endblock %}
 
     {% if object.description %}
-    {{ object.description|linebreaks }}
+    {{ object.description|markdown|linebreaks }}
     {% endif %}
 </div>
