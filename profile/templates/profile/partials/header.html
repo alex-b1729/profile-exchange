@@ -2,32 +2,34 @@
 
 {% with headline=profile.headline %}
 {% if headline %}
-<p id="headline" class="mb-0">{{ headline }}</p>
+<div id="headline" class="mb-0">{{ headline }}</div>
+{% else %}
+<div class="mb-1 px-1 border rounded text-muted" style="max-width: 350px;">Headline</div>
 {% endif %}
 {% endwith %}
 
 {% with nick=profile.nickname loc=profile.location %}
-{% if nick or loc %}
 <div class="d-flex justify-content-start mb-0">
   {% if loc %}
   <div id="location" class="fs-6 text-muted">{{ loc }}</div>
+  {% else %}
+  <div class="mb-0 px-1 border rounded text-muted me-1" style="width: 114px;">Location</div>
   {% endif %}
-
-  {% if nick and loc %}
   <div class="fs-6 text-muted mx-2"> &#x2022; </div>
-  {% endif %}
-
   {% if nick %}
   <div id="NICKNAME" class="fs-6 text-muted">"{{ nick }}"</div>
+  {% else %}
+  <div class="mb-0 ms-1 px-1 border rounded text-muted" style="width: 113px;">Nickname</div>
   {% endif %}
 </div>
-{% endif %}
 {% endwith %}
 
 {% with description=profile.about %}
 {% if description %}
-<p class="d-flex flex-wrap mt-4 mb-0">
-  {{ description|linebreaksbr }}
+<p class="d-flex flex-wrap mt-4 mb-0">{{ description|linebreaksbr }}</p>
+{% else %}
+<p class="d-flex flex-wrap mt-4 mb-0 p-1 border rounded text-muted" style="height: 90px;">
+  About
 </p>
 {% endif %}
 {% endwith %}

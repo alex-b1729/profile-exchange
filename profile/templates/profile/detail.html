@@ -70,7 +70,7 @@
   {# heading and pic #}
   <div class="container p-3 mb-3 d-md-flex">
     <div class="me-5 mb-3 d-flex flex-column">
-      <div class="position-relative">
+      <div class="position-relative" style="max-width: 200px;">
         {% include 'profile/partials/photo.html' with profile=profile %}
 
         {% if profile.photo %}
@@ -111,7 +111,7 @@
             class="btn btn-outline-light"
             title="Add photo">
             <svg class="bi" width="28" height="28" fill="currentColor">
-                <use href="{% static 'svg_spiritsheet.svg' %}#plus"></use>
+              <use href="{% static 'svg_spiritsheet.svg' %}#plus"></use>
             </svg>
           </button>
         </span>
