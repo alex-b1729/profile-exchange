@@ -865,13 +865,15 @@ class SharedProfileView(
             return render(request, 'profile/dne.html')
         else:
             self.user = request.user
-            # store shared with links in cookies to prevent duplicated view counts
-            shared_with = request.session.get('shared_with')
-            if not shared_with:
-                request.session['shared_with'] = []
-            if str(self.shared_link.pk) not in request.session['shared_with']:
-                request.session['shared_with'].append(str(self.shared_link.pk))
-                self.shared_link.record_view()
+            # don't count views of profile's user
+            if not self.user == self.shared_link.profile.user:
+                # store shared with links in cookies to prevent duplicated view counts
+                shared_with = request.session.get('shared_with')
+                if not shared_with:
+                    request.session['shared_with'] = []
+                if str(self.shared_link.pk) not in request.session['shared_with']:
+                    request.session['shared_with'].append(str(self.shared_link.pk))
+                    self.shared_link.record_view()
             self.set_request_to_from()
         return super().dispatch(request, *args, **kwargs)
 

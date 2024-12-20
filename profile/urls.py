@@ -60,7 +60,7 @@ urlpatterns = [
     path(
         'links/',
         include([
-            path('', views.profile_list, name='link_list'),
+            path('', views.profile_links, name='link_list'),
             path('<pk>/', views.ProfileLinkDetail.as_view(), name='link_detail'),
         ])
     ),
