@@ -19,12 +19,10 @@ Profile Links
 
 <div class="d-flex flex-wrap justify-content-between align-items-center">
     <h3>
-        {% if profile %}
-        <a href="{% url 'profile' profile.pk %}">{{ profile.title }}</a>
-        {% else %}
+        {% if not profile %}
         All
         {% endif %}
-        profile links
+        Links
     </h3>
     {% if profile %}
     <a href="{% url 'profile_link_create' profile.pk %}" class="btn btn-primary">
@@ -52,7 +50,7 @@ Profile Links
 </div>
 
 <p>
-    Share your profile with others using these links.
+    Share your {{ profile.title }} profile with others using these links.
     {% if not links %}
     <a href="{% url 'profile_link_create' profile.pk %}">Create your first link</a> to get started sharing your profile with others.
     {% endif %}

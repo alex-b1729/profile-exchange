@@ -818,7 +818,7 @@ def share(request, profile_pk, link_pk=None):
             link = all_links.filter(label='Default')
             if not link.exists():
                 link = all_links.first()
-            elif link.count() > 1:
+            elif link.count() >= 1:
                 link = link.first()
 
     qr = qrcode.QRCode(

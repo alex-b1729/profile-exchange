@@ -61,28 +61,36 @@
     </div>
     <div class="card-body">
         <p class="card-text">
-            <span class="fw-bold">Created</span>: {{ link.created }}<br>
+            <span class="fw-bold">Created:</span> {{ link.created }}<br>
         </p>
-        <p>
-            <span class="fw-bold">Views</span>:
+        <p class="card-text">
+            <span class="fw-bold">Views:</span>
             {{ link.views }}
             {% if link.max_views %}of {{ link.max_views }}{% endif %}
             <br>
             {% if link.expires or link.max_views %}
-            <span class="fw-bold">Expires After</span>:
-            {{ link.expires|default_if_none:'--' }}<br>
+            <span class="fw-bold">Expires After:</span>
+            {{ link.expires|default_if_none:'--' }}
             {% else %}
             <span class="fw-bold">Never Expires</span>
             {% endif %}
         </p>
-        {% if not link.is_expired %}
+        {% if link.views > 0 %}
+        <p class="card-text">
+            <span class="fw-bold">Last viewed:</span>
+            {{ link.last_viewed }}
+        </p>
+        {% endif %}
+    </div>
+    {% if not link.is_expired %}
+    <div class="card-footer">
         <a href="{% url 'shared_profile' link.uid %}" target="_blank" class="btn btn-sm btn-primary">
             Preview
         </a>
-        {% endif %}
     </div>
+    {% endif %}
 </div>
-
+<script src="{% static 'js/copy_to_clip.js' %}"></script>
 {% endblock content %}
 
 {% block domready %}

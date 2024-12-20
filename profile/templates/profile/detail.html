@@ -73,6 +73,7 @@
       <div class="position-relative">
         {% include 'profile/partials/photo.html' with profile=profile %}
 
+        {% if profile.photo %}
         <span class="position-absolute top-0 start-0 dropdown">
           {% include 'partials/dropdown_button.html' %}
           <ul class="dropdown-menu">
@@ -84,14 +85,9 @@
                 data-bs-toggle="modal"
                 data-bs-target="#update-img-model"
                 class="dropdown-item">
-                {% if profile.photo %}
                 Update
-                {% else %}
-                Upload Image
-                {% endif %}
               </button>
             </li>
-            {% if profile.photo %}
             <li>
               <form
                       method="post"
@@ -101,9 +97,25 @@
                 {% csrf_token %}
               </form>
             </li>
-            {% endif %}
+
           </ul>
         </span>
+        {% else %}
+        <span class="position-absolute top-50 start-50 translate-middle">
+          <button
+            hx-get="{% url 'update_profile_img' profile.pk %}"
+            hx-target="#update-img-model"
+            hx-trigger="click"
+            data-bs-toggle="modal"
+            data-bs-target="#update-img-model"
+            class="btn btn-outline-light"
+            title="Add photo">
+            <svg class="bi" width="28" height="28" fill="currentColor">
+                <use href="{% static 'svg_spiritsheet.svg' %}#plus"></use>
+            </svg>
+          </button>
+        </span>
+        {% endif %}
       </div>
     </div>
 

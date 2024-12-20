@@ -67,11 +67,11 @@
                 {% endwith %}
 
                 <div class="justify-content-left flex-wrap">
-                    <p class="fw-bold mb-1 card-text">{{ profile.fn }}</p>
-                    {% if profile.headline %}<p class="card-text mb-1">{{ profile.headline }}</p>{% endif %}
+                    <h5 class="mb-0 card-text">{{ profile.fn }}</h5>
+                    {% if profile.headline %}<p class="card-text mb-0">{{ profile.headline }}</p>{% endif %}
                     {% with nick=profile.nickname loc=profile.location %}
                     {% if nick or loc %}
-                    <p class="text-muted card-text mb-1">
+                    <p class="text-muted card-text mb-0">
                         {% if loc %}
                         {{ loc }}
                         {% endif %}
