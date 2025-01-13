@@ -40,6 +40,10 @@
     <button type="submit" value="Decline">Decline</button>
   </form>
 </div>
+{% elif form and request.user == profile.user %}
+<div>
+  <a href="{% url 'profile' profile.pk %}">Exit preview mode</a>
+</div>
 {% endif %}
 {% else %}
 <a href="#">Login to connect</a>
