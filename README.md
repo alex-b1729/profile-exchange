@@ -18,9 +18,9 @@ Godel has two profiles: one to share with professional contacts, and one for fam
 
 Example profile: 
 
-![Profile list](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profile-head.png?raw=true)
+![Profile head](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profile-head.png?raw=true)
 
 Share profiles with links or QR codes: 
 
-![Profile list](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profiles-share.png?raw=true)
+![Profile share link](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profiles-link.png?raw=true)
 
