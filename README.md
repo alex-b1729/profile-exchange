@@ -22,5 +22,5 @@ Example profile:
 
 Share profiles with links or QR codes: 
 
-![Profile share link](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profiles-link.png?raw=true)
+![Profile share link](https://github.com/alex-b1729/profile-exchange/blob/assets/resources/screenshots/profile-share.png?raw=true)
 
